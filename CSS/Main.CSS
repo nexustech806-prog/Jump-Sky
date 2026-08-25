@@ -1,0 +1,123 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body{
+    background-color: #292943;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    color: #a7bdde;
+}
+
+header{
+    padding-bottom: 30px;
+}
+
+.Menu{
+    background-color: #3a3a80;
+    height: 70px;
+    align-items: center;
+    align-content: center;
+    border-radius: 0px 0px 10px 10px;
+}
+
+.Menu-Content{
+    display: flex;
+   gap: 80%;
+   padding: 20px;
+}
+
+.Container-Card {
+    flex: 1 1 300px;
+    max-width: 350px;
+    padding: 30px;
+    border-radius: 10px;
+    background-color: #3a3a80;
+    align-items: center;
+    text-align: center;
+}
+
+.Container-First-Section{
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-around;
+    gap: 40px;
+    width: 100%;
+    padding: 20px;
+}
+
+.container-rank {
+    width: 100%;
+    max-width: 500px;
+    padding: 20px;
+    margin: 40px auto;
+}
+
+/* Seção do Topo */
+.top-ranking {
+    text-align: center;
+}
+
+.top-ranking h2 {
+    margin-bottom: 5px;
+    font-size: 1.8rem;
+    color: #a855f7; /* Roxo vibrante */
+}
+
+.top-ranking p {
+    color: #94a3b8;
+    margin-bottom: 20px;
+    font-size: 0.95rem;
+}
+
+/* Card do Ranking (Efeito Vidro/Dark) */
+.card-ranking {
+    background: #1e1e2f;
+    border-radius: 12px;
+    padding: 20px;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+    border: 1px solid #2d2b42;
+}
+
+/* Estilização da Tabela */
+table {
+    width: 100%;
+    border-collapse: collapse;
+    text-align: left;
+}
+
+.table-title {
+    padding: 12px;
+    background-color: #27273a;
+    color: #c084fc;
+    font-weight: 600;
+    font-size: 0.9rem;
+    border-bottom: 2px solid #3f3f5f;
+}
+
+.table-title:first-child {
+    border-top-left-radius: 6px;
+    border-bottom-left-radius: 6px;
+}
+
+.table-title:last-child {
+    border-top-right-radius: 6px;
+    border-bottom-right-radius: 6px;
+}
+
+.table-content {
+    padding: 14px 12px;
+    border-bottom: 1px solid #27273a;
+    color: #e2e8f0;
+    font-size: 0.9rem;
+}
+
+/* Efeito ao passar o mouse nas linhas */
+tbody tr:hover {
+    background-color: rgba(168, 85, 247, 0.05);
+}
+
+tr:last-child .table-content {
+    border-bottom: none;
+}
