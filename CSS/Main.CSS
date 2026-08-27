@@ -7,7 +7,12 @@
 body{
     background-color: #292943;
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    color: #a7bdde;
+    color: #ffffff;
+}
+
+a {
+    text-decoration: none; 
+    color: inherit;
 }
 
 header{
@@ -20,6 +25,8 @@ header{
     align-items: center;
     align-content: center;
     border-radius: 0px 0px 10px 10px;
+    text-decoration: none;
+    color: inherit;
 }
 
 .Menu-Content{
@@ -27,6 +34,7 @@ header{
    gap: 80%;
    padding: 20px;
 }
+
 
 .Container-Card {
     flex: 1 1 300px;
@@ -113,11 +121,66 @@ table {
     font-size: 0.9rem;
 }
 
-/* Efeito ao passar o mouse nas linhas */
 tbody tr:hover {
     background-color: rgba(168, 85, 247, 0.05);
 }
 
 tr:last-child .table-content {
     border-bottom: none;
+}
+
+
+
+.container-forms {
+    background-color: #1e1e2f;
+    width: 350px;
+    padding: 30px;
+    border-radius: 10px;
+    margin: 50px auto 0 auto;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.container-forms form {
+    display: flex;
+    flex-direction: column;
+    gap: 20px; /* Cria um espaçamento uniforme entre cada bloco */
+    width: 100%;
+}
+
+/* Cada grupo de input/label fica em coluna */
+.input-group, .btn-group {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start; /* Alinha os textos à esquerda do card */
+    width: 100%;
+}
+
+.input-group input {
+    width: 100%;
+    padding: 8px;
+    margin-top: 5px;
+}
+
+/* Grupo do link de cadastro */
+.link-group {
+    margin-top: -5px;
+}
+
+.link-group p {
+    font-size: 0.9rem;
+    color: #fff;
+}
+
+.link-group a {
+    text-decoration: none;
+    color: #a855f7;
+    font-size: 0.85rem;
+}
+
+
+a {
+    text-decoration: none;
+    color: inherit;
 }
