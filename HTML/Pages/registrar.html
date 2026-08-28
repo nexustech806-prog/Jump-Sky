@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Document</title>
-    <link rel="stylesheet" href="/CSS/Main.CSS">
+    <link rel="stylesheet" href="/CSS/Style.CSS">
 </head>
 <body>
     <nav>
@@ -12,7 +12,7 @@
             <section class="Menu-Content">
                 <Span class="Game-Title"><a href="Index.Html">Jump Sky</a></Span>
                 <div>
-                <span><a href="#">Jogar </a></span>
+                <span><a href="/HTML/Game/FirstScene.html">Jogar </a></span>
                 <span><a href="login.html"> Entrar</a> </span>
                 <span> <a href="registrar.html"> Registrar</a></span>
                 </div>
@@ -20,26 +20,26 @@
         </div>
     </nav>
 
-    <div class="container-login">
+    <div class="container-login-register">
         <section class="container-forms">
-            <form action="">
+            <form onsubmit="createUser(event)">
                 
                 <div class="input-group">
                     <label>Crie um apelido</label>
-                    <input type="text" placeholder="Crie um apelido">
+                    <input type="text" id="login_reg" placeholder="Crie um apelido">
                 </div>
 
                 <div class="input-group">
                     <label>Crie uma senha</label>
-                    <input type="password" placeholder="Digite sua senha aqui">
+                    <input type="password" id="password_reg" placeholder="Digite sua senha aqui">
                 </div>
                 <div class="input-group">
                     <label>Confirme sua senha</label>
-                    <input type="password" placeholder="Digite sua senha aqui">
+                    <input type="password" id="confirm_password_reg" placeholder="Digite sua senha aqui">
                 </div>
                 <div class="btn-group">
                     <label>Aperte para se registrar</label>
-                    <button type="submit">Registrar-se</button>
+                    <button type="submit" id="bttn_reg">Registrar-se</button>
                 </div>
 
                 <div class="link-group">
@@ -50,5 +50,6 @@
             </form>
         </section>
     </div>
+    <script src="/JS/register.js"></script>
 </body>
 </html>    

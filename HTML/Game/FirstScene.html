@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Somando nas Nuvens</title>
+    
+    <!-- Conecta o CSS -->
+    <link rel="stylesheet" href="/CSS/Scenes.css">
+</head>
+
+<body>
+
+   <div id="intro">
+
+    <img src="/images/intro.jpeg" alt="Introdução da fase">
+
+</div>
+    <main class="game-container">
+
+        <!-- Título -->
+        <h1>Fase 1 – Somando nas Nuvens</h1>
+
+        <!-- Explicação -->
+        <p class="subtitle">
+            Acerte a conta e o personagem pula para a próxima plataforma!
+        </p>
+
+
+        <!-- Informações do jogo -->
+        <div class="stats">
+
+            <div class="stat">
+                ⭐ Acertos: <span id="hits">0</span>
+            </div>
+
+            <div class="stat">
+                🔄 Tentativas erradas: <span id="errors">0</span>
+            </div>
+
+            <div class="stat">
+                🏁 Plataforma <span id="currentPlatform">1</span> de 5
+            </div>
+
+        </div>
+
+
+        <!-- Cenário -->
+        <section class="scene">
+
+            <!-- Sol -->
+            <div class="sun"></div>
+
+            <!-- Nuvens -->
+            <div class="cloud cloud-1"></div>
+            <div class="cloud cloud-2"></div>
+
+
+            <!-- Plataformas -->
+            <div class="platform current" id="platform0">
+                Início
+            </div>
+
+            <div class="platform" id="platform1">
+                ?
+            </div>
+
+            <div class="platform" id="platform2">
+                ?
+            </div>
+
+            <div class="platform" id="platform3">
+                ?
+            </div>
+
+            <div class="platform" id="platform4">
+                Chegada!
+            </div>
+
+
+           <!-- Personagem -->
+            <div class="character" id="character">
+
+            <!-- Imagem do personagem -->
+            <img src="/images/Personagem.png"  alt="Personagem do jogo">
+
+            </div>
+
+
+            <!-- Chão -->
+            <div class="ground"></div>
+
+        </section>
+
+
+        <!-- Pergunta -->
+        <section class="question-panel">
+
+            <h2 id="question">
+                Quanto é 7 + 6?
+            </h2>
+
+
+            <!-- Respostas -->
+            <div class="answers">
+
+                <button class="answer-btn">12</button>
+                <button class="answer-btn">14</button>
+                <button class="answer-btn">13</button>
+
+            </div>
+
+
+            <!-- Botão reiniciar -->
+            <button id="restartBtn">
+                Jogar novamente
+            </button>
+
+        </section>
+
+    </main>
+
+
+    <!-- Conecta o JavaScript -->
+    <script src="/JS/script.js"></script>
+
+</body>
+</html>
