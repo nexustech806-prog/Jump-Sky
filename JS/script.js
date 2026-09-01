@@ -226,6 +226,9 @@ function restartGame() {
     setCharacterPosition();
     loadQuestion();
 }
+restartBtn.addEventListener("click", () => {
+    window.location.href = "fase2.html";
+});
 
 // Clique nas respostas
 answerButtons.forEach((button) => {
@@ -233,9 +236,6 @@ answerButtons.forEach((button) => {
         checkAnswer(button);
     });
 });
-
-// Clique em jogar de novo
-restartBtn.addEventListener("click", restartGame);
 
 // Começa o jogo
 createQuestions();
@@ -251,3 +251,4 @@ setTimeout(() => {
         intro.style.display = "none";
     }, 800);
 }, 2500);
+
