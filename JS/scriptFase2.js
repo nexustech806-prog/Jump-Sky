@@ -20,6 +20,25 @@ const character =
 const restartBtn =
     document.getElementById("restartBtn");
 
+async function ValidProgress(){
+    let userSave = localStorage.getItem('userId');
+
+    // Fallback temporário para testes se o localStorage estiver vazio
+    if (!userSave) {
+        userSave = '6a91ac69da5b3278b64e57a';
+        localStorage.setItem('userId', userSave);
+    }
+    const takeSave = await fetch(`http://localhost:3000/api/save/${userSave}`);
+    const data = await takeSave.json();
+    if (takeSave.ok && data.saveProgress >= 2) {
+        console.log(data.message);
+    } else {
+        alert(data.message);
+        window.location.href = '/HTML/Game/FirstScene.html';
+    }
+    }
+ValidProgress();
+
 
 // Plataformas
 const platforms = [

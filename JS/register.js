@@ -1,5 +1,4 @@
-
-//função para gerar nomes aleatorios
+// Função para gerar nomes aleatórios
 async function gerarNome() {
   const adjetivos = [
     "Shadow", "Iron", "Storm", "Dark", "Fire", "Night", "Silver", "Ghost", 
@@ -20,7 +19,6 @@ async function gerarNome() {
   ];
 
   const numeroAleatorio = Math.floor(Math.random() * 900) + 100;
-
   const tipoCombinacao = Math.floor(Math.random() * 2);
   let nomeGerado = "";
 
@@ -30,7 +28,6 @@ async function gerarNome() {
     const animalAleatorio = animais[Math.floor(Math.random() * animais.length)];
     nomeGerado = `${tituloAleatorio}${animalAleatorio}${numeroAleatorio}`;
   } else {
-
     const adjAleatorio = adjetivos[Math.floor(Math.random() * adjetivos.length)];
     nomeGerado = `${tituloAleatorio}${adjAleatorio}${numeroAleatorio}`;
   }
@@ -47,7 +44,7 @@ if (diceIcon) {
 }
 
 async function createUser(event) {
-  event.preventDefault(); // Impede o recarregamento padrão da página
+  event.preventDefault();
 
   const nicknameValue = document.getElementById("login_reg").value.trim();
   const passwordValue = document.getElementById("password_reg").value;

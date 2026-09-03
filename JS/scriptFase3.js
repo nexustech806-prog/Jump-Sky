@@ -20,6 +20,18 @@ const character =
 const restartBtn =
     document.getElementById("restartBtn");
 
+async function ValidProgress(){
+    const userSave =  localStorage.getItem('userId');
+    const takeSave = await fetch(`/api/save/${userSave}`);
+    const data = await takeSave.json();
+    if (takeSave.ok && data.saveProgress >= 3) {
+        console.log(data.message);
+    } else {
+        alert(data.message);
+        window.location.href = '/HTML/Game/FirstScene.html';
+    }
+    }
+ValidProgress();
 
 // Plataformas
 const platforms = [

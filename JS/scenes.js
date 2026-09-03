@@ -8,6 +8,20 @@ const character = document.getElementById("character");
 const restartBtn = document.getElementById("restartBtn");
 const intro = document.getElementById("intro");
 
+async function ValidProgress(){
+    const userSave =  localStorage.getItem('userId');
+    const takeSave = await fetch(`http://localhost:3000/api/save/${userSave}`);
+    const data = await takeSave.json();
+    if (takeSave.ok && data.saveProgress >= 1) {
+        console.log(data.message);
+    } else {
+        alert(data.message);
+        window.location.href = '/HTML/Game/FirstScene.html';
+    }
+    }
+ValidProgress();
+
+
 // Plataformas
 const platforms = [
     document.getElementById("platform0"),
