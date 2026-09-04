@@ -23,7 +23,6 @@ const restartBtn =
 const intro =
     document.getElementById("intro");
 
-
 // Elementos da dica
 const hintPopup =
     document.getElementById("hintPopup");
@@ -86,17 +85,13 @@ let gameFinished = false;
 let busy = false;
 
 
-// ========================================
-// GERA 3 RESPOSTAS
-// ========================================
-
+// Gera 3 respostas
 function generateAnswers(correct) {
 
-    // A resposta correta entra primeiro
+    // A resposta correta já entra primeiro
     const answers = [correct];
 
-
-    // Possíveis respostas erradas
+    // Tenta criar respostas próximas da correta
     const possibleAnswers = [
         correct + 1,
         correct - 1,
@@ -107,16 +102,12 @@ function generateAnswers(correct) {
         correct + 4,
         correct - 4,
         correct + 5,
-        correct - 5,
-        correct + 6,
-        correct - 6,
-        correct + 7,
-        correct - 7
+        correct - 5
     ];
 
 
-    // Remove números menores que 0
-    // e números iguais à resposta correta
+    // Remove respostas menores que 1
+    // e que sejam iguais à correta
     const validAnswers =
         possibleAnswers.filter(
             answer =>
@@ -134,8 +125,8 @@ function generateAnswers(correct) {
     // Adiciona somente 2 respostas erradas
     for (
         let i = 0;
-        i < validAnswers.length &&
-        answers.length < 3;
+        answers.length < 3 &&
+        i < validAnswers.length;
         i++
     ) {
 
@@ -172,99 +163,86 @@ function generateAnswers(correct) {
 }
 
 
-// ========================================
-// GERA UMA QUESTÃO DE MULTIPLICAÇÃO
-// ========================================
-
+// Gera uma questão
 function generateQuestion(questionNumber) {
 
-    let number1;
-
-    let number2;
+    let divisor;
 
     let correct;
+
+    let number1;
 
     let questionText;
 
 
-    // ------------------------------------
     // Questões 1 e 2
-    // ------------------------------------
-
     if (questionNumber <= 1) {
 
-        number1 =
+        divisor =
             Math.floor(
-                Math.random() * 8
-            ) + 2;
-
-        number2 =
-            Math.floor(
-                Math.random() * 8
+                Math.random() * 4
             ) + 2;
 
         correct =
-            number1 * number2;
+            Math.floor(
+                Math.random() * 5
+            ) + 2;
+
+        number1 =
+            divisor * correct;
 
         questionText =
-            `Quanto é ${number1} × ${number2}?`;
+            `Quanto é ${number1} ÷ ${divisor}?`;
     }
 
 
-    // ------------------------------------
     // Questão 3
-    // ------------------------------------
-
     else if (questionNumber === 2) {
 
-        number1 =
+        divisor =
             Math.floor(
-                Math.random() * 10
-            ) + 3;
-
-        number2 =
-            Math.floor(
-                Math.random() * 9
+                Math.random() * 6
             ) + 3;
 
         correct =
-            number1 * number2;
+            Math.floor(
+                Math.random() * 8
+            ) + 3;
+
+        number1 =
+            divisor * correct;
 
         questionText =
-            `Quanto é ${number1} × ${number2}?`;
+            `Quanto é ${number1} ÷ ${divisor}?`;
     }
 
 
-    // ------------------------------------
     // Questão 4
-    // ------------------------------------
-
     else {
 
-        number1 =
+        divisor =
             Math.floor(
-                Math.random() * 10
-            ) + 3;
-
-        number2 =
-            Math.floor(
-                Math.random() * 9
-            ) + 3;
+                Math.random() * 7
+            ) + 2;
 
         correct =
-            number1 * number2;
+            Math.floor(
+                Math.random() * 8
+            ) + 3;
+
+        number1 =
+            divisor * correct;
 
 
-        // Perguntas em formato de situação
         const problems = [
 
-            `João organizou ${number1} caixas com ${number2} brinquedos em cada uma. Quantos brinquedos há ao todo?`,
+            `Carlos tem ${number1} moedas para dividir igualmente entre ${divisor} crianças. Quantas moedas cada criança receberá?`,
 
-            `Ana montou ${number1} grupos com ${number2} crianças em cada grupo. Quantas crianças há ao todo?`,
+            `Beatriz tem ${number1} lápis e quer dividir igualmente entre ${divisor} alunos. Quantos lápis cada aluno receberá?`,
 
-            `Pedro comprou ${number1} pacotes com ${number2} figurinhas em cada pacote. Quantas figurinhas ele comprou ao todo?`,
+            `Rafael tem ${number1} estrelas e vai colocá-las igualmente em ${divisor} grupos. Quantas estrelas ficarão em cada grupo?`,
 
-            `Lucas colocou ${number1} lápis em cada uma das ${number2} caixas. Quantos lápis há ao todo?`
+            `Sofia tem ${number1} brinquedos para dividir igualmente entre ${divisor} crianças. Quantos brinquedos cada criança receberá?`
 
         ];
 
@@ -288,7 +266,7 @@ function generateQuestion(questionNumber) {
 
         number1: number1,
 
-        number2: number2,
+        number2: divisor,
 
         correct: correct,
 
@@ -299,14 +277,10 @@ function generateQuestion(questionNumber) {
 }
 
 
-// ========================================
-// CRIA AS 4 PERGUNTAS
-// ========================================
-
+// Cria as perguntas
 function createQuestions() {
 
     questions = [];
-
 
     for (
         let i = 0;
@@ -321,19 +295,11 @@ function createQuestions() {
 }
 
 
-// ========================================
-// POSICIONA O PERSONAGEM
-// ========================================
-
+// Posiciona o personagem
 function setCharacterPosition() {
 
     const position =
         characterPositions[currentPlatform];
-
-
-    if (!position) {
-        return;
-    }
 
 
     character.style.left =
@@ -344,10 +310,7 @@ function setCharacterPosition() {
 }
 
 
-// ========================================
-// CARREGA A PERGUNTA
-// ========================================
-
+// Carrega a pergunta
 function loadQuestion() {
 
     if (
@@ -365,12 +328,11 @@ function loadQuestion() {
         questions[currentQuestion];
 
 
-    // Mostra a pergunta
     questionElement.textContent =
         question.questionText;
 
 
-    // Coloca as 3 respostas
+    // Coloca as 3 respostas nos 3 botões
     answerButtons.forEach(
         (button, index) => {
 
@@ -395,10 +357,7 @@ function loadQuestion() {
 }
 
 
-// ========================================
-// ATUALIZA OS NÚMEROS
-// ========================================
-
+// Atualiza os números
 function updateStats() {
 
     hitsElement.textContent =
@@ -412,81 +371,55 @@ function updateStats() {
 }
 
 
-// ========================================
-// ATUALIZA AS PLATAFORMAS
-// ========================================
-
+// Atualiza as plataformas
 function updatePlatforms() {
 
-    platforms.forEach(
-        (platform, index) => {
+    platforms.forEach((platform, index) => {
 
-            if (!platform) {
-                return;
-            }
+        if (!platform) {
+            return;
+        }
 
+        // Remove os estados antigos
+        platform.classList.remove(
+            "current",
+            "completed"
+        );
 
-            // Remove estados anteriores
-            platform.classList.remove(
-                "current",
+        // Plataformas anteriores ficam verdes
+        if (index < currentPlatform) {
+
+            platform.classList.add(
                 "completed"
             );
-
-
-            // Plataformas anteriores ficam verdes
-            if (
-                index < currentPlatform
-            ) {
-
-                platform.classList.add(
-                    "completed"
-                );
-            }
-
-
-            // Plataforma atual recebe destaque
-            else if (
-                index === currentPlatform
-            ) {
-
-                platform.classList.add(
-                    "current"
-                );
-            }
-
         }
-    );
+
+        // Plataforma onde o personagem está
+        else if (index === currentPlatform) {
+
+            platform.classList.add(
+                "current"
+            );
+        }
+
+    });
 }
 
-
-// ========================================
-// MOSTRA A DICA
-// ========================================
-
+// Mostra a dica
 function showHint(question) {
 
-    if (!hintPopup || !hintText) {
-        return;
-    }
-
-
     hintText.textContent =
-        `Pense em ${question.number1} grupos ` +
-        `de ${question.number2}. ` +
-        `Você também pode somar ` +
-        `${question.number2} ${question.number1} vezes.`;
+        `Pense em quantos grupos de ${question.number2} ` +
+        `cabem em ${question.number1}. ` +
+        `Você também pode fazer ` +
+        `${question.number2} × ? = ${question.number1}.`;
 
 
-    hintPopup.classList.add(
-        "show"
-    );
+    hintPopup.classList.add("show");
 }
 
 
-// ========================================
-// VERIFICA A RESPOSTA
-// ========================================
-
+// Verifica a resposta
 function checkAnswer(button) {
 
     if (
@@ -505,10 +438,7 @@ function checkAnswer(button) {
         Number(button.textContent);
 
 
-    // ====================================
-    // RESPOSTA CORRETA
-    // ====================================
-
+    // Resposta correta
     if (
         answer === question.correct
     ) {
@@ -516,17 +446,13 @@ function checkAnswer(button) {
         busy = true;
 
 
-        // Marca o botão como correto
         button.classList.add(
             "correct"
         );
 
 
-        // Aumenta os acertos
         hits++;
 
-
-        // Avança uma plataforma
         currentPlatform++;
 
 
@@ -535,63 +461,51 @@ function checkAnswer(button) {
         updatePlatforms();
 
 
-        // Faz o personagem pular
+        // Anima o personagem
         character.classList.add(
             "jumping"
         );
 
 
-        // Depois do pulo
-        setTimeout(
-            () => {
+        setTimeout(() => {
 
-                character.classList.remove(
-                    "jumping"
-                );
+            character.classList.remove(
+                "jumping"
+            );
 
-                setCharacterPosition();
+            setCharacterPosition();
 
-            },
-            700
-        );
+        }, 700);
 
 
-        // Carrega a próxima pergunta
-        setTimeout(
-            () => {
+        setTimeout(() => {
 
-                currentQuestion++;
+            currentQuestion++;
 
-                busy = false;
+            busy = false;
 
-                loadQuestion();
+            loadQuestion();
 
-            },
-            1000
-        );
+        }, 1000);
     }
 
 
-    // ====================================
-    // RESPOSTA ERRADA
-    // ====================================
-
+    // Resposta errada
     else {
 
-        // Marca o botão como errado
         button.classList.add(
             "wrong"
         );
 
 
         // Registra o erro
+        // sem perder pontos ou progresso
         errors++;
-
 
         updateStats();
 
 
-        // Mostra qual é a resposta correta
+        // Destaca a resposta correta
         answerButtons.forEach(
             btn => {
 
@@ -619,22 +533,16 @@ function checkAnswer(button) {
 
 
         // Mostra a dica
-        setTimeout(
-            () => {
+        setTimeout(() => {
 
-                showHint(question);
+            showHint(question);
 
-            },
-            300
-        );
+        }, 300);
     }
 }
 
 
-// ========================================
-// FECHA O POP-UP
-// ========================================
-
+// Fecha o pop-up
 if (closeHint) {
 
     closeHint.addEventListener(
@@ -646,7 +554,6 @@ if (closeHint) {
             );
 
 
-            // Limpa as cores dos botões
             answerButtons.forEach(
                 button => {
 
@@ -658,16 +565,12 @@ if (closeHint) {
                     button.disabled = false;
                 }
             );
-
         }
     );
 }
 
 
-// ========================================
-// FINALIZA A FASE
-// ========================================
-
+// Finaliza a fase
 function finishGame() {
 
     gameFinished = true;
@@ -677,7 +580,6 @@ function finishGame() {
         "🎉 Parabéns! Você completou a fase!";
 
 
-    // Desativa os botões
     answerButtons.forEach(
         button => {
 
@@ -695,40 +597,23 @@ function finishGame() {
     }
 
 
-    // Garante que a plataforma final
-    // fique verde
-    currentPlatform = 4;
-
-    updateStats();
-
-    updatePlatforms();
-
-    setCharacterPosition();
-
-
-    // Faz o personagem pular
+    // Anima o personagem
     character.classList.add(
         "jumping"
     );
 
 
-    setTimeout(
-        () => {
+    setTimeout(() => {
 
-            character.classList.remove(
-                "jumping"
-            );
+        character.classList.remove(
+            "jumping"
+        );
 
-        },
-        700
-    );
+    }, 700);
 }
 
 
-// ========================================
-// REINICIA O JOGO
-// ========================================
-
+// Reinicia o jogo
 function restartGame() {
 
     currentQuestion = 0;
@@ -752,16 +637,7 @@ function restartGame() {
     }
 
 
-    // Fecha a dica
-    if (hintPopup) {
-
-        hintPopup.classList.remove(
-            "show"
-        );
-    }
-
-
-    // Cria novas perguntas
+    // Cria perguntas novas
     createQuestions();
 
 
@@ -775,10 +651,7 @@ function restartGame() {
 }
 
 
-// ========================================
-// BOTÕES DE RESPOSTA
-// ========================================
-
+// Botões de resposta
 answerButtons.forEach(
     button => {
 
@@ -794,50 +667,30 @@ answerButtons.forEach(
 );
 
 
-// Eventos dos botões
-answerButtons.forEach(
-    button => {
+// Botão de jogar novamente
+if (restartBtn) {
 
-        button.addEventListener(
-            "click",
-            () => {
-
-                checkAnswer(button);
-
-            }
-        );
-
-    }
-);
-
-
-restartBtn.addEventListener("click", () => {
-    window.location.href = "Fase4.html";
-});
-
-// ========================================
-// INTRO
-// ========================================
-
-if (intro) {
-
-    setTimeout(
-        () => {
-
-            intro.classList.add(
-                "hide"
-            );
-
-        },
-        3000
+    restartBtn.addEventListener(
+        "click",
+        restartGame
     );
 }
 
 
-// ========================================
-// ESCONDE O BOTÃO NO INÍCIO
-// ========================================
+// Intro
+if (intro) {
 
+    setTimeout(() => {
+
+        intro.classList.add(
+            "hide"
+        );
+
+    }, 3000);
+}
+
+
+// Esconde o botão no início
 if (restartBtn) {
 
     restartBtn.style.display =
@@ -845,10 +698,7 @@ if (restartBtn) {
 }
 
 
-// ========================================
-// INICIA O JOGO
-// ========================================
-
+// Inicia o jogo
 createQuestions();
 
 updateStats();

@@ -413,24 +413,56 @@ h1 {
 
 }
 
+.hint-popup {
+    display: none;
 
-/* Celular */
-@media (max-width: 700px) {
+    position: absolute;
+    top: 50%;
+    left: 50%;
 
-    h1 {
-        font-size: 28px;
-    }
+    transform: translate(-50%, -50%);
 
-    .scene {
-        height: 400px;
-    }
+    z-index: 100;
 
-    #question {
-        font-size: 30px;
-    }
+    width: 80%;
+    max-width: 500px;
 
-    .answers {
-        grid-template-columns: 1fr;
-    }
+    background: white;
 
+    border-radius: 20px;
+
+    padding: 25px;
+
+    text-align: center;
+
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.4);
+
+    animation: hintAppear 0.3s ease;
+}
+
+.hint-popup.show {
+    display: block;
+}
+
+.hint-content h3 {
+    margin-bottom: 12px;
+    font-size: 26px;
+}
+
+.hint-content p {
+    font-size: 18px;
+    line-height: 1.5;
+    margin-bottom: 20px;
+}
+
+#closeHint {
+    border: none;
+
+    padding: 10px 25px;
+
+    border-radius: 10px;
+
+    font-size: 16px;
+
+    cursor: pointer;
 }
