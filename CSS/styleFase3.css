@@ -466,3 +466,92 @@ h1 {
 
     cursor: pointer;
 }
+
+/* Fundo da intro */
+#intro {
+    position: fixed;
+
+    inset: 0;
+
+    width: 100vw;
+    height: 100vh;
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    background: rgba(0, 0, 0, 0.75);
+
+    z-index: 99999;
+
+    transition: opacity 0.8s ease;
+
+    overflow: hidden;
+}
+
+
+/* Imagem da intro */
+#intro img {
+    width: 700px;
+    max-width: 85%;
+    height: auto;
+
+    border-radius: 20px;
+
+    position: relative;
+    z-index: 2;
+
+    animation:
+        introEnter 1.2s ease-out,
+        float 2.4s ease-in-out 1.2s infinite;
+}
+
+
+/* Entrada da intro */
+@keyframes introEnter {
+
+    from {
+        transform: scale(0.55) rotate(-8deg);
+
+        opacity: 0;
+
+        filter: blur(8px);
+    }
+
+    to {
+        transform: scale(1) rotate(0deg);
+
+        opacity: 1;
+
+        filter: blur(0);
+    }
+
+}
+
+
+/* Flutuação */
+@keyframes float {
+
+    0%, 100% {
+        transform: translateY(0);
+    }
+
+    50% {
+        transform: translateY(-14px);
+    }
+
+}
+
+
+/* Brilho dos pontinhos */
+@keyframes twinkle {
+
+    0%, 100% {
+        opacity: 0.2;
+    }
+
+    50% {
+        opacity: 0.5;
+    }
+
+}

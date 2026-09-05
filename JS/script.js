@@ -600,22 +600,6 @@ function checkAnswer(button) {
         updateStats();
 
 
-        // Mostra qual é a resposta correta
-        answerButtons.forEach(
-            btn => {
-
-                if (
-                    Number(btn.textContent) ===
-                    question.correct
-                ) {
-
-                    btn.classList.add(
-                        "correct"
-                    );
-                }
-            }
-        );
-
 
         // Bloqueia os botões
         answerButtons.forEach(

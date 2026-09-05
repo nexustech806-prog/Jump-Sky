@@ -1,4 +1,7 @@
-// Elementos da tela
+// ========================================
+// ELEMENTOS DA TELA
+// ========================================
+
 const questionElement =
     document.getElementById("question");
 
@@ -24,7 +27,10 @@ const intro =
     document.getElementById("intro");
 
 
-// Elementos da dica
+// ========================================
+// ELEMENTOS DA DICA
+// ========================================
+
 const hintPopup =
     document.getElementById("hintPopup");
 
@@ -35,7 +41,10 @@ const closeHint =
     document.getElementById("closeHint");
 
 
-// Plataformas
+// ========================================
+// PLATAFORMAS
+// ========================================
+
 const platforms = [
     document.getElementById("platform0"),
     document.getElementById("platform1"),
@@ -45,7 +54,10 @@ const platforms = [
 ];
 
 
-// Posição do personagem
+// ========================================
+// POSIÇÃO DO PERSONAGEM
+// ========================================
+
 const characterPositions = [
     {
         left: "70px",
@@ -70,7 +82,10 @@ const characterPositions = [
 ];
 
 
-// Variáveis do jogo
+// ========================================
+// VARIÁVEIS DO JOGO
+// ========================================
+
 let questions = [];
 
 let currentQuestion = 0;
@@ -92,11 +107,10 @@ let busy = false;
 
 function generateAnswers(correct) {
 
-    // A resposta correta entra primeiro
     const answers = [correct];
 
 
-    // Possíveis respostas erradas
+    // Respostas próximas da correta
     const possibleAnswers = [
         correct + 1,
         correct - 1,
@@ -115,8 +129,7 @@ function generateAnswers(correct) {
     ];
 
 
-    // Remove números menores que 0
-    // e números iguais à resposta correta
+    // Remove números inválidos
     const validAnswers =
         possibleAnswers.filter(
             answer =>
@@ -125,13 +138,13 @@ function generateAnswers(correct) {
         );
 
 
-    // Embaralha as respostas erradas
+    // Embaralha
     validAnswers.sort(
         () => Math.random() - 0.5
     );
 
 
-    // Adiciona somente 2 respostas erradas
+    // Adiciona 2 respostas erradas
     for (
         let i = 0;
         i < validAnswers.length &&
@@ -187,11 +200,39 @@ function generateQuestion(questionNumber) {
     let questionText;
 
 
-    // ------------------------------------
-    // Questões 1 e 2
-    // ------------------------------------
+    // ====================================
+    // QUESTÃO 1
+    // Fácil
+    // 2 até 5 × 2 até 5
+    // ====================================
 
-    if (questionNumber <= 1) {
+    if (questionNumber === 0) {
+
+        number1 =
+            Math.floor(
+                Math.random() * 4
+            ) + 2;
+
+        number2 =
+            Math.floor(
+                Math.random() * 4
+            ) + 2;
+
+        correct =
+            number1 * number2;
+
+        questionText =
+            `Quanto é ${number1} × ${number2}?`;
+    }
+
+
+    // ====================================
+    // QUESTÃO 2
+    // Fácil
+    // 2 até 9 × 2 até 9
+    // ====================================
+
+    else if (questionNumber === 1) {
 
         number1 =
             Math.floor(
@@ -211,9 +252,11 @@ function generateQuestion(questionNumber) {
     }
 
 
-    // ------------------------------------
-    // Questão 3
-    // ------------------------------------
+    // ====================================
+    // QUESTÃO 3
+    // Médio
+    // 3 até 12 × 3 até 11
+    // ====================================
 
     else if (questionNumber === 2) {
 
@@ -235,27 +278,29 @@ function generateQuestion(questionNumber) {
     }
 
 
-    // ------------------------------------
-    // Questão 4
-    // ------------------------------------
+    // ====================================
+    // QUESTÃO 4
+    // Difícil
+    // 4 até 15 × 4 até 12
+    // ====================================
 
     else {
 
         number1 =
             Math.floor(
-                Math.random() * 10
-            ) + 3;
+                Math.random() * 12
+            ) + 4;
 
         number2 =
             Math.floor(
                 Math.random() * 9
-            ) + 3;
+            ) + 4;
 
         correct =
             number1 * number2;
 
 
-        // Perguntas em formato de situação
+        // Situações do cotidiano
         const problems = [
 
             `João organizou ${number1} caixas com ${number2} brinquedos em cada uma. Quantos brinquedos há ao todo?`,
@@ -264,7 +309,7 @@ function generateQuestion(questionNumber) {
 
             `Pedro comprou ${number1} pacotes com ${number2} figurinhas em cada pacote. Quantas figurinhas ele comprou ao todo?`,
 
-            `Lucas colocou ${number1} lápis em cada uma das ${number2} caixas. Quantos lápis há ao todo?`
+            `Lucas colocou ${number2} lápis em cada uma das ${number1} caixas. Quantos lápis há ao todo?`
 
         ];
 
@@ -314,8 +359,32 @@ function createQuestions() {
         i++
     ) {
 
+        let newQuestion;
+
+        let attempts = 0;
+
+
+        // Gera uma questão
+        // diferente da anterior
+        do {
+
+            newQuestion =
+                generateQuestion(i);
+
+            attempts++;
+
+        } while (
+
+            i > 0 &&
+            newQuestion.questionText ===
+            questions[i - 1].questionText &&
+            attempts < 50
+
+        );
+
+
         questions.push(
-            generateQuestion(i)
+            newQuestion
         );
     }
 }
@@ -426,7 +495,6 @@ function updatePlatforms() {
             }
 
 
-            // Remove estados anteriores
             platform.classList.remove(
                 "current",
                 "completed"
@@ -489,6 +557,7 @@ function showHint(question) {
 
 function checkAnswer(button) {
 
+    // Impede dois cliques ao mesmo tempo
     if (
         busy ||
         gameFinished
@@ -516,7 +585,7 @@ function checkAnswer(button) {
         busy = true;
 
 
-        // Marca o botão como correto
+        // Marca como correto
         button.classList.add(
             "correct"
         );
@@ -526,7 +595,7 @@ function checkAnswer(button) {
         hits++;
 
 
-        // Avança uma plataforma
+        // Avança a plataforma
         currentPlatform++;
 
 
@@ -556,7 +625,7 @@ function checkAnswer(button) {
         );
 
 
-        // Carrega a próxima pergunta
+        // Próxima questão
         setTimeout(
             () => {
 
@@ -578,7 +647,7 @@ function checkAnswer(button) {
 
     else {
 
-        // Marca o botão como errado
+        // Marca como errado
         button.classList.add(
             "wrong"
         );
@@ -589,23 +658,6 @@ function checkAnswer(button) {
 
 
         updateStats();
-
-
-        // Mostra qual é a resposta correta
-        answerButtons.forEach(
-            btn => {
-
-                if (
-                    Number(btn.textContent) ===
-                    question.correct
-                ) {
-
-                    btn.classList.add(
-                        "correct"
-                    );
-                }
-            }
-        );
 
 
         // Bloqueia os botões
@@ -646,7 +698,7 @@ if (closeHint) {
             );
 
 
-            // Limpa as cores dos botões
+            // Limpa as cores
             answerButtons.forEach(
                 button => {
 
@@ -687,7 +739,7 @@ function finishGame() {
     );
 
 
-    // Mostra o botão de jogar novamente
+    // Mostra o botão
     if (restartBtn) {
 
         restartBtn.style.display =
@@ -695,8 +747,7 @@ function finishGame() {
     }
 
 
-    // Garante que a plataforma final
-    // fique verde
+    // Plataforma final
     currentPlatform = 4;
 
     updateStats();
@@ -706,7 +757,7 @@ function finishGame() {
     setCharacterPosition();
 
 
-    // Faz o personagem pular
+    // Pulo final
     character.classList.add(
         "jumping"
     );
@@ -794,44 +845,37 @@ answerButtons.forEach(
 );
 
 
-// Eventos dos botões
-answerButtons.forEach(
-    button => {
+// ========================================
+// BOTÃO DE FINAL DA FASE
+// ========================================
 
-        button.addEventListener(
-            "click",
-            () => {
+if (restartBtn) {
 
-                checkAnswer(button);
+    restartBtn.addEventListener(
+        "click",
+        () => {
 
-            }
-        );
+            window.location.href =
+                "Fase4.html";
 
-    }
-);
+        }
+    );
+}
 
-
-restartBtn.addEventListener("click", () => {
-    window.location.href = "Fase4.html";
-});
 
 // ========================================
 // INTRO
 // ========================================
 
-if (intro) {
+// Some com a intro
+setTimeout(() => {
+    intro.style.opacity = "0";
 
-    setTimeout(
-        () => {
+    setTimeout(() => {
+        intro.style.display = "none";
+    }, 800);
+}, 2500);
 
-            intro.classList.add(
-                "hide"
-            );
-
-        },
-        3000
-    );
-}
 
 
 // ========================================

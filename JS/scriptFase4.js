@@ -23,6 +23,7 @@ const restartBtn =
 const intro =
     document.getElementById("intro");
 
+
 // Elementos da dica
 const hintPopup =
     document.getElementById("hintPopup");
@@ -85,29 +86,50 @@ let gameFinished = false;
 let busy = false;
 
 
-// Gera 3 respostas
+// ========================================
+// GERA 3 RESPOSTAS
+// ========================================
+
 function generateAnswers(correct) {
 
-    // A resposta correta já entra primeiro
     const answers = [correct];
 
-    // Tenta criar respostas próximas da correta
+
+    // Respostas erradas mais variadas
+    // para não ficar sempre +1 ou -1
     const possibleAnswers = [
+
         correct + 1,
         correct - 1,
+
         correct + 2,
         correct - 2,
+
         correct + 3,
         correct - 3,
+
         correct + 4,
         correct - 4,
+
         correct + 5,
-        correct - 5
+        correct - 5,
+
+        correct + 6,
+        correct - 6,
+
+        correct + 7,
+        correct - 7,
+
+        correct + 8,
+        correct - 8,
+
+        correct + 10,
+        correct - 10
     ];
 
 
     // Remove respostas menores que 1
-    // e que sejam iguais à correta
+    // e iguais à correta
     const validAnswers =
         possibleAnswers.filter(
             answer =>
@@ -116,7 +138,7 @@ function generateAnswers(correct) {
         );
 
 
-    // Embaralha as respostas erradas
+    // Embaralha as respostas
     validAnswers.sort(
         () => Math.random() - 0.5
     );
@@ -125,12 +147,16 @@ function generateAnswers(correct) {
     // Adiciona somente 2 respostas erradas
     for (
         let i = 0;
-        answers.length < 3 &&
-        i < validAnswers.length;
+        i < validAnswers.length &&
+        answers.length < 3;
         i++
     ) {
 
-        if (!answers.includes(validAnswers[i])) {
+        if (
+            !answers.includes(
+                validAnswers[i]
+            )
+        ) {
 
             answers.push(
                 validAnswers[i]
@@ -142,9 +168,13 @@ function generateAnswers(correct) {
     // Segurança para garantir 3 respostas
     let number = 1;
 
-    while (answers.length < 3) {
+    while (
+        answers.length < 3
+    ) {
 
-        if (!answers.includes(number)) {
+        if (
+            !answers.includes(number)
+        ) {
 
             answers.push(number);
         }
@@ -163,7 +193,10 @@ function generateAnswers(correct) {
 }
 
 
-// Gera uma questão
+// ========================================
+// GERA UMA QUESTÃO
+// ========================================
+
 function generateQuestion(questionNumber) {
 
     let divisor;
@@ -175,18 +208,23 @@ function generateQuestion(questionNumber) {
     let questionText;
 
 
-    // Questões 1 e 2
-    if (questionNumber <= 1) {
+    // ========================================
+    // QUESTÃO 1
+    // ========================================
+
+    if (
+        questionNumber === 0
+    ) {
 
         divisor =
             Math.floor(
-                Math.random() * 4
-            ) + 2;
+                Math.random() * 5
+            ) + 3;
 
         correct =
             Math.floor(
-                Math.random() * 5
-            ) + 2;
+                Math.random() * 7
+            ) + 4;
 
         number1 =
             divisor * correct;
@@ -196,18 +234,23 @@ function generateQuestion(questionNumber) {
     }
 
 
-    // Questão 3
-    else if (questionNumber === 2) {
+    // ========================================
+    // QUESTÃO 2
+    // ========================================
+
+    else if (
+        questionNumber === 1
+    ) {
 
         divisor =
             Math.floor(
                 Math.random() * 6
-            ) + 3;
+            ) + 4;
 
         correct =
             Math.floor(
                 Math.random() * 8
-            ) + 3;
+            ) + 5;
 
         number1 =
             divisor * correct;
@@ -217,18 +260,47 @@ function generateQuestion(questionNumber) {
     }
 
 
-    // Questão 4
+    // ========================================
+    // QUESTÃO 3
+    // ========================================
+
+    else if (
+        questionNumber === 2
+    ) {
+
+        divisor =
+            Math.floor(
+                Math.random() * 8
+            ) + 5;
+
+        correct =
+            Math.floor(
+                Math.random() * 10
+            ) + 6;
+
+        number1 =
+            divisor * correct;
+
+        questionText =
+            `Quanto é ${number1} ÷ ${divisor}?`;
+    }
+
+
+    // ========================================
+    // QUESTÃO 4
+    // ========================================
+
     else {
 
         divisor =
             Math.floor(
-                Math.random() * 7
-            ) + 2;
+                Math.random() * 10
+            ) + 6;
 
         correct =
             Math.floor(
-                Math.random() * 8
-            ) + 3;
+                Math.random() * 14
+            ) + 7;
 
         number1 =
             divisor * correct;
@@ -242,7 +314,9 @@ function generateQuestion(questionNumber) {
 
             `Rafael tem ${number1} estrelas e vai colocá-las igualmente em ${divisor} grupos. Quantas estrelas ficarão em cada grupo?`,
 
-            `Sofia tem ${number1} brinquedos para dividir igualmente entre ${divisor} crianças. Quantos brinquedos cada criança receberá?`
+            `Sofia tem ${number1} brinquedos para dividir igualmente entre ${divisor} crianças. Quantos brinquedos cada criança receberá?`,
+
+            `Lucas recebeu ${number1} cartas e decidiu dividir igualmente entre ${divisor} amigos. Quantas cartas cada amigo receberá?`
 
         ];
 
@@ -277,10 +351,14 @@ function generateQuestion(questionNumber) {
 }
 
 
-// Cria as perguntas
+// ========================================
+// CRIA AS 4 PERGUNTAS
+// ========================================
+
 function createQuestions() {
 
     questions = [];
+
 
     for (
         let i = 0;
@@ -288,18 +366,60 @@ function createQuestions() {
         i++
     ) {
 
+        let newQuestion;
+
+        let attempts = 0;
+
+
+        // Gera novamente caso a conta
+        // já tenha aparecido anteriormente
+        do {
+
+            newQuestion =
+                generateQuestion(i);
+
+            attempts++;
+
+        } while (
+
+            questions.some(
+                question =>
+
+                    question.number1 ===
+                    newQuestion.number1 &&
+
+                    question.number2 ===
+                    newQuestion.number2
+            )
+
+            &&
+
+            attempts < 100
+        );
+
+
         questions.push(
-            generateQuestion(i)
+            newQuestion
         );
     }
 }
 
 
-// Posiciona o personagem
+// ========================================
+// POSICIONA O PERSONAGEM
+// ========================================
+
 function setCharacterPosition() {
 
     const position =
-        characterPositions[currentPlatform];
+        characterPositions[
+            currentPlatform
+        ];
+
+
+    if (!position) {
+        return;
+    }
 
 
     character.style.left =
@@ -310,7 +430,10 @@ function setCharacterPosition() {
 }
 
 
-// Carrega a pergunta
+// ========================================
+// CARREGA A PERGUNTA
+// ========================================
+
 function loadQuestion() {
 
     if (
@@ -332,7 +455,7 @@ function loadQuestion() {
         question.questionText;
 
 
-    // Coloca as 3 respostas nos 3 botões
+    // Coloca as 3 respostas
     answerButtons.forEach(
         (button, index) => {
 
@@ -344,7 +467,8 @@ function loadQuestion() {
                 "wrong"
             );
 
-            button.disabled = false;
+            button.disabled =
+                false;
         }
     );
 
@@ -357,7 +481,10 @@ function loadQuestion() {
 }
 
 
-// Atualiza os números
+// ========================================
+// ATUALIZA OS NÚMEROS
+// ========================================
+
 function updateStats() {
 
     hitsElement.textContent =
@@ -371,42 +498,69 @@ function updateStats() {
 }
 
 
-// Atualiza as plataformas
+// ========================================
+// ATUALIZA AS PLATAFORMAS
+// ========================================
+
 function updatePlatforms() {
 
-    platforms.forEach((platform, index) => {
+    platforms.forEach(
+        (platform, index) => {
 
-        if (!platform) {
-            return;
-        }
+            if (!platform) {
+                return;
+            }
 
-        // Remove os estados antigos
-        platform.classList.remove(
-            "current",
-            "completed"
-        );
 
-        // Plataformas anteriores ficam verdes
-        if (index < currentPlatform) {
-
-            platform.classList.add(
+            // Remove estados antigos
+            platform.classList.remove(
+                "current",
                 "completed"
             );
+
+
+            // Plataformas anteriores
+            // ficam verdes
+            if (
+                index <
+                currentPlatform
+            ) {
+
+                platform.classList.add(
+                    "completed"
+                );
+            }
+
+
+            // Plataforma atual
+            else if (
+                index ===
+                currentPlatform
+            ) {
+
+                platform.classList.add(
+                    "current"
+                );
+            }
+
         }
-
-        // Plataforma onde o personagem está
-        else if (index === currentPlatform) {
-
-            platform.classList.add(
-                "current"
-            );
-        }
-
-    });
+    );
 }
 
-// Mostra a dica
+
+// ========================================
+// MOSTRA A DICA
+// ========================================
+
 function showHint(question) {
+
+    if (
+        !hintPopup ||
+        !hintText
+    ) {
+        return;
+    }
+
 
     hintText.textContent =
         `Pense em quantos grupos de ${question.number2} ` +
@@ -415,11 +569,16 @@ function showHint(question) {
         `${question.number2} × ? = ${question.number1}.`;
 
 
-    hintPopup.classList.add("show");
+    hintPopup.classList.add(
+        "show"
+    );
 }
 
 
-// Verifica a resposta
+// ========================================
+// VERIFICA A RESPOSTA
+// ========================================
+
 function checkAnswer(button) {
 
     if (
@@ -435,12 +594,18 @@ function checkAnswer(button) {
 
 
     const answer =
-        Number(button.textContent);
+        Number(
+            button.textContent
+        );
 
 
-    // Resposta correta
+    // ========================================
+    // RESPOSTA CORRETA
+    // ========================================
+
     if (
-        answer === question.correct
+        answer ===
+        question.correct
     ) {
 
         busy = true;
@@ -452,6 +617,7 @@ function checkAnswer(button) {
 
 
         hits++;
+
 
         currentPlatform++;
 
@@ -467,30 +633,40 @@ function checkAnswer(button) {
         );
 
 
-        setTimeout(() => {
+        setTimeout(
+            () => {
 
-            character.classList.remove(
-                "jumping"
-            );
+                character.classList.remove(
+                    "jumping"
+                );
 
-            setCharacterPosition();
+                setCharacterPosition();
 
-        }, 700);
+            },
+            700
+        );
 
 
-        setTimeout(() => {
+        // Próxima questão
+        setTimeout(
+            () => {
 
-            currentQuestion++;
+                currentQuestion++;
 
-            busy = false;
+                busy = false;
 
-            loadQuestion();
+                loadQuestion();
 
-        }, 1000);
+            },
+            1000
+        );
     }
 
 
-    // Resposta errada
+    // ========================================
+    // RESPOSTA ERRADA
+    // ========================================
+
     else {
 
         button.classList.add(
@@ -498,51 +674,39 @@ function checkAnswer(button) {
         );
 
 
-        // Registra o erro
-        // sem perder pontos ou progresso
         errors++;
 
+
         updateStats();
-
-
-        // Destaca a resposta correta
-        answerButtons.forEach(
-            btn => {
-
-                if (
-                    Number(btn.textContent) ===
-                    question.correct
-                ) {
-
-                    btn.classList.add(
-                        "correct"
-                    );
-                }
-            }
-        );
 
 
         // Bloqueia os botões
         answerButtons.forEach(
             btn => {
 
-                btn.disabled = true;
-
+                btn.disabled =
+                    true;
             }
         );
 
 
         // Mostra a dica
-        setTimeout(() => {
+        setTimeout(
+            () => {
 
-            showHint(question);
+                showHint(question);
 
-        }, 300);
+            },
+            300
+        );
     }
 }
 
 
-// Fecha o pop-up
+// ========================================
+// FECHA O POP-UP
+// ========================================
+
 if (closeHint) {
 
     closeHint.addEventListener(
@@ -562,7 +726,8 @@ if (closeHint) {
                         "wrong"
                     );
 
-                    button.disabled = false;
+                    button.disabled =
+                        false;
                 }
             );
         }
@@ -570,7 +735,10 @@ if (closeHint) {
 }
 
 
-// Finaliza a fase
+// ========================================
+// FINALIZA A FASE
+// ========================================
+
 function finishGame() {
 
     gameFinished = true;
@@ -580,16 +748,17 @@ function finishGame() {
         "🎉 Parabéns! Você completou a fase!";
 
 
+    // Desativa os botões
     answerButtons.forEach(
         button => {
 
-            button.disabled = true;
-
+            button.disabled =
+                true;
         }
     );
 
 
-    // Mostra o botão de jogar novamente
+    // Mostra o botão
     if (restartBtn) {
 
         restartBtn.style.display =
@@ -603,17 +772,23 @@ function finishGame() {
     );
 
 
-    setTimeout(() => {
+    setTimeout(
+        () => {
 
-        character.classList.remove(
-            "jumping"
-        );
+            character.classList.remove(
+                "jumping"
+            );
 
-    }, 700);
+        },
+        700
+    );
 }
 
 
-// Reinicia o jogo
+// ========================================
+// REINICIA O JOGO
+// ========================================
+
 function restartGame() {
 
     currentQuestion = 0;
@@ -637,7 +812,16 @@ function restartGame() {
     }
 
 
-    // Cria perguntas novas
+    // Fecha a dica
+    if (hintPopup) {
+
+        hintPopup.classList.remove(
+            "show"
+        );
+    }
+
+
+    // Cria novas perguntas
     createQuestions();
 
 
@@ -651,7 +835,10 @@ function restartGame() {
 }
 
 
-// Botões de resposta
+// ========================================
+// BOTÕES DE RESPOSTA
+// ========================================
+
 answerButtons.forEach(
     button => {
 
@@ -667,7 +854,10 @@ answerButtons.forEach(
 );
 
 
-// Botão de jogar novamente
+// ========================================
+// BOTÃO DE JOGAR NOVAMENTE
+// ========================================
+
 if (restartBtn) {
 
     restartBtn.addEventListener(
@@ -677,20 +867,24 @@ if (restartBtn) {
 }
 
 
-// Intro
-if (intro) {
+// ========================================
+// INTRO
+// ========================================
+
+// Some com a intro
+setTimeout(() => {
+    intro.style.opacity = "0";
 
     setTimeout(() => {
-
-        intro.classList.add(
-            "hide"
-        );
-
-    }, 3000);
-}
+        intro.style.display = "none";
+    }, 800);
+}, 2500);
 
 
-// Esconde o botão no início
+// ========================================
+// ESCONDE O BOTÃO NO INÍCIO
+// ========================================
+
 if (restartBtn) {
 
     restartBtn.style.display =
@@ -698,7 +892,10 @@ if (restartBtn) {
 }
 
 
-// Inicia o jogo
+// ========================================
+// INICIA O JOGO
+// ========================================
+
 createQuestions();
 
 updateStats();

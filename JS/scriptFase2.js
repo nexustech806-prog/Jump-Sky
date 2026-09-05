@@ -621,25 +621,8 @@ function checkAnswer(button) {
 
         updateStats();
 
-
-        // Mostra qual é a resposta correta
-        answerButtons.forEach(
-            btn => {
-
-                if (
-                    Number(btn.textContent) ===
-                    question.correct
-                ) {
-
-                    btn.classList.add(
-                        "correct"
-                    );
-                }
-            }
-        );
-
-
-        // Bloqueia os botões
+        
+       // Bloqueia os botões
         answerButtons.forEach(
             btn => {
 
@@ -847,19 +830,14 @@ if (restartBtn) {
 // INTRO
 // ========================================
 
-if (intro) {
+// Some com a intro
+setTimeout(() => {
+    intro.style.opacity = "0";
 
-    setTimeout(
-        () => {
-
-            intro.classList.add(
-                "hide"
-            );
-
-        },
-        3000
-    );
-}
+    setTimeout(() => {
+        intro.style.display = "none";
+    }, 800);
+}, 2500);
 
 
 // ========================================
