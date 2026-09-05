@@ -75,10 +75,12 @@ async function createUser(event) {
     });
 
     const result = await answer.json();
-    
+    console.log(result)
+
     if (answer.ok) {
       alert('Usuário cadastrado com sucesso!');
       console.log(result.mensagem);
+      localStorage.setItem('idUser', result.idUser)
       window.location.href = "login.html"; 
     } else {
       alert('Erro: ' + (result.erro || result.mensagem));

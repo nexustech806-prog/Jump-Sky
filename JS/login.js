@@ -24,7 +24,9 @@ if (formLogin) {
       const data = await response.json();
 
       if (response.ok) {
+        localStorage.setItem('idUser', data.idUser)
         alert("Login efetuado com sucesso!");
+
         window.location.href = "../Game/FirstScene.html";
       } else {
         alert(data.mensagem);
