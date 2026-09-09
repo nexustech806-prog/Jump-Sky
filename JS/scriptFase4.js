@@ -1,4 +1,7 @@
-// Elementos da tela
+// ========================================
+// ELEMENTOS DA TELA
+// ========================================
+
 const questionElement =
     document.getElementById("question");
 
@@ -23,8 +26,14 @@ const restartBtn =
 const intro =
     document.getElementById("intro");
 
+const feedback =
+    document.getElementById("feedback");
 
-// Elementos da dica
+
+// ========================================
+// ELEMENTOS DA DICA
+// ========================================
+
 const hintPopup =
     document.getElementById("hintPopup");
 
@@ -35,7 +44,10 @@ const closeHint =
     document.getElementById("closeHint");
 
 
-// Plataformas
+// ========================================
+// PLATAFORMAS
+// ========================================
+
 const platforms = [
     document.getElementById("platform0"),
     document.getElementById("platform1"),
@@ -45,32 +57,44 @@ const platforms = [
 ];
 
 
-// Posição do personagem
+// ========================================
+// POSIÇÃO DO PERSONAGEM
+// ========================================
+
 const characterPositions = [
+
     {
         left: "70px",
         bottom: "80px"
     },
+
     {
         left: "305px",
         bottom: "155px"
     },
+
     {
         left: "535px",
         bottom: "240px"
     },
+
     {
         left: "775px",
         bottom: "170px"
     },
+
     {
         left: "1000px",
         bottom: "290px"
     }
+
 ];
 
 
-// Variáveis do jogo
+// ========================================
+// VARIÁVEIS DO JOGO
+// ========================================
+
 let questions = [];
 
 let currentQuestion = 0;
@@ -95,8 +119,7 @@ function generateAnswers(correct) {
     const answers = [correct];
 
 
-    // Respostas erradas mais variadas
-    // para não ficar sempre +1 ou -1
+    // Possíveis respostas erradas
     const possibleAnswers = [
 
         correct + 1,
@@ -125,6 +148,7 @@ function generateAnswers(correct) {
 
         correct + 10,
         correct - 10
+
     ];
 
 
@@ -138,7 +162,7 @@ function generateAnswers(correct) {
         );
 
 
-    // Embaralha as respostas
+    // Embaralha
     validAnswers.sort(
         () => Math.random() - 0.5
     );
@@ -161,7 +185,9 @@ function generateAnswers(correct) {
             answers.push(
                 validAnswers[i]
             );
+
         }
+
     }
 
 
@@ -177,9 +203,11 @@ function generateAnswers(correct) {
         ) {
 
             answers.push(number);
+
         }
 
         number++;
+
     }
 
 
@@ -210,6 +238,7 @@ function generateQuestion(questionNumber) {
 
     // ========================================
     // QUESTÃO 1
+    // Mais fácil
     // ========================================
 
     if (
@@ -221,16 +250,20 @@ function generateQuestion(questionNumber) {
                 Math.random() * 5
             ) + 3;
 
+
         correct =
             Math.floor(
                 Math.random() * 7
             ) + 4;
 
+
         number1 =
             divisor * correct;
 
+
         questionText =
             `Quanto é ${number1} ÷ ${divisor}?`;
+
     }
 
 
@@ -247,16 +280,20 @@ function generateQuestion(questionNumber) {
                 Math.random() * 6
             ) + 4;
 
+
         correct =
             Math.floor(
                 Math.random() * 8
             ) + 5;
 
+
         number1 =
             divisor * correct;
 
+
         questionText =
             `Quanto é ${number1} ÷ ${divisor}?`;
+
     }
 
 
@@ -273,21 +310,26 @@ function generateQuestion(questionNumber) {
                 Math.random() * 8
             ) + 5;
 
+
         correct =
             Math.floor(
                 Math.random() * 10
             ) + 6;
 
+
         number1 =
             divisor * correct;
 
+
         questionText =
             `Quanto é ${number1} ÷ ${divisor}?`;
+
     }
 
 
     // ========================================
     // QUESTÃO 4
+    // Mais difícil
     // ========================================
 
     else {
@@ -297,10 +339,12 @@ function generateQuestion(questionNumber) {
                 Math.random() * 10
             ) + 6;
 
+
         correct =
             Math.floor(
                 Math.random() * 14
             ) + 7;
+
 
         number1 =
             divisor * correct;
@@ -328,6 +372,7 @@ function generateQuestion(questionNumber) {
                     problems.length
                 )
             ];
+
     }
 
 
@@ -347,7 +392,9 @@ function generateQuestion(questionNumber) {
         answers: answers,
 
         questionText: questionText
+
     };
+
 }
 
 
@@ -371,8 +418,7 @@ function createQuestions() {
         let attempts = 0;
 
 
-        // Gera novamente caso a conta
-        // já tenha aparecido anteriormente
+        // Evita contas repetidas
         do {
 
             newQuestion =
@@ -395,13 +441,16 @@ function createQuestions() {
             &&
 
             attempts < 100
+
         );
 
 
         questions.push(
             newQuestion
         );
+
     }
+
 }
 
 
@@ -418,15 +467,19 @@ function setCharacterPosition() {
 
 
     if (!position) {
+
         return;
+
     }
 
 
     character.style.left =
         position.left;
 
+
     character.style.bottom =
         position.bottom;
+
 }
 
 
@@ -444,6 +497,7 @@ function loadQuestion() {
         finishGame();
 
         return;
+
     }
 
 
@@ -451,6 +505,17 @@ function loadQuestion() {
         questions[currentQuestion];
 
 
+    // Limpa o feedback anterior
+    if (feedback) {
+
+        feedback.textContent = "";
+
+        feedback.className = "";
+
+    }
+
+
+    // Coloca a pergunta na tela
     questionElement.textContent =
         question.questionText;
 
@@ -462,13 +527,16 @@ function loadQuestion() {
             button.textContent =
                 question.answers[index];
 
+
             button.classList.remove(
                 "correct",
                 "wrong"
             );
 
+
             button.disabled =
                 false;
+
         }
     );
 
@@ -478,6 +546,7 @@ function loadQuestion() {
     updateStats();
 
     updatePlatforms();
+
 }
 
 
@@ -490,11 +559,14 @@ function updateStats() {
     hitsElement.textContent =
         hits;
 
+
     errorsElement.textContent =
         errors;
 
+
     currentPlatformElement.textContent =
         currentPlatform + 1;
+
 }
 
 
@@ -508,7 +580,9 @@ function updatePlatforms() {
         (platform, index) => {
 
             if (!platform) {
+
                 return;
+
             }
 
 
@@ -519,8 +593,7 @@ function updatePlatforms() {
             );
 
 
-            // Plataformas anteriores
-            // ficam verdes
+            // Plataformas anteriores ficam verdes
             if (
                 index <
                 currentPlatform
@@ -529,6 +602,7 @@ function updatePlatforms() {
                 platform.classList.add(
                     "completed"
                 );
+
             }
 
 
@@ -541,10 +615,12 @@ function updatePlatforms() {
                 platform.classList.add(
                     "current"
                 );
+
             }
 
         }
     );
+
 }
 
 
@@ -558,11 +634,14 @@ function showHint(question) {
         !hintPopup ||
         !hintText
     ) {
+
         return;
+
     }
 
 
     hintText.textContent =
+
         `Pense em quantos grupos de ${question.number2} ` +
         `cabem em ${question.number1}. ` +
         `Você também pode fazer ` +
@@ -572,6 +651,7 @@ function showHint(question) {
     hintPopup.classList.add(
         "show"
     );
+
 }
 
 
@@ -585,7 +665,9 @@ function checkAnswer(button) {
         busy ||
         gameFinished
     ) {
+
         return;
+
     }
 
 
@@ -611,14 +693,29 @@ function checkAnswer(button) {
         busy = true;
 
 
+        // Deixa o botão verde
         button.classList.add(
             "correct"
         );
 
 
+        // Feedback imediato
+        if (feedback) {
+
+            feedback.textContent =
+                "🎉 Muito bem! Resposta correta!";
+
+            feedback.className =
+                "feedback-correct";
+
+        }
+
+
         hits++;
 
-
+        if (platforms[currentPlatform ]) {
+         platforms[currentPlatform ].textContent = "✓";
+        } 
         currentPlatform++;
 
 
@@ -627,7 +724,7 @@ function checkAnswer(button) {
         updatePlatforms();
 
 
-        // Anima o personagem
+        // Faz o personagem pular
         character.classList.add(
             "jumping"
         );
@@ -640,6 +737,7 @@ function checkAnswer(button) {
                     "jumping"
                 );
 
+
                 setCharacterPosition();
 
             },
@@ -647,7 +745,7 @@ function checkAnswer(button) {
         );
 
 
-        // Próxima questão
+        // Vai para a próxima pergunta
         setTimeout(
             () => {
 
@@ -660,6 +758,7 @@ function checkAnswer(button) {
             },
             1000
         );
+
     }
 
 
@@ -669,9 +768,23 @@ function checkAnswer(button) {
 
     else {
 
+        // Deixa somente a resposta
+        // escolhida vermelha
         button.classList.add(
             "wrong"
         );
+
+
+        // Feedback imediato
+        if (feedback) {
+
+            feedback.textContent =
+                "💡 Quase! Tente novamente!";
+
+            feedback.className =
+                "feedback-wrong";
+
+        }
 
 
         errors++;
@@ -686,6 +799,7 @@ function checkAnswer(button) {
 
                 btn.disabled =
                     true;
+
             }
         );
 
@@ -699,12 +813,14 @@ function checkAnswer(button) {
             },
             300
         );
+
     }
+
 }
 
 
 // ========================================
-// FECHA O POP-UP
+// FECHA O POP-UP DA DICA
 // ========================================
 
 if (closeHint) {
@@ -713,11 +829,25 @@ if (closeHint) {
         "click",
         () => {
 
+            // Fecha a dica
             hintPopup.classList.remove(
                 "show"
             );
 
 
+            // Limpa o feedback
+            if (feedback) {
+
+                feedback.textContent =
+                    "";
+
+                feedback.className =
+                    "";
+
+            }
+
+
+            // Limpa o estado dos botões
             answerButtons.forEach(
                 button => {
 
@@ -726,14 +856,17 @@ if (closeHint) {
                         "wrong"
                     );
 
+
                     button.disabled =
                         false;
+
                 }
             );
+
         }
     );
-}
 
+}
 
 // ========================================
 // FINALIZA A FASE
@@ -748,12 +881,25 @@ function finishGame() {
         "🎉 Parabéns! Você completou a fase!";
 
 
+    // Feedback final
+    if (feedback) {
+
+        feedback.textContent =
+            "🏆 Você terminou a fase!";
+
+        feedback.className =
+            "feedback-correct";
+
+    }
+
+
     // Desativa os botões
     answerButtons.forEach(
         button => {
 
             button.disabled =
                 true;
+
         }
     );
 
@@ -763,6 +909,7 @@ function finishGame() {
 
         restartBtn.style.display =
             "block";
+
     }
 
 
@@ -782,6 +929,7 @@ function finishGame() {
         },
         700
     );
+
 }
 
 
@@ -809,6 +957,7 @@ function restartGame() {
 
         restartBtn.style.display =
             "none";
+
     }
 
 
@@ -818,6 +967,17 @@ function restartGame() {
         hintPopup.classList.remove(
             "show"
         );
+
+    }
+
+
+    // Limpa o feedback
+    if (feedback) {
+
+        feedback.textContent = "";
+
+        feedback.className = "";
+
     }
 
 
@@ -832,6 +992,7 @@ function restartGame() {
     setCharacterPosition();
 
     loadQuestion();
+
 }
 
 
@@ -850,6 +1011,7 @@ answerButtons.forEach(
 
             }
         );
+
     }
 );
 
@@ -864,6 +1026,7 @@ if (restartBtn) {
         "click",
         restartGame
     );
+
 }
 
 
@@ -871,14 +1034,30 @@ if (restartBtn) {
 // INTRO
 // ========================================
 
-// Some com a intro
-setTimeout(() => {
-    intro.style.opacity = "0";
+if (intro) {
 
-    setTimeout(() => {
-        intro.style.display = "none";
-    }, 800);
-}, 2500);
+    setTimeout(
+        () => {
+
+            intro.style.opacity =
+                "0";
+
+
+            setTimeout(
+                () => {
+
+                    intro.style.display =
+                        "none";
+
+                },
+                800
+            );
+
+        },
+        2500
+    );
+
+}
 
 
 // ========================================
@@ -889,6 +1068,7 @@ if (restartBtn) {
 
     restartBtn.style.display =
         "none";
+
 }
 
 
