@@ -35,6 +35,25 @@ const closeHint =
     document.getElementById("closeHint");
 
 
+const faseAtual = 4;
+
+async function completarFase(fase) {
+    const idUser = localStorage.getItem('idUser');
+
+    try {
+        const resp = await fetch(`http://localhost:3000/api/save/${idUser}/avancar`, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ faseCompletada: fase })
+        });
+
+        const data = await resp.json();
+        console.log('Progresso atualizado:', data.saveProgress);
+    } catch (error) {
+        console.error('Erro ao atualizar progresso:', error);
+    }
+}
+
 // Plataformas
 const platforms = [
     document.getElementById("platform0"),
@@ -782,6 +801,7 @@ function finishGame() {
         },
         700
     );
+    completarFase(faseAtual);
 }
 
 

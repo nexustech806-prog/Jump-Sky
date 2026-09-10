@@ -34,6 +34,25 @@ const hintText =
 const closeHint =
     document.getElementById("closeHint");
 
+    const faseAtual = 2;
+
+async function completarFase(fase) {
+    const idUser = localStorage.getItem('idUser');
+
+    try {
+        const resp = await fetch(`http://localhost:3000/api/save/${idUser}/avancar`, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ faseCompletada: fase })
+        });
+
+        const data = await resp.json();
+        console.log('Progresso atualizado:', data.saveProgress);
+    } catch (error) {
+        console.error('Erro ao atualizar progresso:', error);
+    }
+}
+
 
 // Plataformas
 const platforms = [
@@ -736,6 +755,7 @@ function finishGame() {
         },
         700
     );
+    completarFase(faseAtual);
 }
 
 
@@ -813,16 +833,9 @@ answerButtons.forEach(
 // ========================================
 
 if (restartBtn) {
-
-    restartBtn.addEventListener(
-        "click",
-        () => {
-
-            window.location.href =
-                "Fase3.html";
-
-        }
-    );
+    restartBtn.addEventListener("click", () => {
+        window.location.href = mapaFases[faseAtual + 1];
+    });
 }
 
 
