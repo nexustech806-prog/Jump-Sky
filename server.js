@@ -4,7 +4,7 @@ const mongoose = require('mongoose');
 const cors = require('cors');
 const User = require('./Schema/User');
 const SaveData = require('./Schema/Save');
-const bcrypt = require('bcrypt');
+const bcrypt = require('bcryptjs');
 
 const app = express();
 app.use(express.json());
