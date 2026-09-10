@@ -13,7 +13,7 @@ const path = require('path');
 
 app.use(express.static(path.join(__dirname)));
 app.get('/', (req, res) => {
-    res.sendFile(path.join(__dirname, 'HTML/Pages/Index.html'));
+    res.sendFile(path.join(__dirname, 'HTML/Pages/index.html'));
 });
 
 // Conexão do banco MongoDB
