@@ -144,7 +144,7 @@ h1 {
 
     justify-content: center;
 
-    background: #db8a38;
+    background: #472505ef;
 
     border-radius: 14px 14px 8px 8px;
 
@@ -335,13 +335,13 @@ h1 {
 
     padding: 20px;
 
-    border: 3px solid #0a0030;
+    border: 3px solid #000000;
 
     border-radius: 16px;
 
-    background: #66aee9;
+    background: #ec7f36;
 
-    color: #c1e2e7;
+    color: #000000;
 
     font-size: 22px;
 
@@ -365,25 +365,44 @@ h1 {
 
 
 /* Resposta correta */
+/* Feedback de resposta correta */
 .answer-btn.correct {
-
-    background: #70c978;
-
-    border-color: #45a751;
-
-    color: white;
-
+    background-color: #4CAF50;
+    transform: scale(1.08);
+    box-shadow: 0 0 15px rgba(76, 175, 80, 0.8);
 }
 
 
-/* Resposta errada */
+/* Feedback de resposta errada */
 .answer-btn.wrong {
+    background-color: #F44336;
+    animation: shake 0.4s;
+    box-shadow: 0 0 15px rgba(244, 67, 54, 0.8);
+}
 
-    background: #e77d7d;
 
-    border-color: #c74f4f;
+/* Animação quando errar */
+@keyframes shake {
 
-    color: white;
+    0% {
+        transform: translateX(0);
+    }
+
+    25% {
+        transform: translateX(-8px);
+    }
+
+    50% {
+        transform: translateX(8px);
+    }
+
+    75% {
+        transform: translateX(-8px);
+    }
+
+    100% {
+        transform: translateX(0);
+    }
 
 }
 
@@ -414,26 +433,6 @@ h1 {
 }
 
 
-/* Celular */
-@media (max-width: 700px) {
-
-    h1 {
-        font-size: 28px;
-    }
-
-    .scene {
-        height: 400px;
-    }
-
-    #question {
-        font-size: 30px;
-    }
-
-    .answers {
-        grid-template-columns: 1fr;
-    }
-
-}
 
 .hint-popup {
     display: none;
@@ -590,4 +589,20 @@ h1 {
         opacity: 0.5;
     }
 
+}
+
+#feedback {
+    min-height: 35px;
+    margin-top: 10px;
+    font-size: 20px;
+    font-weight: bold;
+    text-align: center;
+}
+
+.feedback-correct {
+    color: #4CAF50;
+}
+
+.feedback-wrong {
+    color: #F44336;
 }

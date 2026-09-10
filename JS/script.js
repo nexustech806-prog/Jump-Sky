@@ -63,6 +63,9 @@ const platforms = [
     document.getElementById("platform4")
 ];
 
+const feedback =
+    document.getElementById("feedback");
+
 
 // Posição do personagem
 const characterPositions = [
@@ -391,12 +394,16 @@ function loadQuestion() {
 
 
     const question =
-        questions[currentQuestion];
+    questions[currentQuestion];
 
 
-    // Mostra a pergunta
-    questionElement.textContent =
-        question.questionText;
+// Limpa o feedback anterior
+feedback.textContent = "";
+feedback.className = "";
+
+
+questionElement.textContent =
+    question.questionText;
 
 
     // Coloca as 3 respostas
@@ -530,46 +537,54 @@ function checkAnswer(button) {
 
 
     const answer =
-        Number(button.textContent);
+        Number(
+            button.textContent
+        );
 
 
-    // ====================================
+    // ========================================
     // RESPOSTA CORRETA
-    // ====================================
+    // ========================================
 
     if (
-        answer === question.correct
+        answer ===
+        question.correct
     ) {
 
         busy = true;
 
 
-        // Marca o botão como correto
         button.classList.add(
             "correct"
         );
 
 
-        // Aumenta os acertos
+        // Mostra feedback imediatamente
+        feedback.textContent =
+            "🎉 Muito bem! Resposta correta!";
+
+        feedback.className =
+            "feedback-correct";
+
+
         hits++;
 
-
-        // Avança uma plataforma
+        if (platforms[currentPlatform ]) {
+         platforms[currentPlatform ].textContent = "✓";
+        } 
         currentPlatform++;
-
 
         updateStats();
 
         updatePlatforms();
 
 
-        // Faz o personagem pular
+        // Anima o personagem
         character.classList.add(
             "jumping"
         );
 
 
-        // Depois do pulo
         setTimeout(
             () => {
 
@@ -584,7 +599,7 @@ function checkAnswer(button) {
         );
 
 
-        // Carrega a próxima pergunta
+        // Próxima questão
         setTimeout(
             () => {
 
@@ -600,31 +615,37 @@ function checkAnswer(button) {
     }
 
 
-    // ====================================
+    // ========================================
     // RESPOSTA ERRADA
-    // ====================================
+    // ========================================
 
     else {
 
-        // Marca o botão como errado
         button.classList.add(
             "wrong"
         );
 
 
-        // Registra o erro
+        // Mostra feedback imediatamente
+        feedback.textContent =
+            "💡 Quase! Tente novamente!";
+
+        feedback.className =
+            "feedback-wrong";
+
+
         errors++;
 
 
         updateStats();
 
 
-
         // Bloqueia os botões
         answerButtons.forEach(
             btn => {
 
-                btn.disabled = true;
+                btn.disabled =
+                    true;
 
             }
         );
@@ -653,12 +674,25 @@ if (closeHint) {
         "click",
         () => {
 
+            // Fecha a dica
             hintPopup.classList.remove(
                 "show"
             );
 
 
-            // Limpa as cores dos botões
+            // Limpa o feedback
+            if (feedback) {
+
+                feedback.textContent =
+                    "";
+
+                feedback.className =
+                    "";
+
+            }
+
+
+            // Limpa o estado dos botões
             answerButtons.forEach(
                 button => {
 
@@ -667,12 +701,16 @@ if (closeHint) {
                         "wrong"
                     );
 
-                    button.disabled = false;
+
+                    button.disabled =
+                        false;
+
                 }
             );
 
         }
     );
+
 }
 
 

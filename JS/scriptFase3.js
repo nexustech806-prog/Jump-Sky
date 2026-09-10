@@ -26,6 +26,8 @@ const restartBtn =
 const intro =
     document.getElementById("intro");
 
+const feedback =
+    document.getElementById("feedback");
 
 // ========================================
 // ELEMENTOS DA DICA
@@ -453,6 +455,18 @@ function loadQuestion() {
         questions[currentQuestion];
 
 
+    // Limpa o feedback da pergunta anterior
+    if (feedback) {
+
+        feedback.textContent =
+            "";
+
+        feedback.className =
+            "";
+
+    }
+
+
     // Mostra a pergunta
     questionElement.textContent =
         question.questionText;
@@ -576,7 +590,6 @@ function showHint(question) {
 
 function checkAnswer(button) {
 
-    // Impede dois cliques ao mesmo tempo
     if (
         busy ||
         gameFinished
@@ -590,46 +603,54 @@ function checkAnswer(button) {
 
 
     const answer =
-        Number(button.textContent);
+        Number(
+            button.textContent
+        );
 
 
-    // ====================================
+    // ========================================
     // RESPOSTA CORRETA
-    // ====================================
+    // ========================================
 
     if (
-        answer === question.correct
+        answer ===
+        question.correct
     ) {
 
         busy = true;
 
 
-        // Marca como correto
         button.classList.add(
             "correct"
         );
 
 
-        // Aumenta os acertos
+        // Mostra feedback imediatamente
+        feedback.textContent =
+            "🎉 Muito bem! Resposta correta!";
+
+        feedback.className =
+            "feedback-correct";
+
+
         hits++;
 
-
-        // Avança a plataforma
+        if (platforms[currentPlatform ]) {
+         platforms[currentPlatform ].textContent = "✓";
+        } 
         currentPlatform++;
-
 
         updateStats();
 
         updatePlatforms();
 
 
-        // Faz o personagem pular
+        // Anima o personagem
         character.classList.add(
             "jumping"
         );
 
 
-        // Depois do pulo
         setTimeout(
             () => {
 
@@ -660,19 +681,25 @@ function checkAnswer(button) {
     }
 
 
-    // ====================================
+    // ========================================
     // RESPOSTA ERRADA
-    // ====================================
+    // ========================================
 
     else {
 
-        // Marca como errado
         button.classList.add(
             "wrong"
         );
 
 
-        // Registra o erro
+        // Mostra feedback imediatamente
+        feedback.textContent =
+            "💡 Quase! Tente novamente!";
+
+        feedback.className =
+            "feedback-wrong";
+
+
         errors++;
 
 
@@ -683,7 +710,8 @@ function checkAnswer(button) {
         answerButtons.forEach(
             btn => {
 
-                btn.disabled = true;
+                btn.disabled =
+                    true;
 
             }
         );
@@ -712,12 +740,25 @@ if (closeHint) {
         "click",
         () => {
 
+            // Fecha a dica
             hintPopup.classList.remove(
                 "show"
             );
 
 
-            // Limpa as cores
+            // Limpa o feedback
+            if (feedback) {
+
+                feedback.textContent =
+                    "";
+
+                feedback.className =
+                    "";
+
+            }
+
+
+            // Limpa o estado dos botões
             answerButtons.forEach(
                 button => {
 
@@ -726,12 +767,16 @@ if (closeHint) {
                         "wrong"
                     );
 
-                    button.disabled = false;
+
+                    button.disabled =
+                        false;
+
                 }
             );
 
         }
     );
+
 }
 
 
