@@ -1,9 +1,8 @@
 const mapaFases = {
-    1: 'FirstScene.html',
-    2: 'SecondScene.html',
-    3: 'ThirdScene.html',
-    4: 'FourthScene.html',
-    5: 'FifthScene.html'
+    1: '/fase1',
+    2: '/fase2',
+    3: '/fase3',
+    4: '/fase4'
 };
 
 async function checarAcesso(idUser, fase) {

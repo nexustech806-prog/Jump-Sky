@@ -16,6 +16,36 @@ app.get('/', (req, res) => {
     res.sendFile(path.join(__dirname, 'HTML/Pages/index.html'));
 });
 
+app.get('/login', (req, res) => {
+    res.sendFile(path.join(__dirname, 'HTML/Pages/login.html'));
+});
+
+app.get('/registrar', (req, res) => {
+    res.sendFile(path.join(__dirname, 'HTML/Pages/registrar.html'));
+});
+
+app.get('/menu', (req, res) => {
+    res.sendFile(path.join(__dirname, 'HTML/Pages/menu.html'));
+});
+
+// ===== FASES DO JOGO =====
+
+app.get('/fase1', (req, res) => {
+    res.sendFile(path.join(__dirname, 'HTML/Game/FirstScene.html'));
+});
+
+app.get('/fase2', (req, res) => {
+    res.sendFile(path.join(__dirname, 'HTML/Game/SecondScene.html'));
+});
+
+app.get('/fase3', (req, res) => {
+    res.sendFile(path.join(__dirname, 'HTML/Game/ThirdScene.html'));
+});
+
+app.get('/fase4', (req, res) => {
+    res.sendFile(path.join(__dirname, 'HTML/Game/FourthScene.html'));
+});
+
 // Conexão do banco MongoDB
 mongoose.connect(process.env.MONGO_URI)
   .then(() => console.log('Conectado ao MongoDB com sucesso!'))
