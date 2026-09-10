@@ -1,4 +1,4 @@
-// Função para gerar nomes aleatórios
+const API_URL = 'https://jump-sky-gamma.vercel.app';
 async function gerarNome() {
   const adjetivos = [
     "Shadow", "Iron", "Storm", "Dark", "Fire", "Night", "Silver", "Ghost", 
@@ -63,7 +63,7 @@ async function createUser(event) {
   }
 
   try {
-    const answer = await fetch('http://localhost:3000/register', {
+    const answer = await fetch('${API_URL}/register', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json'

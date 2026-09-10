@@ -1,4 +1,4 @@
-// Elementos da tela
+const API_URL = 'https://jump-sky-gamma.vercel.app';
 const questionElement =
     document.getElementById("question");
 
@@ -40,7 +40,7 @@ async function completarFase(fase) {
     const idUser = localStorage.getItem('idUser');
 
     try {
-        const resp = await fetch(`http://localhost:3000/api/save/${idUser}/avancar`, {
+        const resp = await fetch(`${API_URL}/api/save/${idUser}/avancar`, {
             method: 'PUT',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ faseCompletada: fase })

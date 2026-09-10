@@ -1,3 +1,4 @@
+require('dotenv').config();
 const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
@@ -10,7 +11,7 @@ app.use(express.json());
 app.use(cors());
 
 // Conexão do banco MongoDB
-mongoose.connect('mongodb+srv://nexustech806_db_user:Ovoovo13@jump-sky.cnidlzl.mongodb.net/?appName=Jump-Sky')
+mongoose.connect(process.env.MONGO_URI)
   .then(() => console.log('Conectado ao MongoDB com sucesso!'))
   .catch(err => console.log('Erro ao conectar:', err));
 

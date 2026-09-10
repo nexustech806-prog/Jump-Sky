@@ -1,3 +1,4 @@
+const API_URL = 'https://jump-sky-gamma.vercel.app';
 const mapaFases = {
     1: 'FirstScene.html',
     2: 'SecondScene.html',
@@ -7,7 +8,7 @@ const mapaFases = {
 };
 
 async function checarAcesso(idUser, fase) {
-    const resp = await fetch(`http://localhost:3000/api/save/${idUser}/fase/${fase}`);
+    const resp = await fetch(`${API_URL}/api/save/${idUser}/fase/${fase}`);
     const data = await resp.json();
     return data; 
 }

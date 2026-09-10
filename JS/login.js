@@ -1,5 +1,6 @@
 const formLogin = document.getElementById("form_log");
-console.log("Formulário de login encontrado:", formLogin); // Veja se aparece "true/elemento" ou "null" no console do navegador
+console.log("Formulário de login encontrado:", formLogin);
+const API_URL = 'https://jump-sky-gamma.vercel.app'; //URL NECESSARIA PARA 
 
 if (formLogin) {
   formLogin.addEventListener("submit", async (e) => {
@@ -15,7 +16,7 @@ if (formLogin) {
     }
 
     try {
-      const response = await fetch("http://localhost:3000/login", {
+      const response = await fetch("${API_URL}/login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ nickname, password })

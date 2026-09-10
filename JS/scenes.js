@@ -7,10 +7,11 @@ const currentPlatformElement = document.getElementById("currentPlatform");
 const character = document.getElementById("character");
 const restartBtn = document.getElementById("restartBtn");
 const intro = document.getElementById("intro");
+const API_URL = 'https://jump-sky-gamma.vercel.app';
 
 async function ValidProgress(){
     const userSave =  localStorage.getItem('userId');
-    const takeSave = await fetch(`http://localhost:3000/api/save/${userSave}`);
+    const takeSave = await fetch(`${API_URL}/api/save/${userSave}`);
     const data = await takeSave.json();
     if (takeSave.ok && data.saveProgress >= 1) {
         console.log(data.message);
