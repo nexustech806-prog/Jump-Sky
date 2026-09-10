@@ -9,6 +9,12 @@ const bcrypt = require('bcryptjs');
 const app = express();
 app.use(express.json());
 app.use(cors());
+const path = require('path');
+
+app.use(express.static(path.join(__dirname)));
+app.get('/', (req, res) => {
+    res.sendFile(path.join(__dirname, 'HTML/Pages/Index.html'));
+});
 
 // Conexão do banco MongoDB
 mongoose.connect(process.env.MONGO_URI)
