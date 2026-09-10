@@ -63,7 +63,7 @@ async function createUser(event) {
   }
 
   try {
-    const answer = await fetch('${API_URL}/register', {
+    const answer = await fetch(`${API_URL}/register`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json'
