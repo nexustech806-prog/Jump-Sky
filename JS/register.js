@@ -1,4 +1,3 @@
-const API_URL = 'https://jump-sky-gamma.vercel.app';
 async function gerarNome() {
   const adjetivos = [
     "Shadow", "Iron", "Storm", "Dark", "Fire", "Night", "Silver", "Ghost", 

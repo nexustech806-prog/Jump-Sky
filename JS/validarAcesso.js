@@ -1,4 +1,3 @@
-const API_URL = 'https://jump-sky-gamma.vercel.app';
 const mapaFases = {
     1: 'FirstScene.html',
     2: 'SecondScene.html',

@@ -7,7 +7,6 @@ const currentPlatformElement = document.getElementById("currentPlatform");
 const character = document.getElementById("character");
 const restartBtn = document.getElementById("restartBtn");
 const intro = document.getElementById("intro");
-const API_URL = 'https://jump-sky-gamma.vercel.app';
 
 async function ValidProgress(){
     const userSave =  localStorage.getItem('userId');

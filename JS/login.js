@@ -1,6 +1,5 @@
 const formLogin = document.getElementById("form_log");
 console.log("Formulário de login encontrado:", formLogin);
-const API_URL = 'https://jump-sky-gamma.vercel.app';
 
 if (formLogin) {
   formLogin.addEventListener("submit", async (e) => {
