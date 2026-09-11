@@ -27,7 +27,7 @@ if (formLogin) {
         localStorage.setItem('idUser', data.idUser)
         alert("Login efetuado com sucesso!");
 
-        window.location.href = "../Fase1";
+        window.location.href = "/fase1";
       } else {
         alert(data.mensagem);
       }
