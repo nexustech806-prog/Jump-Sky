@@ -72,7 +72,7 @@ function verificarTokenPagina(req, res, next) {
 
 // ===== PÁGINAS GERAIS =====
 app.get('/', (req, res) => {
-    res.sendFile(path.join(__dirname, 'HTML/Pages/Index.html'));
+    res.sendFile(path.join(__dirname, 'HTML/Pages/index.html'));
 });
 app.get('/login', (req, res) => {
     res.sendFile(path.join(__dirname, 'HTML/Pages/login.html'));
