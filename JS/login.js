@@ -17,18 +17,17 @@ if (formLogin) {
     try {
       const response = await fetch(`${API_URL}/login`, {
         method: "POST",
+        credentials: 'include',
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ nickname, password })
       });
 
       const data = await response.json();
 
-      if (response.ok) {
-        localStorage.setItem('idUser', data.idUser)
-        alert("Login efetuado com sucesso!");
-
-        window.location.href = "/fase1";
-      } else {
+     if (response.ok) {
+      alert("Login efetuado com sucesso!");
+      window.location.href = "/fase1";
+     } else {
         alert(data.mensagem);
       }
     } catch (error) {

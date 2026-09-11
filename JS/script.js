@@ -36,11 +36,10 @@ const closeHint =
 const faseAtual = 1;
 
 async function completarFase(fase) {
-    const idUser = localStorage.getItem('idUser');
-
     try {
-        const resp = await fetch(`${API_URL}/api/save/${idUser}/avancar`, {
+        const resp = await fetch(`${API_URL}/api/save/avancar`, {
             method: 'PUT',
+            credentials: 'include', // <- essencial: manda o cookie do token junto
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ faseCompletada: fase })
         });

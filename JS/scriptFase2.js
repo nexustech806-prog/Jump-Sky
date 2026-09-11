@@ -36,11 +36,10 @@ const closeHint =
     const faseAtual = 2;
 
 async function completarFase(fase) {
-    const idUser = localStorage.getItem('idUser');
-
     try {
-        const resp = await fetch(`${API_URL}/api/save/${idUser}/avancar`, {
+        const resp = await fetch(`${API_URL}/api/save/avancar`, {
             method: 'PUT',
+            credentials: 'include', // <- essencial: manda o cookie do token junto
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ faseCompletada: fase })
         });
@@ -51,7 +50,6 @@ async function completarFase(fase) {
         console.error('Erro ao atualizar progresso:', error);
     }
 }
-
 
 // Plataformas
 const platforms = [

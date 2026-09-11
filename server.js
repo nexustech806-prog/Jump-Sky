@@ -2,59 +2,90 @@ require('dotenv').config();
 const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
+const cookieParser = require('cookie-parser');
+const jwt = require('jsonwebtoken');
+const path = require('path');
 const User = require('./Schema/User');
 const SaveData = require('./Schema/Save');
 const bcrypt = require('bcryptjs');
 
 const app = express();
 app.use(express.json());
-app.use(cors());
-const path = require('path');
+app.use(cookieParser());
+app.use(cors({
+    origin: true,       // permite a própria origem
+    credentials: true   // necessário pra cookies funcionarem entre front e API
+}));
 
 app.use(express.static(path.join(__dirname)));
-app.get('/', (req, res) => {
-    res.sendFile(path.join(__dirname, 'HTML/Pages/index.html'));
+
+// ===== CONEXÃO COM MONGODB (cacheada) =====
+let isConnected = false;
+async function connectDB() {
+    if (isConnected) return;
+    try {
+        await mongoose.connect(process.env.MONGO_URI);
+        isConnected = true;
+        console.log('Conectado ao MongoDB com sucesso!');
+    } catch (err) {
+        console.log('Erro ao conectar:', err);
+    }
+}
+app.use(async (req, res, next) => {
+    await connectDB();
+    next();
 });
 
+// ===== MIDDLEWARE: VERIFICA TOKEN =====
+function verificarToken(req, res, next) {
+    const token = req.cookies.token;
+
+    if (!token) {
+        return res.status(401).json({ mensagem: 'Não autenticado' });
+    }
+
+    try {
+        const payload = jwt.verify(token, process.env.JWT_SECRET);
+        req.userId = payload.userId; // disponível nas rotas seguintes
+        next();
+    } catch (error) {
+        return res.status(401).json({ mensagem: 'Token inválido ou expirado' });
+    }
+}
+
+// mesma versão, mas pra páginas HTML (redireciona em vez de responder JSON)
+function verificarTokenPagina(req, res, next) {
+    const token = req.cookies.token;
+
+    if (!token) {
+        return res.redirect('/login');
+    }
+
+    try {
+        const payload = jwt.verify(token, process.env.JWT_SECRET);
+        req.userId = payload.userId;
+        next();
+    } catch (error) {
+        return res.redirect('/login');
+    }
+}
+
+// ===== PÁGINAS GERAIS =====
+app.get('/', (req, res) => {
+    res.sendFile(path.join(__dirname, 'HTML/Pages/Index.html'));
+});
 app.get('/login', (req, res) => {
     res.sendFile(path.join(__dirname, 'HTML/Pages/login.html'));
 });
-
 app.get('/registrar', (req, res) => {
     res.sendFile(path.join(__dirname, 'HTML/Pages/registrar.html'));
 });
 
-app.get('/menu', (req, res) => {
-    res.sendFile(path.join(__dirname, 'HTML/Pages/menu.html'));
-});
-
-// ===== FASES DO JOGO =====
-
-app.get('/fase1', (req, res) => {
-    res.sendFile(path.join(__dirname, 'HTML/Game/FirstScene.html'));
-});
-
-app.get('/fase2', (req, res) => {
-    res.sendFile(path.join(__dirname, 'HTML/Game/SecondScene.html'));
-});
-
-app.get('/fase3', (req, res) => {
-    res.sendFile(path.join(__dirname, 'HTML/Game/ThirdScene.html'));
-});
-
-app.get('/fase4', (req, res) => {
-    res.sendFile(path.join(__dirname, 'HTML/Game/FourthScene.html'));
-});
-
-// Conexão do banco MongoDB
-mongoose.connect(process.env.MONGO_URI)
-  .then(() => console.log('Conectado ao MongoDB com sucesso!'))
-  .catch(err => console.log('Erro ao conectar:', err));
-
+// ===== REGISTRO =====
 app.post('/register', async (req, res) => {
     try {
-        const {nickname, password} = req.body;
-        
+        const { nickname, password } = req.body;
+
         const validUser = await User.findOne({ nickname });
         if (validUser) {
             return res.status(409).json({ mensagem: 'Este apelido já existe!' });
@@ -71,14 +102,28 @@ app.post('/register', async (req, res) => {
             saveProgress: 1
         });
 
-        console.log("Usuário salvo no MongoDB com sucesso:", );
-        return res.status(201).json({ mensagem: 'Usuario criado com sucesso!', idUser: newUser._id});
+        // gera o token, igual fazemos no login
+        const token = jwt.sign(
+            { userId: newUser._id },
+            process.env.JWT_SECRET,
+            { expiresIn: '2h' }
+        );
+
+        res.cookie('token', token, {
+            httpOnly: true,
+            secure: true,
+            sameSite: 'lax',
+            maxAge: 2 * 60 * 60 * 1000
+        });
+
+        return res.status(201).json({ mensagem: 'Usuario criado com sucesso!' });
     } catch (error) {
         console.error("Erro ao salvar:", error.message);
         return res.status(400).json({ mensagem: 'erro ao criar o usuario', erro: error.message });
     }
 });
 
+// ===== LOGIN =====
 app.post('/login', async (req, res) => {
     try {
         const { nickname, password } = req.body;
@@ -88,46 +133,84 @@ app.post('/login', async (req, res) => {
             return res.status(404).json({ mensagem: 'Usuário não encontrado!' });
         }
 
-        
         const senhaCorreta = await bcrypt.compare(password, user.password);
         if (!senhaCorreta) {
             return res.status(401).json({ mensagem: 'Senha incorreta!' });
         }
 
-        return res.status(200).json({ mensagem: 'Login realizado com sucesso!', idUser: user._id });
+        // gera o token
+        const token = jwt.sign(
+            { userId: user._id },
+            process.env.JWT_SECRET,
+            { expiresIn: '2h' }
+        );
+
+        
+        res.cookie('token', token, {
+            httpOnly: true,
+            secure: true, 
+            sameSite: 'lax',
+            maxAge: 2 * 60 * 60 * 1000
+        });
+
+        return res.status(200).json({ mensagem: 'Login realizado com sucesso!' });
     } catch (error) {
         console.error("Erro no login:", error.message);
         return res.status(500).json({ mensagem: 'Erro interno no servidor' });
     }
 });
 
-app.get('/api/save/:userId/fase/:faseDesejada', async (req, res) => {
-    try {
-        const { userId, faseDesejada } = req.params;
+// ===== LOGOUT =====
+app.post('/logout', (req, res) => {
+    res.clearCookie('token');
+    return res.status(200).json({ mensagem: 'Logout realizado' });
+});
 
-        const save = await SaveData.findOne({ userId: new mongoose.Types.ObjectId(userId) });
+const mapaArquivos = {
+    1: 'FirstScene.html',
+    2: 'SecondScene.html',
+    3: 'ThirdScene.html',
+    4: 'FourthScene.html'
+};
+
+app.get('/fase:num', verificarTokenPagina, async (req, res) => {
+    try {
+        const faseNum = Number(req.params.num);
+
+        const save = await SaveData.findOne({ userId: new mongoose.Types.ObjectId(req.userId) });
         if (!save) {
-            return res.status(404).json({ mensagem: 'Save não encontrado' });
+            return res.redirect('/login');
         }
 
-        const faseNum = Number(faseDesejada);
-        const liberado = faseNum <= save.saveProgress;
+        if (faseNum > save.saveProgress) {
+            return res.redirect(`/fase${save.saveProgress}`);
+        }
 
-        return res.status(200).json({
-            liberado,
-            saveProgress: save.saveProgress
-        });
+        return res.sendFile(path.join(__dirname, 'HTML/Game', mapaArquivos[faseNum]));
     } catch (error) {
-        return res.status(400).json({ mensagem: 'Erro ao validar acesso à fase' });
+        return res.redirect('/login');
     }
 });
 
-app.put('/api/save/:userId/avancar', async (req, res) => {
-    try {
-        const { userId } = req.params;
-        const { faseCompletada } = req.body;
 
-        const save = await SaveData.findOne({ userId: new mongoose.Types.ObjectId(userId) });
+app.get('/api/save', verificarToken, async (req, res) => {
+    try {
+        const save = await SaveData.findOne({ userId: new mongoose.Types.ObjectId(req.userId) });
+        if (!save) {
+            return res.status(404).json({ mensagem: 'Save não encontrado' });
+        }
+        return res.status(200).json({ saveProgress: save.saveProgress });
+    } catch (error) {
+        return res.status(400).json({ mensagem: 'Erro ao buscar progresso' });
+    }
+});
+
+
+app.put('/api/save/avancar', verificarToken, async (req, res) => {
+    try {
+        const faseCompletada = Number(req.body.faseCompletada);
+
+        const save = await SaveData.findOne({ userId: new mongoose.Types.ObjectId(req.userId) });
         if (!save) {
             return res.status(404).json({ mensagem: 'Save não encontrado' });
         }
@@ -143,10 +226,6 @@ app.put('/api/save/:userId/avancar', async (req, res) => {
     }
 });
 
-
 app.listen(3000, () => {
   console.log('Servidor rodando na porta 3000 🚀');
 });
-
-
-

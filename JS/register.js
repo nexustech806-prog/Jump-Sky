@@ -49,13 +49,11 @@ async function createUser(event) {
   const passwordValue = document.getElementById("password_reg").value;
   const confirmValue = document.getElementById("confirm_password_reg").value;
 
-  // Validação de campos vazios
   if (!nicknameValue || !passwordValue || !confirmValue) {
     alert("Por favor, preencha todos os campos!");
     return;
   }
 
-  // Validação se as senhas conferem
   if (passwordValue !== confirmValue) {
     alert("As senhas não coincidem!");
     return;
@@ -64,9 +62,8 @@ async function createUser(event) {
   try {
     const answer = await fetch(`${API_URL}/register`, {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
+      credentials: 'include', // <- necessário pra receber o cookie
+      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         nickname: nicknameValue,
         password: passwordValue
@@ -74,13 +71,10 @@ async function createUser(event) {
     });
 
     const result = await answer.json();
-    console.log(result)
 
     if (answer.ok) {
       alert('Usuário cadastrado com sucesso!');
-      console.log(result.mensagem);
-      localStorage.setItem('idUser', result.idUser)
-      window.location.href = "login.html"; 
+      window.location.href = "/fase1"; // já entra direto no jogo
     } else {
       alert('Erro: ' + (result.erro || result.mensagem));
     }
