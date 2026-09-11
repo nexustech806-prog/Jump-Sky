@@ -1,1 +1,1 @@
-const API_URL = 'https://jump-sky-gamma.vercel.app';
+const API_URL = 'https://jumpsky.vercel.app';
