@@ -27,7 +27,7 @@ if (formLogin) {
         localStorage.setItem('idUser', data.idUser)
         alert("Login efetuado com sucesso!");
 
-        window.location.href = "../Game/FirstScene.html";
+        window.location.href = "../Fase1";
       } else {
         alert(data.mensagem);
       }
