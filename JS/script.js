@@ -35,6 +35,13 @@ const closeHint =
 
 const faseAtual = 1;
 
+const characterImage = document.getElementById("characterImage");
+const avatarSelecionado = localStorage.getItem("avatarSelecionado");
+
+if (avatarSelecionado) {
+    characterImage.src = `/images/${avatarSelecionado}`;
+}
+
 async function completarFase(fase) {
     try {
         const resp = await fetch(`${API_URL}/api/save/avancar`, {
