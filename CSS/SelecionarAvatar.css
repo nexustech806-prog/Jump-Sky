@@ -45,49 +45,51 @@ body {
     width: 170px;
     height: 220px;
     padding: 10px;
-    border: 4px solid transparent;
-    border-radius: 18px;
-    background: #f2f2f2;
-    cursor: pointer;
-    transition: 0.2s;
-}
 
-.avatar:hover {
-    transform: translateY(-5px);
-    background: #e9f7ff;
+    border: 4px solid #ccc;
+    border-radius: 18px;
+
+    background: white;
+
+    cursor: pointer;
 }
 
 .avatar img {
+    display: block;
     width: 100%;
     height: 100%;
     object-fit: contain;
+
+    pointer-events: none;
 }
 
+/* Avatar escolhido */
 .avatar.selecionado {
-    border-color: #28a745;
-    background: #e6ffe9;
-    transform: translateY(-5px);
+    border-color: green;
 }
 
+/* Texto abaixo dos avatares */
 #mensagem {
     margin: 25px 0 15px;
     font-size: 16px;
 }
 
+/* Botão continuar */
 #continuar {
     padding: 12px 35px;
+
     border: none;
     border-radius: 10px;
+
     background: #28a745;
     color: white;
+
     font-size: 18px;
+
     cursor: pointer;
 }
 
-#continuar:hover:not(:disabled) {
-    transform: scale(1.05);
-}
-
+/* Botão bloqueado enquanto nenhum avatar foi escolhido */
 #continuar:disabled {
     background: #aaa;
     cursor: not-allowed;

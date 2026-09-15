@@ -7,27 +7,25 @@ let avatarSelecionado = null;
 avatares.forEach((avatar) => {
     avatar.addEventListener("click", () => {
 
-        // Remove a seleção anterior
+        // Remove a seleção de todos
         avatares.forEach((item) => {
             item.classList.remove("selecionado");
         });
 
-        // Marca o novo avatar
+        // Seleciona apenas o clicado
         avatar.classList.add("selecionado");
 
         avatarSelecionado = avatar.dataset.avatar;
 
-        mensagem.textContent = "Avatar selecionado!";
         continuarBtn.disabled = false;
+        mensagem.textContent = "Avatar selecionado!";
     });
 });
 
 continuarBtn.addEventListener("click", () => {
-    if (!avatarSelecionado) {
-        return;
-    }
+    if (!avatarSelecionado) return;
 
     localStorage.setItem("avatarSelecionado", avatarSelecionado);
 
-    window.location.href = "/fase1";
+    console.log("Avatar salvo:", avatarSelecionado);
 });
