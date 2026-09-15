@@ -167,27 +167,37 @@ app.post('/logout', (req, res) => {
     return res.status(200).json({ mensagem: 'Logout realizado' });
 });
 
-const mapaArquivos = {
-    1: 'FirstScene.html',
-    2: 'SecondScene.html',
-    3: 'ThirdScene.html',
-    4: 'FourthScene.html'
+
+const fasesConfig = {
+    'somando-nas-nuvens': { numero: 1, arquivo: 'FirstScene.html' },
+    'subtraindo-no-subsolo': { numero: 2, arquivo: 'SecondScene.html' },
+    'multiplicando-no-oceano': { numero: 3, arquivo: 'ThirdScene.html' },
+    'dividindo-no-vulcao': { numero: 4, arquivo: 'FourthScene.html' }
 };
 
-app.get('/fase:num', verificarTokenPagina, async (req, res) => {
-    try {
-        const faseNum = Number(req.params.num);
+app.get('/:slug', verificarTokenPagina, async (req, res, next) => {
+    const config = fasesConfig[req.params.slug];
 
+    // se não é um slug de fase conhecido, passa pra frente (next)
+    if (!config) {
+        return next();
+    }
+
+    try {
         const save = await SaveData.findOne({ userId: new mongoose.Types.ObjectId(req.userId) });
         if (!save) {
             return res.redirect('/login');
         }
 
-        if (faseNum > save.saveProgress) {
-            return res.redirect(`/fase${save.saveProgress}`);
+        if (config.numero > save.saveProgress) {
+            // acha o slug da fase que ele realmente tem acesso
+            const slugValido = Object.keys(fasesConfig).find(
+                key => fasesConfig[key].numero === save.saveProgress
+            );
+            return res.redirect(`/${slugValido}`);
         }
 
-        return res.sendFile(path.join(__dirname, 'HTML/Game', mapaArquivos[faseNum]));
+        return res.sendFile(path.join(__dirname, 'HTML/Game', config.arquivo));
     } catch (error) {
         return res.redirect('/login');
     }

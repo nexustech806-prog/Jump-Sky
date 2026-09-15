@@ -1031,12 +1031,9 @@ answerButtons.forEach(
 // ========================================
 
 if (restartBtn) {
-
-    restartBtn.addEventListener(
-        "click",
-        restartGame
-    );
-
+    restartBtn.addEventListener("click", () => {
+        window.location.href = '/menu';
+    });
 }
 
 

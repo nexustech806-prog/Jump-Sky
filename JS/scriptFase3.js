@@ -910,9 +910,23 @@ answerButtons.forEach(
 // BOTÃO DE FINAL DA FASE
 // ========================================
 
+const slugsPorFase = {
+    1: 'somando-nas-nuvens',
+    2: 'subtraindo-no-subsolo',
+    3: 'multiplicando-no-oceano',
+    4: 'dividindo-no-vulcao'
+};
+
 if (restartBtn) {
     restartBtn.addEventListener("click", () => {
-        window.location.href = `/fase${faseAtual + 1}`;
+        const proximaFase = faseAtual + 1;
+
+        if (slugsPorFase[proximaFase]) {
+            window.location.href = `/${slugsPorFase[proximaFase]}`;
+        } else {
+            // não existe próxima fase, volta pro menu (ou tela de "zerou o jogo")
+            window.location.href = '/menu';
+        }
     });
 }
 
