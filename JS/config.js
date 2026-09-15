@@ -1,1 +1,1 @@
-const API_URL = 'https://jumpsky.vercel.app';
+const API_URL = 'http://localhost:3000';

@@ -81,10 +81,13 @@ app.get('/registrar', (req, res) => {
     res.sendFile(path.join(__dirname, 'HTML/Pages/registrar.html'));
 });
 
+app.get('/selecionar-avatar', (req, res) => {
+    res.sendFile(path.join(__dirname, 'HTML/Pages/SelecionarAvatar.html'));
+});
 // ===== REGISTRO =====
 app.post('/register', async (req, res) => {
     try {
-        const { nickname, password } = req.body;
+        const { nickname, password, avatar } = req.body; 
 
         const validUser = await User.findOne({ nickname });
         if (validUser) {
@@ -94,7 +97,11 @@ app.post('/register', async (req, res) => {
         const saltRounds = 10;
         const hashedPassword = await bcrypt.hash(password, saltRounds);
 
-        const newUser = new User({ nickname, password: hashedPassword });
+        const newUser = new User({
+            nickname,
+            password: hashedPassword,
+            avatar: avatar || 'personagem.png' 
+        });
         await newUser.save();
 
         await SaveData.create({
@@ -102,13 +109,7 @@ app.post('/register', async (req, res) => {
             saveProgress: 1
         });
 
-        // gera o token, igual fazemos no login
-        const token = jwt.sign(
-            { userId: newUser._id },
-            process.env.JWT_SECRET,
-            { expiresIn: '2h' }
-        );
-
+        const token = jwt.sign({ userId: newUser._id }, process.env.JWT_SECRET, { expiresIn: '2h' });
         res.cookie('token', token, {
             httpOnly: true,
             secure: true,

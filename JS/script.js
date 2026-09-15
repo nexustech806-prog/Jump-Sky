@@ -857,10 +857,9 @@ answerButtons.forEach(
 
 if (restartBtn) {
     restartBtn.addEventListener("click", () => {
-        window.location.href = mapaFases[faseAtual + 1];
+        window.location.href = `/fase${faseAtual + 1}`;
     });
 }
-
 
 // ========================================
 // INTRO

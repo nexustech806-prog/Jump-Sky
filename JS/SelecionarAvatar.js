@@ -28,4 +28,6 @@ continuarBtn.addEventListener("click", () => {
     localStorage.setItem("avatarSelecionado", avatarSelecionado);
 
     console.log("Avatar salvo:", avatarSelecionado);
+
+    window.location.href = "/registrar"; // <- faltava isso
 });
