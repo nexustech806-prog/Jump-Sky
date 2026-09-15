@@ -74,7 +74,7 @@ async function createUser(event) {
 
     if (answer.ok) {
       alert('Usuário cadastrado com sucesso!');
-      window.location.href = "/fase1"; // já entra direto no jogo
+      window.location.href = "/selecionar-avatar";
     } else {
       alert('Erro: ' + (result.erro || result.mensagem));
     }
