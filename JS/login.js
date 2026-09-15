@@ -26,7 +26,7 @@ if (formLogin) {
 
      if (response.ok) {
       alert("Login efetuado com sucesso!");
-      window.location.href = "/selecionar-avatar";
+      window.location.href = "/fase1";
      } else {
         alert(data.mensagem);
       }

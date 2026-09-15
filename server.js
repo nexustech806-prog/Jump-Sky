@@ -81,10 +81,6 @@ app.get('/registrar', (req, res) => {
     res.sendFile(path.join(__dirname, 'HTML/Pages/registrar.html'));
 });
 
-app.get('/selecionar-avatar', verificarTokenPagina, (req, res) => {
-    res.sendFile(path.join(__dirname, 'HTML/Pages/SelecionarAvatar.html'));
-});
-
 // ===== REGISTRO =====
 app.post('/register', async (req, res) => {
     try {
