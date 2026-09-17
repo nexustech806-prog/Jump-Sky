@@ -7,6 +7,8 @@ const jwt = require('jsonwebtoken');
 const path = require('path');
 const User = require('./Schema/User');
 const SaveData = require('./Schema/Save');
+const nomesComuns = require('./nomesComuns.json');
+const sobrenomesComuns = require('./sobrenomesComuns.json');
 const bcrypt = require('bcryptjs');
 
 const app = express();
@@ -19,7 +21,7 @@ app.use(cors({
 
 app.use(express.static(path.join(__dirname)));
 
-// ===== CONEXÃO COM MONGODB (cacheada) =====
+
 let isConnected = false;
 async function connectDB() {
     if (isConnected) return;
@@ -36,7 +38,7 @@ app.use(async (req, res, next) => {
     next();
 });
 
-// ===== MIDDLEWARE: VERIFICA TOKEN =====
+
 function verificarToken(req, res, next) {
     const token = req.cookies.token;
 
@@ -46,14 +48,14 @@ function verificarToken(req, res, next) {
 
     try {
         const payload = jwt.verify(token, process.env.JWT_SECRET);
-        req.userId = payload.userId; // disponível nas rotas seguintes
+        req.userId = payload.userId; 
         next();
     } catch (error) {
         return res.status(401).json({ mensagem: 'Token inválido ou expirado' });
     }
 }
 
-// mesma versão, mas pra páginas HTML (redireciona em vez de responder JSON)
+
 function verificarTokenPagina(req, res, next) {
     const token = req.cookies.token;
 
@@ -70,7 +72,17 @@ function verificarTokenPagina(req, res, next) {
     }
 }
 
-// ===== PÁGINAS GERAIS =====
+const todosNomes = [...nomesComuns, ...sobrenomesComuns];
+
+function contemNomeReal(apelido) {
+    const apelidoLower = apelido.toLowerCase();
+    const partes = apelidoLower.match(/[a-zà-ú]+/g) || [];
+
+    return partes.some(parte =>
+        todosNomes.includes(parte) && parte.length >= 3
+    );
+}
+
 app.get('/', (req, res) => {
     res.sendFile(path.join(__dirname, 'HTML/Pages/index.html'));
 });
@@ -81,13 +93,23 @@ app.get('/registrar', (req, res) => {
     res.sendFile(path.join(__dirname, 'HTML/Pages/registrar.html'));
 });
 
+app.get('/menu', (req, res) => {
+    res.sendFile(path.join(__dirname, 'HTML/Pages/menu.html'));
+});
+
 app.get('/selecionar-avatar', (req, res) => {
     res.sendFile(path.join(__dirname, 'HTML/Pages/SelecionarAvatar.html'));
 });
-// ===== REGISTRO =====
+
 app.post('/register', async (req, res) => {
     try {
         const { nickname, password, avatar } = req.body; 
+
+        if (contemNomeReal(nickname)) {
+            return res.status(400).json({
+                mensagem: 'Por segurança, não use seu nome real como apelido. Tente outra combinação!'
+            });
+        }
 
         const validUser = await User.findOne({ nickname });
         if (validUser) {
@@ -178,7 +200,7 @@ const fasesConfig = {
 app.get('/:slug', verificarTokenPagina, async (req, res, next) => {
     const config = fasesConfig[req.params.slug];
 
-    // se não é um slug de fase conhecido, passa pra frente (next)
+  
     if (!config) {
         return next();
     }
@@ -190,7 +212,7 @@ app.get('/:slug', verificarTokenPagina, async (req, res, next) => {
         }
 
         if (config.numero > save.saveProgress) {
-            // acha o slug da fase que ele realmente tem acesso
+     
             const slugValido = Object.keys(fasesConfig).find(
                 key => fasesConfig[key].numero === save.saveProgress
             );
