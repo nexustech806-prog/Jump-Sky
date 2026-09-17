@@ -13,9 +13,9 @@
             <section class="Menu-Content">
                 <Span class="Game-Title"><a href="/">Jump Sky</a></Span>
                 <div class="Menu-Text">
-                <span><a href="/fase1">Jogar </a></span>
+                <span><a href="/somando-nas-nuvens">Jogar </a></span>
                 <span><a href="/login"> Entrar</a> </span>
-                <span> <a href="/registrar"> Registrar</a></span>
+                <span> <a href="/selecionar-avatar"> Registrar</a></span>
                 </div>
             </section>
         </div>
@@ -27,11 +27,9 @@
                 
                 <div class="input-group">
                     <label>Crie um apelido</label>
-                    <input type="text" id="login_reg" placeholder="Crie um apelido">
-                    <div style="display: flex; align-items: center; gap: 20px;">
-                        <span>Clique no dado para gerar um nome</span> 
-                        <span class="material-symbols-outlined" id="Dice_Name" style="cursor: pointer;">casino</span>
-                    </div>
+                    <input type="text" id="login_reg" placeholder="Seu apelido">
+                    <span class="text-dice">clique para sortear um nome<span id="Dice_Name">🎲</span></span>
+                    <div id="nomesSugeridos" class="nomes-sugeridos"></div>
                 </div>
 
                 <div class="input-group">

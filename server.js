@@ -81,10 +81,13 @@ app.get('/registrar', (req, res) => {
     res.sendFile(path.join(__dirname, 'HTML/Pages/registrar.html'));
 });
 
+app.get('/selecionar-avatar', (req, res) => {
+    res.sendFile(path.join(__dirname, 'HTML/Pages/SelecionarAvatar.html'));
+});
 // ===== REGISTRO =====
 app.post('/register', async (req, res) => {
     try {
-        const { nickname, password } = req.body;
+        const { nickname, password, avatar } = req.body; 
 
         const validUser = await User.findOne({ nickname });
         if (validUser) {
@@ -94,7 +97,11 @@ app.post('/register', async (req, res) => {
         const saltRounds = 10;
         const hashedPassword = await bcrypt.hash(password, saltRounds);
 
-        const newUser = new User({ nickname, password: hashedPassword });
+        const newUser = new User({
+            nickname,
+            password: hashedPassword,
+            avatar: avatar || 'personagem.png' 
+        });
         await newUser.save();
 
         await SaveData.create({
@@ -102,13 +109,7 @@ app.post('/register', async (req, res) => {
             saveProgress: 1
         });
 
-        // gera o token, igual fazemos no login
-        const token = jwt.sign(
-            { userId: newUser._id },
-            process.env.JWT_SECRET,
-            { expiresIn: '2h' }
-        );
-
+        const token = jwt.sign({ userId: newUser._id }, process.env.JWT_SECRET, { expiresIn: '2h' });
         res.cookie('token', token, {
             httpOnly: true,
             secure: true,
@@ -166,27 +167,37 @@ app.post('/logout', (req, res) => {
     return res.status(200).json({ mensagem: 'Logout realizado' });
 });
 
-const mapaArquivos = {
-    1: 'FirstScene.html',
-    2: 'SecondScene.html',
-    3: 'ThirdScene.html',
-    4: 'FourthScene.html'
+
+const fasesConfig = {
+    'somando-nas-nuvens': { numero: 1, arquivo: 'FirstScene.html' },
+    'subtraindo-no-subsolo': { numero: 2, arquivo: 'SecondScene.html' },
+    'multiplicando-no-oceano': { numero: 3, arquivo: 'ThirdScene.html' },
+    'dividindo-no-vulcao': { numero: 4, arquivo: 'FourthScene.html' }
 };
 
-app.get('/fase:num', verificarTokenPagina, async (req, res) => {
-    try {
-        const faseNum = Number(req.params.num);
+app.get('/:slug', verificarTokenPagina, async (req, res, next) => {
+    const config = fasesConfig[req.params.slug];
 
+    // se não é um slug de fase conhecido, passa pra frente (next)
+    if (!config) {
+        return next();
+    }
+
+    try {
         const save = await SaveData.findOne({ userId: new mongoose.Types.ObjectId(req.userId) });
         if (!save) {
             return res.redirect('/login');
         }
 
-        if (faseNum > save.saveProgress) {
-            return res.redirect(`/fase${save.saveProgress}`);
+        if (config.numero > save.saveProgress) {
+            // acha o slug da fase que ele realmente tem acesso
+            const slugValido = Object.keys(fasesConfig).find(
+                key => fasesConfig[key].numero === save.saveProgress
+            );
+            return res.redirect(`/${slugValido}`);
         }
 
-        return res.sendFile(path.join(__dirname, 'HTML/Game', mapaArquivos[faseNum]));
+        return res.sendFile(path.join(__dirname, 'HTML/Game', config.arquivo));
     } catch (error) {
         return res.redirect('/login');
     }

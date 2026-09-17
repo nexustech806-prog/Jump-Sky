@@ -26,7 +26,7 @@ if (formLogin) {
 
      if (response.ok) {
       alert("Login efetuado com sucesso!");
-      window.location.href = "/fase1";
+      window.location.href = "/somando-nas-nuvens";
      } else {
         alert(data.mensagem);
       }

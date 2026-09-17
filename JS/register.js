@@ -1,4 +1,4 @@
-async function gerarNome() {
+function gerarUmNome() {
   const adjetivos = [
     "Shadow", "Iron", "Storm", "Dark", "Fire", "Night", "Silver", "Ghost", 
     "Blood", "Frost", "Thunder", "Swift", "Brave", "Ancient", "Toxic", 
@@ -19,29 +19,50 @@ async function gerarNome() {
 
   const numeroAleatorio = Math.floor(Math.random() * 900) + 100;
   const tipoCombinacao = Math.floor(Math.random() * 2);
-  let nomeGerado = "";
-
   const tituloAleatorio = titulos[Math.floor(Math.random() * titulos.length)];
 
   if (tipoCombinacao === 0) {
     const animalAleatorio = animais[Math.floor(Math.random() * animais.length)];
-    nomeGerado = `${tituloAleatorio}${animalAleatorio}${numeroAleatorio}`;
+    return `${tituloAleatorio}${animalAleatorio}${numeroAleatorio}`;
   } else {
     const adjAleatorio = adjetivos[Math.floor(Math.random() * adjetivos.length)];
-    nomeGerado = `${tituloAleatorio}${adjAleatorio}${numeroAleatorio}`;
+    return `${tituloAleatorio}${adjAleatorio}${numeroAleatorio}`;
+  }
+}
+
+function gerarNome() {
+  const container = document.getElementById("nomesSugeridos");
+  if (!container) return;
+
+  container.innerHTML = "";
+
+  const nomesGerados = new Set();
+  while (nomesGerados.size < 3) {
+    nomesGerados.add(gerarUmNome()); // agora chama a função certa
   }
 
-  const inputNickname = document.getElementById("login_reg");
-  if (inputNickname) {
-    inputNickname.value = nomeGerado;
-  }
+  nomesGerados.forEach(nome => {
+    const botao = document.createElement("button");
+    botao.type = "button";
+    botao.textContent = nome;
+    botao.classList.add("nome-sugestao-btn");
+
+    botao.addEventListener("click", () => {
+      const inputNickname = document.getElementById("login_reg");
+      if (inputNickname) {
+        inputNickname.value = nome;
+      }
+      container.innerHTML = "";
+    });
+
+    container.appendChild(botao);
+  });
 }
 
 const diceIcon = document.getElementById("Dice_Name");
 if (diceIcon) {
-  diceIcon.addEventListener("click", gerarNome);
+  diceIcon.addEventListener("click", gerarNome); // chama a função que monta as 3 opções
 }
-
 async function createUser(event) {
   event.preventDefault();
 
@@ -59,22 +80,26 @@ async function createUser(event) {
     return;
   }
 
+  const avatarEscolhido = localStorage.getItem('avatarEscolhido') || 'personagem.png';
+
   try {
     const answer = await fetch(`${API_URL}/register`, {
       method: 'POST',
-      credentials: 'include', // <- necessário pra receber o cookie
+      credentials: 'include',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         nickname: nicknameValue,
-        password: passwordValue
+        password: passwordValue,
+        avatar: avatarEscolhido // <- envia junto
       })
     });
 
     const result = await answer.json();
 
     if (answer.ok) {
+      localStorage.removeItem('avatarEscolhido');
       alert('Usuário cadastrado com sucesso!');
-      window.location.href = "/selecionar-avatar";
+      window.location.href = "/somando-nas-nuvens";
     } else {
       alert('Erro: ' + (result.erro || result.mensagem));
     }
