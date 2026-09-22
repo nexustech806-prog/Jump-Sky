@@ -7,6 +7,8 @@ const answerButtons = document.querySelectorAll(".answer-btn");
 
 const livesElement = document.getElementById("lives");
 const scoreElement = document.getElementById("score");
+const highScoreElement = document.getElementById("highScore");
+const recordMessage = document.getElementById("recordMessage");
 const questionNumberElement = document.getElementById("questionNumber");
 const timerElement = document.getElementById("timer");
 
@@ -20,6 +22,10 @@ const finalScore = document.getElementById("finalScore");
 
 const playAgainBtn = document.getElementById("playAgainBtn");
 const menuBtn = document.getElementById("menuBtn");
+
+const timeoutActions = document.getElementById("timeoutActions");
+const retryQuestionBtn = document.getElementById("retryQuestionBtn");
+const nextQuestionBtn = document.getElementById("nextQuestionBtn");
 
 
 // ========================================
@@ -62,11 +68,6 @@ const characterPositions = [
 const TEMPO_POR_QUESTAO = 15;
 const TOTAL_PLATAFORMAS = 10;
 
-/*
-    IMPORTANTE:
-    mantenha aqui os nomes reais das imagens
-    que você já colocou no seu projeto.
-*/
 const cenarios = [
     "/images/bonus1.jpeg",
     "/images/bonus2.jpeg",
@@ -88,8 +89,14 @@ const nomesCenarios = [
 
 let vidas = 3;
 let pontos = 0;
-
 let numeroQuestao = 1;
+
+let recorde =
+    Number(
+        localStorage.getItem("bonusHighScore")
+    ) || 0;
+
+let avisoRecordeMostrado = false;
 
 let tempoRestante = TEMPO_POR_QUESTAO;
 let intervaloTimer = null;
@@ -99,15 +106,12 @@ let questaoAtual = null;
 let jogoFinalizado = false;
 let bloqueado = false;
 
-// Posição atual do personagem: 0 até 9
 let posicaoPersonagem = 0;
-
-// Cenário atual
 let indiceCenario = 0;
 
 
 // ========================================
-// NÚMERO ALEATÓRIO
+// FUNÇÕES AUXILIARES
 // ========================================
 
 function numeroAleatorio(min, max) {
@@ -116,19 +120,11 @@ function numeroAleatorio(min, max) {
     ) + min;
 }
 
-
-// ========================================
-// EMBARALHA ARRAY
-// ========================================
-
 function embaralhar(array) {
-
     for (let i = array.length - 1; i > 0; i--) {
-
-        const j =
-            Math.floor(
-                Math.random() * (i + 1)
-            );
+        const j = Math.floor(
+            Math.random() * (i + 1)
+        );
 
         [array[i], array[j]] =
             [array[j], array[i]];
@@ -137,24 +133,7 @@ function embaralhar(array) {
     return array;
 }
 
-
-// ========================================
-// DIFICULDADE INFINITA
-// ========================================
-
 function obterDificuldade() {
-
-    /*
-        A cada 5 pontos a dificuldade aumenta.
-
-        0 - 4   = nível 1
-        5 - 9   = nível 2
-        10 - 14 = nível 3
-        ...
-
-        Não existe limite máximo.
-    */
-
     return Math.floor(pontos / 5) + 1;
 }
 
@@ -164,7 +143,6 @@ function obterDificuldade() {
 // ========================================
 
 function gerarQuestao() {
-
     const dificuldade =
         obterDificuldade();
 
@@ -187,102 +165,49 @@ function gerarQuestao() {
     let numero2;
     let resposta;
 
-
-    // ========================================
-    // ADIÇÃO
-    // ========================================
-
     if (operacao === "+") {
-
         const maximo =
             10 + (dificuldade * 5);
 
         numero1 =
-            numeroAleatorio(
-                1,
-                maximo
-            );
+            numeroAleatorio(1, maximo);
 
         numero2 =
-            numeroAleatorio(
-                1,
-                maximo
-            );
+            numeroAleatorio(1, maximo);
 
         resposta =
             numero1 + numero2;
     }
 
-
-    // ========================================
-    // SUBTRAÇÃO
-    // ========================================
-
     else if (operacao === "-") {
-
         const maximo =
             10 + (dificuldade * 5);
 
         numero1 =
-            numeroAleatorio(
-                2,
-                maximo
-            );
+            numeroAleatorio(2, maximo);
 
         numero2 =
-            numeroAleatorio(
-                1,
-                numero1
-            );
+            numeroAleatorio(1, numero1);
 
         resposta =
             numero1 - numero2;
     }
 
-
-    // ========================================
-    // MULTIPLICAÇÃO
-    // ========================================
-
     else if (operacao === "×") {
-
-        /*
-            Multiplicação cresce mais devagar
-            para não gerar números gigantes
-            muito rapidamente.
-        */
-
         const maximo =
             5 + (dificuldade * 2);
 
         numero1 =
-            numeroAleatorio(
-                2,
-                maximo
-            );
+            numeroAleatorio(2, maximo);
 
         numero2 =
-            numeroAleatorio(
-                2,
-                maximo
-            );
+            numeroAleatorio(2, maximo);
 
         resposta =
             numero1 * numero2;
     }
 
-
-    // ========================================
-    // DIVISÃO
-    // ========================================
-
     else {
-
-        /*
-            A divisão sempre terá
-            resultado inteiro/exato.
-        */
-
         const maximoDivisor =
             4 + dificuldade;
 
@@ -305,17 +230,15 @@ function gerarQuestao() {
             numero2 * resposta;
     }
 
-
     const respostas =
         gerarRespostas(resposta);
 
     return {
-        numero1: numero1,
-        numero2: numero2,
-        operacao: operacao,
+        numero1,
+        numero2,
+        operacao,
         correta: resposta,
-        respostas: respostas,
-
+        respostas,
         texto:
             `Quanto é ${numero1} ${operacao} ${numero2}?`
     };
@@ -327,7 +250,6 @@ function gerarQuestao() {
 // ========================================
 
 function gerarRespostas(correta) {
-
     const respostas =
         new Set();
 
@@ -342,7 +264,6 @@ function gerarRespostas(correta) {
         );
 
     while (respostas.size < 3) {
-
         const errada =
             correta +
             numeroAleatorio(
@@ -368,29 +289,22 @@ function gerarRespostas(correta) {
 
 
 // ========================================
-// CARREGA NOVA QUESTÃO
+// PREPARA UMA QUESTÃO NA TELA
 // ========================================
 
-function carregarQuestao() {
-
-    if (jogoFinalizado) {
-        return;
-    }
-
+function exibirQuestaoAtual() {
     bloqueado = false;
+
+    timeoutActions.classList.remove("show");
 
     feedback.textContent = "";
     feedback.className = "";
-
-    questaoAtual =
-        gerarQuestao();
 
     questionElement.textContent =
         questaoAtual.texto;
 
     answerButtons.forEach(
         (button, index) => {
-
             button.textContent =
                 questaoAtual.respostas[index];
 
@@ -404,12 +318,26 @@ function carregarQuestao() {
     );
 
     atualizarInterface();
-
     atualizarCenario();
-
     atualizarPersonagem(false);
 
     iniciarTimer();
+}
+
+
+// ========================================
+// CARREGA NOVA QUESTÃO
+// ========================================
+
+function carregarQuestao() {
+    if (jogoFinalizado) {
+        return;
+    }
+
+    questaoAtual =
+        gerarQuestao();
+
+    exibirQuestaoAtual();
 }
 
 
@@ -418,7 +346,6 @@ function carregarQuestao() {
 // ========================================
 
 function iniciarTimer() {
-
     pararTimer();
 
     tempoRestante =
@@ -430,33 +357,22 @@ function iniciarTimer() {
     intervaloTimer =
         setInterval(
             () => {
-
                 tempoRestante--;
 
                 timerElement.textContent =
                     tempoRestante;
 
                 if (tempoRestante <= 0) {
-
                     pararTimer();
-
                     tempoEsgotado();
                 }
-
             },
             1000
         );
 }
 
-
-// ========================================
-// PARA O TIMER
-// ========================================
-
 function pararTimer() {
-
     if (intervaloTimer) {
-
         clearInterval(
             intervaloTimer
         );
@@ -471,7 +387,6 @@ function pararTimer() {
 // ========================================
 
 function tempoEsgotado() {
-
     if (
         bloqueado ||
         jogoFinalizado
@@ -484,30 +399,31 @@ function tempoEsgotado() {
     answerButtons.forEach(
         button => {
             button.disabled = true;
+
+            if (
+                Number(button.textContent) ===
+                questaoAtual.correta
+            ) {
+                button.classList.add("correct");
+            }
         }
     );
 
-    // Perde uma vida
     vidas--;
 
-    /*
-        NÃO alteramos posicaoPersonagem.
-
-        Portanto, se o tempo acabar,
-        o personagem permanece exatamente
-        onde está.
-    */
-
     feedback.textContent =
-        `⏰ O tempo acabou! A resposta era ${questaoAtual.correta}.`;
+        `⏰ O tempo acabou! A resposta correta era ${questaoAtual.correta}. Você pode tentar esta operação novamente ou seguir para a próxima.`;
 
     feedback.className =
         "feedback-wrong";
 
     atualizarInterface();
 
+    /*
+        Se esta foi a terceira vida perdida,
+        a partida termina normalmente.
+    */
     if (vidas <= 0) {
-
         setTimeout(
             finalizarJogo,
             1200
@@ -516,10 +432,54 @@ function tempoEsgotado() {
         return;
     }
 
-    setTimeout(
-        proximaQuestao,
-        1500
-    );
+    /*
+        Não avançamos automaticamente.
+        O jogador escolhe:
+        - tentar a mesma questão novamente;
+        - seguir para uma nova questão.
+    */
+    timeoutActions.classList.add("show");
+}
+
+
+// ========================================
+// TENTA A MESMA QUESTÃO NOVAMENTE
+// ========================================
+
+function tentarQuestaoNovamente() {
+    if (
+        jogoFinalizado ||
+        vidas <= 0
+    ) {
+        return;
+    }
+
+    /*
+        Mantém exatamente a mesma operação,
+        não altera o número da questão
+        e não movimenta o personagem.
+
+        O timer volta a 15 segundos.
+    */
+    exibirQuestaoAtual();
+}
+
+
+// ========================================
+// SEGUE APÓS O TEMPO ESGOTADO
+// ========================================
+
+function seguirParaProximaQuestao() {
+    if (
+        jogoFinalizado ||
+        vidas <= 0
+    ) {
+        return;
+    }
+
+    timeoutActions.classList.remove("show");
+
+    proximaQuestao();
 }
 
 
@@ -528,7 +488,6 @@ function tempoEsgotado() {
 // ========================================
 
 function verificarResposta(button) {
-
     if (
         bloqueado ||
         jogoFinalizado
@@ -538,7 +497,6 @@ function verificarResposta(button) {
 
     bloqueado = true;
 
-    // Para imediatamente ao responder
     pararTimer();
 
     const respostaJogador =
@@ -552,21 +510,17 @@ function verificarResposta(button) {
         }
     );
 
-
-    // ========================================
-    // ACERTO
-    // ========================================
-
     if (
         respostaJogador ===
         questaoAtual.correta
     ) {
-
         button.classList.add(
             "correct"
         );
 
         pontos++;
+
+        verificarRecorde();
 
         feedback.textContent =
             "🎉 Muito bem! Resposta correta!";
@@ -576,11 +530,6 @@ function verificarResposta(button) {
 
         atualizarInterface();
 
-        /*
-            SOMENTE ACERTO chama a função
-            que avança o personagem.
-        */
-
         avancarPersonagem();
 
         setTimeout(
@@ -589,26 +538,17 @@ function verificarResposta(button) {
         );
     }
 
-
-    // ========================================
-    // ERRO
-    // ========================================
-
     else {
-
         button.classList.add(
             "wrong"
         );
 
-        // Mostra a alternativa correta
         answerButtons.forEach(
             btn => {
-
                 if (
                     Number(btn.textContent) ===
                     questaoAtual.correta
                 ) {
-
                     btn.classList.add(
                         "correct"
                     );
@@ -616,15 +556,7 @@ function verificarResposta(button) {
             }
         );
 
-        // Perde uma vida
         vidas--;
-
-        /*
-            NÃO chamamos avancarPersonagem().
-
-            Portanto o personagem
-            permanece na plataforma.
-        */
 
         feedback.textContent =
             `💡 Quase! A resposta correta era ${questaoAtual.correta}.`;
@@ -635,7 +567,6 @@ function verificarResposta(button) {
         atualizarInterface();
 
         if (vidas <= 0) {
-
             setTimeout(
                 finalizarJogo,
                 1200
@@ -657,17 +588,9 @@ function verificarResposta(button) {
 // ========================================
 
 function proximaQuestao() {
-
     if (jogoFinalizado) {
         return;
     }
-
-    /*
-        O número da questão continua aumentando
-        mesmo se o jogador errar.
-
-        Porém isso NÃO movimenta o personagem.
-    */
 
     numeroQuestao++;
 
@@ -680,18 +603,10 @@ function proximaQuestao() {
 // ========================================
 
 function avancarPersonagem() {
-
-    /*
-        Só chegamos aqui quando o
-        jogador ACERTA.
-    */
-
-    // Ainda não chegou na última plataforma
     if (
         posicaoPersonagem <
         TOTAL_PLATAFORMAS - 1
     ) {
-
         posicaoPersonagem++;
 
         atualizarPersonagem(true);
@@ -699,43 +614,18 @@ function avancarPersonagem() {
         return;
     }
 
-
-    /*
-        Se acertou estando na plataforma 10,
-        completou o cenário.
-
-        Passamos para o próximo cenário.
-    */
-
     indiceCenario++;
 
-    // Faz os cenários repetirem infinitamente
     if (
         indiceCenario >=
         cenarios.length
     ) {
-
         indiceCenario = 0;
     }
 
-
-    /*
-        Volta para a primeira plataforma.
-    */
-
     posicaoPersonagem = 0;
 
-
-    // Atualiza o fundo
     atualizarCenario();
-
-
-    /*
-        Aqui atualizamos a posição sem o
-        pulo normal entre plataformas,
-        pois começou um novo percurso.
-    */
-
     atualizarPersonagem(false);
 }
 
@@ -745,12 +635,10 @@ function avancarPersonagem() {
 // ========================================
 
 function atualizarCenario() {
-
     scene.style.backgroundImage =
         `url("${cenarios[indiceCenario]}")`;
 
     if (sceneName) {
-
         sceneName.textContent =
             nomesCenarios[indiceCenario];
     }
@@ -762,7 +650,6 @@ function atualizarCenario() {
 // ========================================
 
 function atualizarPersonagem(fazerPulo = false) {
-
     const destino =
         characterPositions[
             posicaoPersonagem
@@ -772,14 +659,8 @@ function atualizarPersonagem(fazerPulo = false) {
         return;
     }
 
-
-    // ========================================
-    // PLATAFORMAS
-    // ========================================
-
     platforms.forEach(
         (platform, index) => {
-
             if (!platform) {
                 return;
             }
@@ -789,23 +670,19 @@ function atualizarPersonagem(fazerPulo = false) {
                 "completed"
             );
 
-            // Plataformas já percorridas
             if (
                 index <
                 posicaoPersonagem
             ) {
-
                 platform.classList.add(
                     "completed"
                 );
             }
 
-            // Plataforma atual
             if (
                 index ===
                 posicaoPersonagem
             ) {
-
                 platform.classList.add(
                     "current"
                 );
@@ -813,21 +690,10 @@ function atualizarPersonagem(fazerPulo = false) {
         }
     );
 
-
-    // ========================================
-    // ANIMAÇÃO DE PULO
-    // ========================================
-
     if (fazerPulo) {
-
         character.classList.remove(
             "jumping"
         );
-
-        /*
-            Força o navegador a reiniciar
-            a animação.
-        */
 
         void character.offsetWidth;
 
@@ -836,28 +702,64 @@ function atualizarPersonagem(fazerPulo = false) {
         );
     }
 
-
-    // ========================================
-    // MOVIMENTO
-    // ========================================
-
     character.style.left =
         destino.left;
 
     character.style.bottom =
         destino.bottom;
 
-
     setTimeout(
         () => {
-
             character.classList.remove(
                 "jumping"
             );
-
         },
         650
     );
+}
+
+
+// ========================================
+// SISTEMA DE RECORDE
+// ========================================
+
+function verificarRecorde() {
+    if (pontos <= recorde) {
+        return;
+    }
+
+    recorde = pontos;
+
+    localStorage.setItem(
+        "bonusHighScore",
+        recorde
+    );
+
+    highScoreElement.textContent =
+        recorde;
+
+    if (!avisoRecordeMostrado) {
+        avisoRecordeMostrado = true;
+
+        recordMessage.textContent =
+            "🏆 NOVO RECORDE!";
+
+        recordMessage.classList.add(
+            "new-record"
+        );
+
+        setTimeout(
+            () => {
+                recordMessage.textContent =
+                    "";
+
+                recordMessage.classList.remove(
+                    "new-record"
+                );
+            },
+            2000
+        );
+    }
 }
 
 
@@ -866,12 +768,14 @@ function atualizarPersonagem(fazerPulo = false) {
 // ========================================
 
 function atualizarInterface() {
-
     livesElement.textContent =
         vidas;
 
     scoreElement.textContent =
         pontos;
+
+    highScoreElement.textContent =
+        recorde;
 
     questionNumberElement.textContent =
         numeroQuestao;
@@ -883,10 +787,11 @@ function atualizarInterface() {
 // ========================================
 
 function finalizarJogo() {
-
     jogoFinalizado = true;
 
     pararTimer();
+
+    timeoutActions.classList.remove("show");
 
     answerButtons.forEach(
         button => {
@@ -916,18 +821,17 @@ function finalizarJogo() {
 // ========================================
 
 function reiniciarJogo() {
-
     pararTimer();
 
     vidas = 3;
     pontos = 0;
-
     numeroQuestao = 1;
 
-    // Volta para primeira plataforma
-    posicaoPersonagem = 0;
+    avisoRecordeMostrado = false;
+    recordMessage.textContent = "";
+    recordMessage.classList.remove("new-record");
 
-    // Volta para primeiro cenário
+    posicaoPersonagem = 0;
     indiceCenario = 0;
 
     tempoRestante =
@@ -936,11 +840,12 @@ function reiniciarJogo() {
     jogoFinalizado = false;
     bloqueado = false;
 
+    timeoutActions.classList.remove("show");
+
     gameOver.style.display =
         "none";
 
     atualizarCenario();
-
     atualizarPersonagem(false);
 
     carregarQuestao();
@@ -948,16 +853,14 @@ function reiniciarJogo() {
 
 
 // ========================================
-// BOTÕES DAS RESPOSTAS
+// EVENTOS
 // ========================================
 
 answerButtons.forEach(
     button => {
-
         button.addEventListener(
             "click",
             () => {
-
                 verificarResposta(
                     button
                 );
@@ -966,28 +869,24 @@ answerButtons.forEach(
     }
 );
 
+retryQuestionBtn.addEventListener(
+    "click",
+    tentarQuestaoNovamente
+);
 
-// ========================================
-// JOGAR NOVAMENTE
-// ========================================
+nextQuestionBtn.addEventListener(
+    "click",
+    seguirParaProximaQuestao
+);
 
 playAgainBtn.addEventListener(
     "click",
-    () => {
-
-        reiniciarJogo();
-    }
+    reiniciarJogo
 );
-
-
-// ========================================
-// VOLTAR AO MENU
-// ========================================
 
 menuBtn.addEventListener(
     "click",
     () => {
-
         pararTimer();
 
         window.location.href =
@@ -1001,7 +900,5 @@ menuBtn.addEventListener(
 // ========================================
 
 atualizarCenario();
-
 atualizarPersonagem(false);
-
 carregarQuestao();

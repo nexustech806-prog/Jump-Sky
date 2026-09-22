@@ -20,35 +20,20 @@
             Resolva as operações antes que o tempo acabe e tente chegar o mais longe possível!
         </p>
 
-        <!-- Informações da partida -->
         <div class="stats">
-
-            <div class="stat">
-                ❤️ Vidas: <span id="lives">3</span>
-            </div>
-
-            <div class="stat">
-                ⭐ Pontos: <span id="score">0</span>
-            </div>
-
-            <div class="stat">
-                🧠 Questão: <span id="questionNumber">1</span>
-            </div>
-
-            <div class="stat timer">
-                ⏱️ Tempo: <span id="timer">15</span>s
-            </div>
-
+            <div class="stat">❤️ Vidas: <span id="lives">3</span></div>
+            <div class="stat">⭐ Pontos: <span id="score">0</span></div>
+            <div class="stat">🏆 Recorde: <span id="highScore">0</span></div>
+            <div class="stat">🧠 Questão: <span id="questionNumber">1</span></div>
+            <div class="stat timer">⏱️ Tempo: <span id="timer">15</span>s</div>
         </div>
 
-        <!-- Cenário -->
         <section class="scene" id="scene">
 
             <div class="scene-info">
                 <span id="sceneName">🌍 Órbita da Terra</span>
             </div>
 
-            <!-- Plataformas -->
             <div class="platform current" id="platform0"></div>
             <div class="platform" id="platform1"></div>
             <div class="platform" id="platform2"></div>
@@ -60,45 +45,37 @@
             <div class="platform" id="platform8"></div>
             <div class="platform" id="platform9"></div>
 
-            <!-- Personagem -->
             <div class="character" id="character">
-                <img
-                    id="characterImage"
-                    src="/images/Personagem.png"
-                    alt="Personagem"
-                >
+                <img id="characterImage" src="/images/Personagem.png" alt="Personagem">
             </div>
 
         </section>
 
-        <!-- Área da pergunta -->
         <section class="question-panel">
 
-            <h2 id="question">
-                Preparando desafio...
-            </h2>
+            <h2 id="question">Preparando desafio...</h2>
 
             <div class="answers">
-
-                <button class="answer-btn" type="button">
-                    ?
-                </button>
-
-                <button class="answer-btn" type="button">
-                    ?
-                </button>
-
-                <button class="answer-btn" type="button">
-                    ?
-                </button>
-
+                <button class="answer-btn" type="button">?</button>
+                <button class="answer-btn" type="button">?</button>
+                <button class="answer-btn" type="button">?</button>
             </div>
 
             <div id="feedback"></div>
+            <div id="recordMessage"></div>
 
-            <!-- Game Over -->
+            <!-- Opções exibidas somente quando o tempo acaba -->
+            <div id="timeoutActions" class="timeout-actions">
+                <button id="retryQuestionBtn" type="button">
+                    🔄 Tentar novamente
+                </button>
+
+                <button id="nextQuestionBtn" type="button">
+                    ➡️ Próxima questão
+                </button>
+            </div>
+
             <div id="gameOver" class="game-over">
-
                 <h2>🚀 Fim do desafio!</h2>
 
                 <p>
@@ -114,7 +91,6 @@
                 <button id="menuBtn" type="button">
                     Voltar ao menu
                 </button>
-
             </div>
 
         </section>
