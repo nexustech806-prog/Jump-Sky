@@ -19,7 +19,9 @@ app.use(cors({
     credentials: true   // necessário pra cookies funcionarem entre front e API
 }));
 
-app.use(express.static(path.join(__dirname)));
+app.use('/CSS', express.static(path.join(__dirname, 'CSS')));
+app.use('/JS', express.static(path.join(__dirname, 'JS')));
+app.use('/images', express.static(path.join(__dirname, 'images')));
 
 
 let isConnected = false;
@@ -194,7 +196,8 @@ const fasesConfig = {
     'somando-nas-nuvens': { numero: 1, arquivo: 'FirstScene.html' },
     'subtraindo-no-subsolo': { numero: 2, arquivo: 'SecondScene.html' },
     'multiplicando-no-oceano': { numero: 3, arquivo: 'ThirdScene.html' },
-    'dividindo-no-vulcao': { numero: 4, arquivo: 'FourthScene.html' }
+    'dividindo-no-vulcao': { numero: 4, arquivo: 'FourthScene.html' },
+    'pulando-no-espaco': { numero: 5, arquivo: 'BonusScene.html' }
 };
 
 app.get('/:slug', verificarTokenPagina, async (req, res, next) => {
@@ -232,7 +235,13 @@ app.get('/api/save', verificarToken, async (req, res) => {
         if (!save) {
             return res.status(404).json({ mensagem: 'Save não encontrado' });
         }
-        return res.status(200).json({ saveProgress: save.saveProgress });
+
+        const user = await User.findById(req.userId);
+
+        return res.status(200).json({
+            saveProgress: save.saveProgress,
+            avatar: user ? user.avatar : 'personagem.png'
+        });
     } catch (error) {
         return res.status(400).json({ mensagem: 'Erro ao buscar progresso' });
     }

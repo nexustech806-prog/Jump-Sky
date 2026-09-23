@@ -30,15 +30,32 @@ function gerarUmNome() {
   }
 }
 
+function atualizarBotaoContinuar() {
+  const nickname = document.getElementById("login_reg").value;
+  const botaoCriar = document.getElementById("bttn_reg"); // <- ajustado
+
+  if (botaoCriar) {
+    botaoCriar.disabled = !nickname;
+  }
+}
+
 function gerarNome() {
   const container = document.getElementById("nomesSugeridos");
+  const apelidoEscolhidoTexto = document.getElementById("apelidoEscolhido");
   if (!container) return;
 
   container.innerHTML = "";
 
+  // limpa a seleção anterior, já que as opções mudaram
+  document.getElementById("login_reg").value = "";
+  if (apelidoEscolhidoTexto) {
+    apelidoEscolhidoTexto.textContent = "Escolha um dos apelidos abaixo:";
+  }
+  atualizarBotaoContinuar();
+
   const nomesGerados = new Set();
   while (nomesGerados.size < 3) {
-    nomesGerados.add(gerarUmNome()); // agora chama a função certa
+    nomesGerados.add(gerarUmNome());
   }
 
   nomesGerados.forEach(nome => {
@@ -48,11 +65,19 @@ function gerarNome() {
     botao.classList.add("nome-sugestao-btn");
 
     botao.addEventListener("click", () => {
-      const inputNickname = document.getElementById("login_reg");
-      if (inputNickname) {
-        inputNickname.value = nome;
+      document.getElementById("login_reg").value = nome;
+
+      // marca visualmente qual foi escolhido
+      container.querySelectorAll(".nome-sugestao-btn").forEach(b =>
+        b.classList.remove("selecionado")
+      );
+      botao.classList.add("selecionado");
+
+      if (apelidoEscolhidoTexto) {
+        apelidoEscolhidoTexto.textContent = `Apelido escolhido: ${nome}`;
       }
-      container.innerHTML = "";
+
+      atualizarBotaoContinuar();
     });
 
     container.appendChild(botao);
@@ -61,8 +86,14 @@ function gerarNome() {
 
 const diceIcon = document.getElementById("Dice_Name");
 if (diceIcon) {
-  diceIcon.addEventListener("click", gerarNome); // chama a função que monta as 3 opções
+  diceIcon.addEventListener("click", gerarNome);
 }
+
+// gera as 3 sugestões automaticamente assim que a página carrega
+document.addEventListener("DOMContentLoaded", () => {
+  gerarNome();
+});
+
 async function createUser(event) {
   event.preventDefault();
 
@@ -70,7 +101,12 @@ async function createUser(event) {
   const passwordValue = document.getElementById("password_reg").value;
   const confirmValue = document.getElementById("confirm_password_reg").value;
 
-  if (!nicknameValue || !passwordValue || !confirmValue) {
+  if (!nicknameValue) {
+    alert("Escolha um dos apelidos sugeridos antes de continuar!");
+    return;
+  }
+
+  if (!passwordValue || !confirmValue) {
     alert("Por favor, preencha todos os campos!");
     return;
   }
@@ -80,7 +116,7 @@ async function createUser(event) {
     return;
   }
 
-  const avatarEscolhido = localStorage.getItem('avatarEscolhido') || 'personagem.png';
+  const avatarEscolhido = localStorage.getItem('avatarSelecionado') || 'personagem.png';
 
   try {
     const answer = await fetch(`${API_URL}/register`, {
@@ -90,14 +126,14 @@ async function createUser(event) {
       body: JSON.stringify({
         nickname: nicknameValue,
         password: passwordValue,
-        avatar: avatarEscolhido // <- envia junto
+        avatar: avatarEscolhido
       })
     });
 
     const result = await answer.json();
 
     if (answer.ok) {
-      localStorage.removeItem('avatarEscolhido');
+      localStorage.removeItem('avatarSelecionado');
       alert('Usuário cadastrado com sucesso!');
       window.location.href = "/somando-nas-nuvens";
     } else {

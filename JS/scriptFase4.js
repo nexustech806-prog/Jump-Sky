@@ -25,10 +25,23 @@ const intro =
 const feedback =
     document.getElementById("feedback");
 
+async function aplicarAvatar() {
+    try {
+        const resp = await fetch(`${API_URL}/api/save`, { credentials: 'include' });
+        const data = await resp.json();
 
-// ========================================
-// DESAFIO BÔNUS
-// ========================================
+        if (data.avatar && character) {
+            const img = character.querySelector('img');
+            if (img) {
+                img.src = `/images/${data.avatar}`;
+            }
+        }
+    } catch (error) {
+        console.error('Erro ao aplicar avatar:', error);
+    }
+}
+
+aplicarAvatar();
 
 const bonusChallenge =
     document.getElementById("bonusChallenge");
@@ -1136,18 +1149,25 @@ answerButtons.forEach(
 // ========================================
 
 if (restartBtn) {
+    restartBtn.addEventListener("click", () => {
+        const proximaFase = faseAtual + 1;
 
-    restartBtn.addEventListener(
-        "click",
-        () => {
+        if (slugsPorFase[proximaFase]) {
+            window.location.href = `/${slugsPorFase[proximaFase]}`;
+        } else {
 
-            window.location.href =
-                "/menu";
-
+            window.location.href = '/menu';
         }
-    );
-
+    });
 }
+    const menuBtn = document.getElementById("menuBtn");
+
+        if (menuBtn) {
+            menuBtn.addEventListener("click", () => {
+            window.location.href = "/menu";
+            });
+        }
+
 
 
 // ========================================

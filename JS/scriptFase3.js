@@ -39,6 +39,24 @@ const closeHint =
     document.getElementById("closeHint");
 
 
+    async function aplicarAvatar() {
+    try {
+        const resp = await fetch(`${API_URL}/api/save`, { credentials: 'include' });
+        const data = await resp.json();
+
+        if (data.avatar && character) {
+            const img = character.querySelector('img');
+            if (img) {
+                img.src = `/images/${data.avatar}`;
+            }
+        }
+    } catch (error) {
+        console.error('Erro ao aplicar avatar:', error);
+    }
+}
+
+aplicarAvatar();
+
 const faseAtual = 3;
 
 async function completarFase(fase) {
@@ -805,6 +823,14 @@ function finishGame() {
             "block";
     }
 
+    const menuBtn = document.getElementById("menuBtn");
+
+    if (menuBtn) {
+        menuBtn.addEventListener("click", () => {
+        window.location.href = "/menu";
+        });
+    }
+
 
     // Plataforma final
     currentPlatform = 4;
@@ -910,12 +936,7 @@ answerButtons.forEach(
 // BOTÃO DE FINAL DA FASE
 // ========================================
 
-const slugsPorFase = {
-    1: 'somando-nas-nuvens',
-    2: 'subtraindo-no-subsolo',
-    3: 'multiplicando-no-oceano',
-    4: 'dividindo-no-vulcao'
-};
+
 
 if (restartBtn) {
     restartBtn.addEventListener("click", () => {

@@ -33,6 +33,23 @@ const nextQuestionBtn = document.getElementById("nextQuestionBtn");
 // ========================================
 
 const character = document.getElementById("character");
+async function aplicarAvatar() {
+    try {
+        const resp = await fetch(`${API_URL}/api/save`, { credentials: 'include' });
+        const data = await resp.json();
+
+        if (data.avatar && character) {
+            const img = character.querySelector('img');
+            if (img) {
+                img.src = `/images/${data.avatar}`;
+            }
+        }
+    } catch (error) {
+        console.error('Erro ao aplicar avatar:', error);
+    }
+}
+
+aplicarAvatar();
 
 const platforms = [
     document.getElementById("platform0"),
