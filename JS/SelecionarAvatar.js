@@ -29,5 +29,5 @@ continuarBtn.addEventListener("click", () => {
 
     console.log("Avatar salvo:", avatarSelecionado);
 
-    window.location.href = "/registrar"; // <- faltava isso
+    window.location.href = "/registrar"; 
 });
