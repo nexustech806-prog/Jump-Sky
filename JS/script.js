@@ -35,6 +35,24 @@ const closeHint =
 
 const faseAtual = 1;
 
+async function aplicarAvatar() {
+    try {
+        const resp = await fetch(`${API_URL}/api/save`, { credentials: 'include' });
+        const data = await resp.json();
+
+        if (data.avatar && character) {
+            const img = character.querySelector('img');
+            if (img) {
+                img.src = `/images/${data.avatar}`;
+            }
+        }
+    } catch (error) {
+        console.error('Erro ao aplicar avatar:', error);
+    }
+}
+
+aplicarAvatar();
+
 const characterImage = document.getElementById("characterImage");
 const avatarSelecionado = localStorage.getItem("avatarSelecionado");
 
@@ -749,6 +767,13 @@ function finishGame() {
             "block";
     }
 
+    const menuBtn = document.getElementById("menuBtn");
+
+        if (menuBtn) {
+            menuBtn.addEventListener("click", () => {
+            window.location.href = "/menu";
+            });
+        }
 
     // Plataforma final
     currentPlatform = 4;
@@ -857,10 +882,16 @@ answerButtons.forEach(
 
 if (restartBtn) {
     restartBtn.addEventListener("click", () => {
-        window.location.href = mapaFases[faseAtual + 1];
+        const proximaFase = faseAtual + 1;
+
+        if (slugsPorFase[proximaFase]) {
+            window.location.href = `/${slugsPorFase[proximaFase]}`;
+        } else {
+            // não existe próxima fase, volta pro menu (ou tela de "zerou o jogo")
+            window.location.href = '/menu';
+        }
     });
 }
-
 
 // ========================================
 // INTRO

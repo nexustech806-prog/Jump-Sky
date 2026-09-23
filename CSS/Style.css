@@ -184,3 +184,11 @@ a {
     text-decoration: none;
     color: inherit;
 }
+
+
+.game-floor{
+    display: grid;
+    grid-template-columns: auto auto auto;
+    background-color: dodgerblue;
+    padding: 10px;
+}

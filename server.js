@@ -7,6 +7,8 @@ const jwt = require('jsonwebtoken');
 const path = require('path');
 const User = require('./Schema/User');
 const SaveData = require('./Schema/Save');
+const nomesComuns = require('./nomesComuns.json');
+const sobrenomesComuns = require('./sobrenomesComuns.json');
 const bcrypt = require('bcryptjs');
 
 const app = express();
@@ -17,9 +19,11 @@ app.use(cors({
     credentials: true   // necessário pra cookies funcionarem entre front e API
 }));
 
-app.use(express.static(path.join(__dirname)));
+app.use('/CSS', express.static(path.join(__dirname, 'CSS')));
+app.use('/JS', express.static(path.join(__dirname, 'JS')));
+app.use('/images', express.static(path.join(__dirname, 'images')));
 
-// ===== CONEXÃO COM MONGODB (cacheada) =====
+
 let isConnected = false;
 async function connectDB() {
     if (isConnected) return;
@@ -36,7 +40,7 @@ app.use(async (req, res, next) => {
     next();
 });
 
-// ===== MIDDLEWARE: VERIFICA TOKEN =====
+
 function verificarToken(req, res, next) {
     const token = req.cookies.token;
 
@@ -46,14 +50,14 @@ function verificarToken(req, res, next) {
 
     try {
         const payload = jwt.verify(token, process.env.JWT_SECRET);
-        req.userId = payload.userId; // disponível nas rotas seguintes
+        req.userId = payload.userId; 
         next();
     } catch (error) {
         return res.status(401).json({ mensagem: 'Token inválido ou expirado' });
     }
 }
 
-// mesma versão, mas pra páginas HTML (redireciona em vez de responder JSON)
+
 function verificarTokenPagina(req, res, next) {
     const token = req.cookies.token;
 
@@ -70,7 +74,17 @@ function verificarTokenPagina(req, res, next) {
     }
 }
 
-// ===== PÁGINAS GERAIS =====
+const todosNomes = [...nomesComuns, ...sobrenomesComuns];
+
+function contemNomeReal(apelido) {
+    const apelidoLower = apelido.toLowerCase();
+    const partes = apelidoLower.match(/[a-zà-ú]+/g) || [];
+
+    return partes.some(parte =>
+        todosNomes.includes(parte) && parte.length >= 3
+    );
+}
+
 app.get('/', (req, res) => {
     res.sendFile(path.join(__dirname, 'HTML/Pages/index.html'));
 });
@@ -81,10 +95,23 @@ app.get('/registrar', (req, res) => {
     res.sendFile(path.join(__dirname, 'HTML/Pages/registrar.html'));
 });
 
-// ===== REGISTRO =====
+app.get('/menu', (req, res) => {
+    res.sendFile(path.join(__dirname, 'HTML/Pages/menu.html'));
+});
+
+app.get('/selecionar-avatar', (req, res) => {
+    res.sendFile(path.join(__dirname, 'HTML/Pages/SelecionarAvatar.html'));
+});
+
 app.post('/register', async (req, res) => {
     try {
-        const { nickname, password } = req.body;
+        const { nickname, password, avatar } = req.body; 
+
+        if (contemNomeReal(nickname)) {
+            return res.status(400).json({
+                mensagem: 'Por segurança, não use seu nome real como apelido. Tente outra combinação!'
+            });
+        }
 
         const validUser = await User.findOne({ nickname });
         if (validUser) {
@@ -94,7 +121,11 @@ app.post('/register', async (req, res) => {
         const saltRounds = 10;
         const hashedPassword = await bcrypt.hash(password, saltRounds);
 
-        const newUser = new User({ nickname, password: hashedPassword });
+        const newUser = new User({
+            nickname,
+            password: hashedPassword,
+            avatar: avatar || 'personagem.png' 
+        });
         await newUser.save();
 
         await SaveData.create({
@@ -102,13 +133,7 @@ app.post('/register', async (req, res) => {
             saveProgress: 1
         });
 
-        // gera o token, igual fazemos no login
-        const token = jwt.sign(
-            { userId: newUser._id },
-            process.env.JWT_SECRET,
-            { expiresIn: '2h' }
-        );
-
+        const token = jwt.sign({ userId: newUser._id }, process.env.JWT_SECRET, { expiresIn: '2h' });
         res.cookie('token', token, {
             httpOnly: true,
             secure: true,
@@ -166,27 +191,38 @@ app.post('/logout', (req, res) => {
     return res.status(200).json({ mensagem: 'Logout realizado' });
 });
 
-const mapaArquivos = {
-    1: 'FirstScene.html',
-    2: 'SecondScene.html',
-    3: 'ThirdScene.html',
-    4: 'FourthScene.html'
+
+const fasesConfig = {
+    'somando-nas-nuvens': { numero: 1, arquivo: 'FirstScene.html' },
+    'subtraindo-no-subsolo': { numero: 2, arquivo: 'SecondScene.html' },
+    'multiplicando-no-oceano': { numero: 3, arquivo: 'ThirdScene.html' },
+    'dividindo-no-vulcao': { numero: 4, arquivo: 'FourthScene.html' },
+    'pulando-no-espaco': { numero: 5, arquivo: 'BonusScene.html' }
 };
 
-app.get('/fase:num', verificarTokenPagina, async (req, res) => {
-    try {
-        const faseNum = Number(req.params.num);
+app.get('/:slug', verificarTokenPagina, async (req, res, next) => {
+    const config = fasesConfig[req.params.slug];
 
+  
+    if (!config) {
+        return next();
+    }
+
+    try {
         const save = await SaveData.findOne({ userId: new mongoose.Types.ObjectId(req.userId) });
         if (!save) {
             return res.redirect('/login');
         }
 
-        if (faseNum > save.saveProgress) {
-            return res.redirect(`/fase${save.saveProgress}`);
+        if (config.numero > save.saveProgress) {
+     
+            const slugValido = Object.keys(fasesConfig).find(
+                key => fasesConfig[key].numero === save.saveProgress
+            );
+            return res.redirect(`/${slugValido}`);
         }
 
-        return res.sendFile(path.join(__dirname, 'HTML/Game', mapaArquivos[faseNum]));
+        return res.sendFile(path.join(__dirname, 'HTML/Game', config.arquivo));
     } catch (error) {
         return res.redirect('/login');
     }
@@ -199,7 +235,13 @@ app.get('/api/save', verificarToken, async (req, res) => {
         if (!save) {
             return res.status(404).json({ mensagem: 'Save não encontrado' });
         }
-        return res.status(200).json({ saveProgress: save.saveProgress });
+
+        const user = await User.findById(req.userId);
+
+        return res.status(200).json({
+            saveProgress: save.saveProgress,
+            avatar: user ? user.avatar : 'personagem.png'
+        });
     } catch (error) {
         return res.status(400).json({ mensagem: 'Erro ao buscar progresso' });
     }

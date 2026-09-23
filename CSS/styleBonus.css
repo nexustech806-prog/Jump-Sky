@@ -1,0 +1,343 @@
+/* ========================================
+   RESET
+======================================== */
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: Arial, sans-serif;
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    padding: 20px;
+    background: linear-gradient(135deg, #09001f, #16004d, #001b4d);
+    color: white;
+}
+
+.game-container {
+    width: 1200px;
+    max-width: 95%;
+    text-align: center;
+}
+
+h1 {
+    font-size: 38px;
+    margin-bottom: 10px;
+}
+
+.subtitle {
+    margin-bottom: 18px;
+    font-size: 16px;
+}
+
+.stats {
+    display: flex;
+    justify-content: center;
+    gap: 15px;
+    flex-wrap: wrap;
+    margin-bottom: 15px;
+}
+
+.stat {
+    background: white;
+    color: #111;
+    padding: 10px 18px;
+    border-radius: 30px;
+    font-weight: bold;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+}
+
+.timer {
+    min-width: 130px;
+}
+
+.scene {
+    height: 500px;
+    position: relative;
+    overflow: hidden;
+    border: 4px solid white;
+    border-radius: 24px;
+    background-image: url("/images/bonus1.jpeg");
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    box-shadow: 0 12px 30px rgba(0, 0, 0, 0.4);
+}
+
+.scene-info {
+    position: absolute;
+    top: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: rgba(0, 0, 0, 0.7);
+    padding: 10px 20px;
+    border-radius: 20px;
+    font-size: 18px;
+    font-weight: bold;
+    z-index: 30;
+}
+
+.platform {
+    position: absolute;
+    width: 105px;
+    height: 25px;
+    border-radius: 12px;
+    background: linear-gradient(180deg, #9c7cff, #5934c7);
+    border: 3px solid white;
+    box-shadow: 0 5px 0 #2b176b, 0 8px 12px rgba(0, 0, 0, 0.4);
+    z-index: 5;
+}
+
+.platform.current {
+    box-shadow: 0 0 15px white, 0 0 25px #9c7cff, 0 5px 0 #2b176b;
+}
+
+.platform.completed {
+    background: linear-gradient(180deg, #63d471, #2d9440);
+}
+
+#platform0 { left: 45px; bottom: 55px; }
+#platform1 { left: 160px; bottom: 115px; }
+#platform2 { left: 280px; bottom: 175px; }
+#platform3 { left: 400px; bottom: 235px; }
+#platform4 { left: 520px; bottom: 300px; }
+#platform5 { left: 650px; bottom: 335px; }
+#platform6 { left: 770px; bottom: 285px; }
+#platform7 { left: 880px; bottom: 220px; }
+#platform8 { left: 980px; bottom: 150px; }
+#platform9 { right: 25px; bottom: 75px; }
+
+.character {
+    position: absolute;
+    width: 80px;
+    height: 105px;
+    left: 58px;
+    bottom: 78px;
+    z-index: 20;
+    transition: left 0.65s ease, bottom 0.65s ease;
+}
+
+.character img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    pointer-events: none;
+    user-select: none;
+}
+
+.character.jumping {
+    animation: jump 0.65s ease;
+}
+
+@keyframes jump {
+    0% { transform: translateY(0); }
+    50% { transform: translateY(-60px); }
+    100% { transform: translateY(0); }
+}
+
+.question-panel {
+    margin-top: 18px;
+    padding: 30px 20px 35px;
+    border-radius: 24px;
+    background: white;
+    color: #111;
+    box-shadow: 0 12px 30px rgba(0, 0, 0, 0.25);
+}
+
+#question {
+    font-size: 40px;
+    margin-bottom: 28px;
+}
+
+.answers {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 14px;
+}
+
+.answer-btn {
+    padding: 20px;
+    border: 3px solid #30116d;
+    border-radius: 16px;
+    background: #7c4dff;
+    color: white;
+    font-size: 22px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: 0.2s;
+}
+
+.answer-btn:hover:not(:disabled) {
+    transform: translateY(-3px);
+    background: #6035d5;
+}
+
+.answer-btn.correct {
+    background: #4CAF50;
+    border-color: #388E3C;
+    transform: scale(1.05);
+    box-shadow: 0 0 15px rgba(76, 175, 80, 0.8);
+}
+
+.answer-btn.wrong {
+    background: #F44336;
+    border-color: #c62828;
+    animation: shake 0.4s;
+    box-shadow: 0 0 15px rgba(244, 67, 54, 0.8);
+}
+
+.answer-btn:disabled {
+    cursor: not-allowed;
+}
+
+@keyframes shake {
+    0% { transform: translateX(0); }
+    25% { transform: translateX(-8px); }
+    50% { transform: translateX(8px); }
+    75% { transform: translateX(-8px); }
+    100% { transform: translateX(0); }
+}
+
+#feedback {
+    min-height: 35px;
+    margin-top: 15px;
+    font-size: 20px;
+    font-weight: bold;
+    text-align: center;
+}
+
+.feedback-correct {
+    color: #4CAF50;
+}
+
+.feedback-wrong {
+    color: #F44336;
+}
+
+/* Opções após o tempo acabar */
+.timeout-actions {
+    display: none;
+    justify-content: center;
+    gap: 12px;
+    flex-wrap: wrap;
+    margin-top: 18px;
+}
+
+.timeout-actions.show {
+    display: flex;
+}
+
+#retryQuestionBtn,
+#nextQuestionBtn {
+    padding: 12px 22px;
+    border: none;
+    border-radius: 12px;
+    font-size: 17px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: 0.2s;
+}
+
+#retryQuestionBtn {
+    background: #ff9800;
+    color: white;
+}
+
+#nextQuestionBtn {
+    background: #6035d5;
+    color: white;
+}
+
+#retryQuestionBtn:hover,
+#nextQuestionBtn:hover {
+    transform: translateY(-2px);
+}
+
+.game-over {
+    display: none;
+    margin-top: 25px;
+    padding: 25px;
+    border-radius: 20px;
+    background: #f2f2f2;
+}
+
+.game-over h2 {
+    font-size: 30px;
+    margin-bottom: 12px;
+}
+
+.game-over p {
+    font-size: 20px;
+    margin-bottom: 20px;
+}
+
+#playAgainBtn,
+#menuBtn {
+    padding: 12px 25px;
+    margin: 5px;
+    border: none;
+    border-radius: 12px;
+    font-size: 17px;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+#playAgainBtn {
+    background: #4CAF50;
+    color: white;
+}
+
+#menuBtn {
+    background: #6035d5;
+    color: white;
+}
+
+@media (max-width: 700px) {
+    h1 { font-size: 28px; }
+    .scene { height: 350px; }
+    #question { font-size: 30px; }
+    .answers { grid-template-columns: 1fr; }
+    .platform { transform: scale(0.7); }
+    .character {
+        transform: scale(0.75);
+        transform-origin: bottom center;
+    }
+}
+
+
+/* ========================================
+   NOVO RECORDE
+======================================== */
+
+#recordMessage {
+    min-height: 35px;
+    margin-top: 8px;
+    font-size: 24px;
+    font-weight: bold;
+    color: #ff9800;
+}
+
+#recordMessage.new-record {
+    animation: recordPop 0.5s ease;
+}
+
+@keyframes recordPop {
+    0% {
+        transform: scale(0.5);
+        opacity: 0;
+    }
+
+    60% {
+        transform: scale(1.2);
+    }
+
+    100% {
+        transform: scale(1);
+        opacity: 1;
+    }
+}

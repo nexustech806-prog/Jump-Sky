@@ -2,40 +2,27 @@
 <html lang="pt-BR">
 
 <head>
-
     <meta charset="UTF-8">
-
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
     <title>Fase 4 - Dividindo no Vulcão</title>
-
     <link rel="stylesheet" href="/CSS/styleFase4.css">
-
 </head>
-
 
 <body>
 
     <div id="intro">
-
-    <img src="/images/introfase4.png" alt="Introdução da fase">
-
-</div>
+        <img src="/images/introfase4.png" alt="Introdução da fase">
+    </div>
 
     <main class="game-container">
 
-        <!-- Título -->
         <h1>Fase 4 – Dividindo no Vulcão</h1>
 
-        <!-- Subtítulo -->
         <p class="subtitle">
             Acerte a conta e o personagem pula para a próxima plataforma!
         </p>
 
-
-        <!-- Informações do jogo -->
         <div class="stats">
-
             <div class="stat">
                 ⭐ Acertos: <span id="hits">0</span>
             </div>
@@ -47,105 +34,115 @@
             <div class="stat">
                 🏁 Plataforma <span id="currentPlatform">1</span> de 5
             </div>
-
         </div>
 
-
-        <!-- Cenário -->
         <section class="scene">
 
-
-            <!-- Plataforma inicial -->
             <div class="platform current" id="platform0">
                 Início
             </div>
 
-
-            <!-- Plataforma 1 -->
             <div class="platform" id="platform1">
                 ?
             </div>
 
-
-            <!-- Plataforma 2 -->
             <div class="platform" id="platform2">
                 ?
             </div>
 
-
-            <!-- Plataforma 3 -->
             <div class="platform" id="platform3">
                 ?
             </div>
 
-
-            <!-- Plataforma final -->
             <div class="platform" id="platform4">
                 Chegada!
             </div>
 
-
-            <!-- Personagem -->
             <div class="character" id="character">
-
                 <img
                     src="/images/Personagem.png"
                     alt="Personagem"
                 >
-
             </div>
 
             <div id="hintPopup" class="hint-popup">
                 <div class="hint-content">
-                <h3>💡 Dica!</h3>
-                <p id="hintText"></p>
-                <button id="closeHint">Entendi!</button>
+                    <h3>💡 Dica!</h3>
+                    <p id="hintText"></p>
+                    <button id="closeHint">Entendi!</button>
                 </div>
             </div>
 
         </section>
 
-
-        <!-- Área da pergunta -->
         <section class="question-panel">
 
             <h2 id="question">
                 Quanto é 18 X 5?
             </h2>
 
-
-            <!-- Respostas -->
             <div class="answers">
-
-                <button class="answer-btn">
-                    12
-                </button>
-
-                <button class="answer-btn">
-                    13
-                </button>
-
-                <button class="answer-btn">
-                    14
-                </button>
-
+                <button class="answer-btn">12</button>
+                <button class="answer-btn">13</button>
+                <button class="answer-btn">14</button>
             </div>
 
             <div id="feedback"></div>
 
-            <!-- Botão de reiniciar -->
             <button id="restartBtn">
-                Jogar novamente
+                Voltar ao menu
             </button>
 
         </section>
 
     </main>
 
+    <!-- Desafio para entrar na Fase Bônus -->
+    <div id="bonusChallenge" class="bonus-challenge">
 
-    <script src="/JS/scriptFase4.js"></script>
+        <div class="bonus-modal">
+
+            <div class="bonus-icon">🚀</div>
+
+            <h2>Desafio Bônus!</h2>
+
+            <p class="bonus-description">
+                Você completou as quatro fases!
+                Acerte este último desafio para descobrir uma missão secreta.
+            </p>
+
+            <h3 id="bonusQuestion">
+                Preparando desafio...
+            </h3>
+
+            <div class="bonus-answers">
+                <button class="bonus-answer"></button>
+                <button class="bonus-answer"></button>
+                <button class="bonus-answer"></button>
+            </div>
+
+            <p id="bonusFeedback"></p>
+
+            <div class="bonus-actions">
+                <button id="tryBonusAgain">
+                    Tentar outro desafio
+                </button>
+
+                <button id="enterBonus">
+                    🚀 Ir para a Fase Bônus
+                </button>
+
+                <button id="backMenuBonus">
+                    Voltar ao menu
+                </button>
+            </div>
+
+        </div>
+
+    </div>
+
     <script src="/JS/config.js"></script>
-    
-</body>
+    <script src="/JS/scriptFase4.js"></script>
 
+</body>
 </html>

@@ -1,4 +1,4 @@
-async function gerarNome() {
+function gerarUmNome() {
   const adjetivos = [
     "Shadow", "Iron", "Storm", "Dark", "Fire", "Night", "Silver", "Ghost", 
     "Blood", "Frost", "Thunder", "Swift", "Brave", "Ancient", "Toxic", 
@@ -19,28 +19,80 @@ async function gerarNome() {
 
   const numeroAleatorio = Math.floor(Math.random() * 900) + 100;
   const tipoCombinacao = Math.floor(Math.random() * 2);
-  let nomeGerado = "";
-
   const tituloAleatorio = titulos[Math.floor(Math.random() * titulos.length)];
 
   if (tipoCombinacao === 0) {
     const animalAleatorio = animais[Math.floor(Math.random() * animais.length)];
-    nomeGerado = `${tituloAleatorio}${animalAleatorio}${numeroAleatorio}`;
+    return `${tituloAleatorio}${animalAleatorio}${numeroAleatorio}`;
   } else {
     const adjAleatorio = adjetivos[Math.floor(Math.random() * adjetivos.length)];
-    nomeGerado = `${tituloAleatorio}${adjAleatorio}${numeroAleatorio}`;
+    return `${tituloAleatorio}${adjAleatorio}${numeroAleatorio}`;
+  }
+}
+
+function atualizarBotaoContinuar() {
+  const nickname = document.getElementById("login_reg").value;
+  const botaoCriar = document.getElementById("bttn_reg"); // <- ajustado
+
+  if (botaoCriar) {
+    botaoCriar.disabled = !nickname;
+  }
+}
+
+function gerarNome() {
+  const container = document.getElementById("nomesSugeridos");
+  const apelidoEscolhidoTexto = document.getElementById("apelidoEscolhido");
+  if (!container) return;
+
+  container.innerHTML = "";
+
+  // limpa a seleção anterior, já que as opções mudaram
+  document.getElementById("login_reg").value = "";
+  if (apelidoEscolhidoTexto) {
+    apelidoEscolhidoTexto.textContent = "Escolha um dos apelidos abaixo:";
+  }
+  atualizarBotaoContinuar();
+
+  const nomesGerados = new Set();
+  while (nomesGerados.size < 3) {
+    nomesGerados.add(gerarUmNome());
   }
 
-  const inputNickname = document.getElementById("login_reg");
-  if (inputNickname) {
-    inputNickname.value = nomeGerado;
-  }
+  nomesGerados.forEach(nome => {
+    const botao = document.createElement("button");
+    botao.type = "button";
+    botao.textContent = nome;
+    botao.classList.add("nome-sugestao-btn");
+
+    botao.addEventListener("click", () => {
+      document.getElementById("login_reg").value = nome;
+
+      // marca visualmente qual foi escolhido
+      container.querySelectorAll(".nome-sugestao-btn").forEach(b =>
+        b.classList.remove("selecionado")
+      );
+      botao.classList.add("selecionado");
+
+      if (apelidoEscolhidoTexto) {
+        apelidoEscolhidoTexto.textContent = `Apelido escolhido: ${nome}`;
+      }
+
+      atualizarBotaoContinuar();
+    });
+
+    container.appendChild(botao);
+  });
 }
 
 const diceIcon = document.getElementById("Dice_Name");
 if (diceIcon) {
   diceIcon.addEventListener("click", gerarNome);
 }
+
+// gera as 3 sugestões automaticamente assim que a página carrega
+document.addEventListener("DOMContentLoaded", () => {
+  gerarNome();
+});
 
 async function createUser(event) {
   event.preventDefault();
@@ -49,7 +101,12 @@ async function createUser(event) {
   const passwordValue = document.getElementById("password_reg").value;
   const confirmValue = document.getElementById("confirm_password_reg").value;
 
-  if (!nicknameValue || !passwordValue || !confirmValue) {
+  if (!nicknameValue) {
+    alert("Escolha um dos apelidos sugeridos antes de continuar!");
+    return;
+  }
+
+  if (!passwordValue || !confirmValue) {
     alert("Por favor, preencha todos os campos!");
     return;
   }
@@ -59,22 +116,26 @@ async function createUser(event) {
     return;
   }
 
+  const avatarEscolhido = localStorage.getItem('avatarSelecionado') || 'personagem.png';
+
   try {
     const answer = await fetch(`${API_URL}/register`, {
       method: 'POST',
-      credentials: 'include', // <- necessário pra receber o cookie
+      credentials: 'include',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         nickname: nicknameValue,
-        password: passwordValue
+        password: passwordValue,
+        avatar: avatarEscolhido
       })
     });
 
     const result = await answer.json();
 
     if (answer.ok) {
+      localStorage.removeItem('avatarSelecionado');
       alert('Usuário cadastrado com sucesso!');
-      window.location.href = "/selecionar-avatar";
+      window.location.href = "/somando-nas-nuvens";
     } else {
       alert('Erro: ' + (result.erro || result.mensagem));
     }
