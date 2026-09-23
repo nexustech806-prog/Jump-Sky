@@ -937,7 +937,6 @@ answerButtons.forEach(
 // ========================================
 
 
-
 if (restartBtn) {
     restartBtn.addEventListener("click", () => {
         const proximaFase = faseAtual + 1;
