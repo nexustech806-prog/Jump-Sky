@@ -33,19 +33,24 @@ const nextQuestionBtn = document.getElementById("nextQuestionBtn");
 // ========================================
 
 const character = document.getElementById("character");
+
 async function aplicarAvatar() {
     try {
-        const resp = await fetch(`${API_URL}/api/save`, { credentials: 'include' });
+        const resp = await fetch(`${API_URL}/api/save`, {
+            credentials: "include"
+        });
+
         const data = await resp.json();
 
         if (data.avatar && character) {
-            const img = character.querySelector('img');
+            const img = character.querySelector("img");
+
             if (img) {
                 img.src = `/images/${data.avatar}`;
             }
         }
     } catch (error) {
-        console.error('Erro ao aplicar avatar:', error);
+        console.error("Erro ao aplicar avatar:", error);
     }
 }
 
@@ -426,7 +431,14 @@ function tempoEsgotado() {
         }
     );
 
-    vidas--;
+    /*
+        O TEMPO ESGOTADO NÃO GERA PUNIÇÃO.
+
+        - Não perde vida
+        - Não perde pontos
+        - Não perde progresso
+        - Não altera a plataforma atual
+    */
 
     feedback.textContent =
         `⏰ O tempo acabou! A resposta correta era ${questaoAtual.correta}. Você pode tentar esta operação novamente ou seguir para a próxima.`;
@@ -437,24 +449,13 @@ function tempoEsgotado() {
     atualizarInterface();
 
     /*
-        Se esta foi a terceira vida perdida,
-        a partida termina normalmente.
-    */
-    if (vidas <= 0) {
-        setTimeout(
-            finalizarJogo,
-            1200
-        );
-
-        return;
-    }
-
-    /*
         Não avançamos automaticamente.
+
         O jogador escolhe:
         - tentar a mesma questão novamente;
         - seguir para uma nova questão.
     */
+
     timeoutActions.classList.add("show");
 }
 
@@ -478,6 +479,7 @@ function tentarQuestaoNovamente() {
 
         O timer volta a 15 segundos.
     */
+
     exibirQuestaoAtual();
 }
 
@@ -572,6 +574,11 @@ function verificarResposta(button) {
                 }
             }
         );
+
+        /*
+            Resposta errada continua
+            causando perda de uma vida.
+        */
 
         vidas--;
 

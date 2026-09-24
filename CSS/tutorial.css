@@ -1,0 +1,734 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    min-height: 100vh;
+
+    font-family:
+        Arial,
+        Helvetica,
+        sans-serif;
+
+    background:
+        linear-gradient(
+            180deg,
+            #67c9ff 0%,
+            #b9eaff 55%,
+            #eefaff 100%
+        );
+
+    color: #17324d;
+
+    display: flex;
+    justify-content: center;
+
+    padding: 30px 20px;
+}
+
+
+/* ========================================
+   CONTAINER
+======================================== */
+
+.tutorial-container {
+    width: 100%;
+    max-width: 950px;
+
+    text-align: center;
+}
+
+
+/* ========================================
+   CABEÇALHO
+======================================== */
+
+.tutorial-header {
+    margin-bottom: 20px;
+}
+
+.tutorial-header h1 {
+    color: white;
+
+    font-size: 52px;
+
+    text-shadow:
+        0 3px 6px rgba(0, 0, 0, 0.25);
+}
+
+.tutorial-header p {
+    color: #17324d;
+
+    font-size: 25px;
+    font-weight: bold;
+
+    margin-top: 5px;
+}
+
+
+/* ========================================
+   CARD PRINCIPAL
+======================================== */
+
+.tutorial-card {
+    background: rgba(255, 255, 255, 0.96);
+
+    border-radius: 25px;
+
+    padding: 35px;
+
+    min-height: 560px;
+
+    box-shadow:
+        0 15px 35px rgba(0, 0, 0, 0.18);
+
+    display: flex;
+    flex-direction: column;
+}
+
+
+/* ========================================
+   ETAPAS
+======================================== */
+
+.tutorial-step {
+    display: none;
+
+    flex: 1;
+
+    animation: aparecer 0.35s ease;
+}
+
+.tutorial-step.active {
+    display: block;
+}
+
+.step-icon {
+    font-size: 70px;
+
+    margin-bottom: 15px;
+}
+
+.tutorial-step h2 {
+    color: #1769aa;
+
+    font-size: 36px;
+
+    margin-bottom: 18px;
+}
+
+.tutorial-step > p {
+    max-width: 750px;
+
+    margin:
+        0 auto
+        25px;
+
+    font-size: 22px;
+
+    line-height: 1.7;
+}
+
+
+/* ========================================
+   DICAS
+======================================== */
+
+.tip {
+    background: #fff6c7;
+
+    border: 2px solid #f4cf4e;
+
+    border-radius: 14px;
+
+    padding: 16px 20px;
+
+    max-width: 700px;
+
+    margin:
+        25px auto
+        0;
+
+    font-size: 19px;
+    font-weight: bold;
+
+    line-height: 1.5;
+
+    color: #614d00;
+}
+
+
+/* ========================================
+   PERSONAGEM
+======================================== */
+
+.character-preview {
+    height: 180px;
+
+    display: flex;
+    justify-content: center;
+    align-items: flex-end;
+}
+
+.character-preview img {
+    max-height: 170px;
+
+    object-fit: contain;
+}
+
+
+/* ========================================
+   QUESTÃO DE EXEMPLO
+======================================== */
+
+.example-question {
+    background: #edf8ff;
+
+    max-width: 600px;
+
+    margin: 0 auto;
+
+    padding: 28px;
+
+    border-radius: 18px;
+
+    border: 2px solid #8ed5ff;
+}
+
+.example-question h3 {
+    font-size: 29px;
+
+    margin-bottom: 22px;
+}
+
+.example-answers {
+    display: grid;
+
+    grid-template-columns:
+        repeat(3, 1fr);
+
+    gap: 12px;
+}
+
+.example-answers button {
+    border: none;
+
+    border-radius: 12px;
+
+    padding: 16px;
+
+    font-size: 23px;
+    font-weight: bold;
+
+    background: white;
+
+    color: #17324d;
+
+    box-shadow:
+        0 3px 8px rgba(0, 0, 0, 0.12);
+}
+
+.example-answers .correct-example {
+    background: #55cf75;
+
+    color: white;
+}
+
+
+/* ========================================
+   PLATAFORMAS DE EXEMPLO
+======================================== */
+
+.platform-example {
+    min-height: 180px;
+
+    max-width: 650px;
+
+    margin: 10px auto;
+
+    display: flex;
+
+    justify-content: space-around;
+
+    align-items: flex-end;
+}
+
+.mini-platform {
+    width: 110px;
+    height: 45px;
+
+    border-radius: 12px;
+
+    background: #8a5a32;
+
+    color: white;
+
+    font-size: 24px;
+    font-weight: bold;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    position: relative;
+
+    box-shadow:
+        0 5px 0 #5d3b21;
+}
+
+.mini-platform:nth-child(2) {
+    margin-bottom: 35px;
+}
+
+.mini-platform:nth-child(3) {
+    margin-bottom: 70px;
+}
+
+.mini-platform:nth-child(4) {
+    margin-bottom: 105px;
+}
+
+.mini-platform.completed {
+    background: #56b96b;
+}
+
+.mini-platform.current {
+    background: #f2b441;
+}
+
+.mini-platform img {
+    position: absolute;
+
+    height: 90px;
+
+    bottom: 35px;
+}
+
+
+/* ========================================
+   FEEDBACK
+======================================== */
+
+.feedback-example {
+    max-width: 650px;
+
+    margin: 20px auto;
+
+    padding: 22px;
+
+    background: #fff2d6;
+
+    border: 2px solid #f1b64c;
+
+    border-radius: 15px;
+
+    color: #805000;
+
+    font-size: 21px;
+    font-weight: bold;
+
+    line-height: 1.5;
+}
+
+
+/* ========================================
+   FASES
+======================================== */
+
+.phases {
+    display: grid;
+
+    grid-template-columns:
+        repeat(4, 1fr);
+
+    gap: 15px;
+
+    margin-top: 25px;
+}
+
+.phase {
+    padding: 22px 10px;
+
+    border-radius: 18px;
+
+    color: white;
+
+    box-shadow:
+        0 5px 10px rgba(0, 0, 0, 0.15);
+}
+
+.phase span {
+    display: block;
+
+    font-size: 42px;
+
+    margin-bottom: 10px;
+}
+
+.phase strong {
+    display: block;
+
+    font-size: 21px;
+}
+
+.phase p {
+    margin-top: 7px;
+
+    font-size: 17px;
+}
+
+.phase1 {
+    background: #54bdec;
+}
+
+.phase2 {
+    background: #8d633f;
+}
+
+.phase3 {
+    background: #238fc5;
+}
+
+.phase4 {
+    background: #d45826;
+}
+
+
+/* ========================================
+   BÔNUS
+======================================== */
+
+.bonus-info {
+    display: grid;
+
+    grid-template-columns:
+        repeat(4, 1fr);
+
+    gap: 15px;
+
+    margin: 25px 0;
+}
+
+.bonus-info div {
+    background: #edf5ff;
+
+    border: 2px solid #9bcaff;
+
+    border-radius: 15px;
+
+    padding: 20px 8px;
+
+    font-size: 34px;
+}
+
+.bonus-info strong {
+    display: block;
+
+    margin-top: 8px;
+
+    font-size: 19px;
+
+    color: #1769aa;
+}
+
+.bonus-info span {
+    display: block;
+
+    margin-top: 5px;
+
+    font-size: 16px;
+}
+
+
+/* ========================================
+   PROGRESSO
+======================================== */
+
+.progress-container {
+    display: flex;
+
+    justify-content: center;
+
+    gap: 10px;
+
+    margin-top: 28px;
+}
+
+.progress-dot {
+    width: 13px;
+    height: 13px;
+
+    border-radius: 50%;
+
+    background: #ccd7df;
+
+    transition:
+        transform 0.2s,
+        background 0.2s;
+}
+
+.progress-dot.active {
+    background: #248cd1;
+
+    transform: scale(1.3);
+}
+
+
+/* ========================================
+   NAVEGAÇÃO
+======================================== */
+
+.tutorial-navigation {
+    display: grid;
+
+    grid-template-columns:
+        1fr auto 1fr;
+
+    align-items: center;
+
+    gap: 15px;
+
+    margin-top: 25px;
+}
+
+.tutorial-navigation button,
+#startBtn {
+    border: none;
+
+    border-radius: 12px;
+
+    padding: 15px 24px;
+
+    font-size: 19px;
+    font-weight: bold;
+
+    cursor: pointer;
+
+    text-decoration: none;
+
+    transition:
+        transform 0.2s,
+        box-shadow 0.2s;
+}
+
+.tutorial-navigation button:hover,
+#startBtn:hover {
+    transform: translateY(-2px);
+
+    box-shadow:
+        0 5px 10px rgba(0, 0, 0, 0.15);
+}
+
+#previousBtn {
+    background: #e5e9ec;
+
+    color: #314657;
+
+    justify-self: start;
+}
+
+#nextBtn {
+    background: #238ed2;
+
+    color: white;
+
+    justify-self: end;
+}
+
+#previousBtn:disabled {
+    opacity: 0.4;
+
+    cursor: default;
+
+    transform: none;
+
+    box-shadow: none;
+}
+
+#stepCounter {
+    font-size: 18px;
+    font-weight: bold;
+
+    color: #63798b;
+}
+
+#startBtn {
+    display: none;
+
+    background: #3ebf67;
+
+    color: white;
+
+    justify-self: end;
+}
+
+
+/* ========================================
+   VOLTAR AO MENU
+======================================== */
+
+.back-menu {
+    display: inline-block;
+
+    margin-top: 20px;
+
+    color: #17324d;
+
+    font-size: 18px;
+    font-weight: bold;
+
+    text-decoration: none;
+}
+
+.back-menu:hover {
+    text-decoration: underline;
+}
+
+
+/* ========================================
+   ANIMAÇÃO
+======================================== */
+
+@keyframes aparecer {
+
+    from {
+        opacity: 0;
+        transform: translateX(15px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+
+}
+
+
+/* ========================================
+   RESPONSIVO
+======================================== */
+
+@media (max-width: 700px) {
+
+    body {
+        padding: 15px 10px;
+    }
+
+    .tutorial-card {
+        padding: 25px 15px;
+
+        min-height: 620px;
+    }
+
+    .tutorial-header h1 {
+        font-size: 38px;
+    }
+
+    .tutorial-header p {
+        font-size: 21px;
+    }
+
+    .step-icon {
+        font-size: 58px;
+    }
+
+    .tutorial-step h2 {
+        font-size: 30px;
+    }
+
+    .tutorial-step > p {
+        font-size: 20px;
+
+        line-height: 1.6;
+    }
+
+    .tip {
+        font-size: 18px;
+    }
+
+    .example-question h3 {
+        font-size: 24px;
+    }
+
+    .example-answers button {
+        font-size: 20px;
+
+        padding: 13px 8px;
+    }
+
+    .feedback-example {
+        font-size: 19px;
+    }
+
+    .phases,
+    .bonus-info {
+        grid-template-columns:
+            repeat(2, 1fr);
+    }
+
+    .phase strong {
+        font-size: 19px;
+    }
+
+    .phase p {
+        font-size: 16px;
+    }
+
+    .bonus-info strong {
+        font-size: 18px;
+    }
+
+    .bonus-info span {
+        font-size: 15px;
+    }
+
+    .platform-example {
+        transform: scale(0.8);
+
+        margin-left: -40px;
+        margin-right: -40px;
+    }
+
+    .mini-platform {
+        width: 80px;
+    }
+
+    .tutorial-navigation {
+        grid-template-columns:
+            1fr 1fr;
+    }
+
+    #stepCounter {
+        grid-column:
+            1 / -1;
+
+        grid-row: 1;
+
+        margin-bottom: 5px;
+
+        font-size: 17px;
+    }
+
+    #previousBtn {
+        grid-column: 1;
+    }
+
+    #nextBtn,
+    #startBtn {
+        grid-column: 2;
+    }
+
+    .tutorial-navigation button,
+    #startBtn {
+        font-size: 17px;
+
+        padding: 14px 16px;
+    }
+
+    .back-menu {
+        font-size: 17px;
+    }
+
+}
