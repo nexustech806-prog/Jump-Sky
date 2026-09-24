@@ -7,5 +7,5 @@ const slugsPorFase = {
     2: 'subtraindo-no-subsolo',
     3: 'multiplicando-no-oceano',
     4: 'dividindo-no-vulcao',
-    5: 'pulando-no-espaco'
+    5: 'pulando-no-espaco',
 };

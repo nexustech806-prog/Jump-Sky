@@ -197,8 +197,12 @@ const fasesConfig = {
     'subtraindo-no-subsolo': { numero: 2, arquivo: 'SecondScene.html' },
     'multiplicando-no-oceano': { numero: 3, arquivo: 'ThirdScene.html' },
     'dividindo-no-vulcao': { numero: 4, arquivo: 'FourthScene.html' },
-    'pulando-no-espaco': { numero: 5, arquivo: 'BonusScene.html' }
+    'pulando-no-espaco': { numero: 5, arquivo: 'BonusScene.html' },
 };
+
+app.get('/aprendendo-a-jogar', verificarTokenPagina, (req, res) => {
+    res.sendFile(path.join(__dirname, 'HTML/Pages/tutorial.html'));
+});
 
 app.get('/:slug', verificarTokenPagina, async (req, res, next) => {
     const config = fasesConfig[req.params.slug];
