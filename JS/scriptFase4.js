@@ -1208,10 +1208,8 @@ if (enterBonus) {
         "click",
         () => {
 
-            // Caminho temporário de frontend.
-            // Depois o backend pode substituir por uma rota protegida.
             window.location.href =
-                "/HTML/Game/BonusScene.html";
+                "/pulando-no-espaco";
 
         }
     );
