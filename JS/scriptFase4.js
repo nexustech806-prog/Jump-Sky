@@ -1150,23 +1150,9 @@ answerButtons.forEach(
 
 if (restartBtn) {
     restartBtn.addEventListener("click", () => {
-        const proximaFase = faseAtual + 1;
-
-        if (slugsPorFase[proximaFase]) {
-            window.location.href = `/${slugsPorFase[proximaFase]}`;
-        } else {
-
-            window.location.href = '/menu';
-        }
+        window.location.href = "/menu";
     });
 }
-    const menuBtn = document.getElementById("menuBtn");
-
-        if (menuBtn) {
-            menuBtn.addEventListener("click", () => {
-            window.location.href = "/menu";
-            });
-        }
 
 
 
@@ -1208,10 +1194,8 @@ if (enterBonus) {
         "click",
         () => {
 
-            // Caminho temporário de frontend.
-            // Depois o backend pode substituir por uma rota protegida.
             window.location.href =
-                "/HTML/Game/BonusScene.html";
+                "/pulando-no-espaco";
 
         }
     );
@@ -1231,7 +1215,6 @@ if (backMenuBonus) {
     );
 
 }
-
 
 // ========================================
 // INTRO

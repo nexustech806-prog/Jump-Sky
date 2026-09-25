@@ -192,3 +192,18 @@ a {
     background-color: dodgerblue;
     padding: 10px;
 }
+
+.card-floor.bloqueado {
+    opacity: 0.5;
+    cursor: not-allowed;
+    filter: grayscale(60%);
+}
+
+.card-floor.concluido {
+    border: 2px solid #2ecc71; /* verde, ajusta pra cor do seu tema */
+}
+
+.card-floor.atual {
+    border: 2px solid #f39c12; /* laranja/destaque, ajusta pra cor do seu tema */
+    box-shadow: 0 0 8px rgba(243, 156, 18, 0.6);
+}
