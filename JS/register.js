@@ -135,7 +135,7 @@ async function createUser(event) {
     if (answer.ok) {
       localStorage.removeItem('avatarSelecionado');
       alert('Usuário cadastrado com sucesso!');
-      window.location.href = "/somando-nas-nuvens";
+      window.location.href = "/menu";
     } else {
       alert('Erro: ' + (result.erro || result.mensagem));
     }

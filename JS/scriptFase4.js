@@ -640,15 +640,17 @@ function checkAnswer(button) {
         );
 
     if (
-        answer ===
-        question.correct
-    ) {
+    answer ===
+    question.correct
+) {
 
-        busy = true;
+    playSound("correct");
 
-        button.classList.add(
-            "correct"
-        );
+    busy = true;
+
+    button.classList.add(
+        "correct"
+    );
 
         if (feedback) {
 
@@ -706,9 +708,11 @@ function checkAnswer(button) {
 
     else {
 
-        button.classList.add(
-            "wrong"
-        );
+    playSound("wrong");
+
+    button.classList.add(
+        "wrong"
+    );
 
         if (feedback) {
 
@@ -946,13 +950,13 @@ function checkBonusAnswer(button) {
 
     bonusAnswerButtons.forEach(
         btn => {
-
             btn.disabled = true;
-
         }
     );
 
     if (answer === bonusCorrectAnswer) {
+
+        playSound("correct");
 
         button.classList.add("correct");
 
@@ -965,9 +969,9 @@ function checkBonusAnswer(button) {
         enterBonus.style.display =
             "inline-block";
 
-    }
+    } else {
 
-    else {
+        playSound("wrong");
 
         button.classList.add("wrong");
 
@@ -978,9 +982,7 @@ function checkBonusAnswer(button) {
                     Number(btn.textContent) ===
                     bonusCorrectAnswer
                 ) {
-
                     btn.classList.add("correct");
-
                 }
 
             }
@@ -1006,9 +1008,7 @@ function checkBonusAnswer(button) {
 
 function finishGame() {
 
-    if (gameFinished) {
-        return;
-    }
+    playSound("complete");
 
     gameFinished = true;
 

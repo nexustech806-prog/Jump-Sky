@@ -409,12 +409,15 @@ function pararTimer() {
 // ========================================
 
 function tempoEsgotado() {
+
     if (
         bloqueado ||
         jogoFinalizado
     ) {
         return;
     }
+
+    playSound("timeout");
 
     bloqueado = true;
 
@@ -530,12 +533,15 @@ function verificarResposta(button) {
     );
 
     if (
-        respostaJogador ===
-        questaoAtual.correta
-    ) {
-        button.classList.add(
-            "correct"
-        );
+    respostaJogador ===
+    questaoAtual.correta
+) {
+
+    playSound("correct");
+
+    button.classList.add(
+        "correct"
+    );
 
         pontos++;
 
@@ -558,9 +564,12 @@ function verificarResposta(button) {
     }
 
     else {
-        button.classList.add(
-            "wrong"
-        );
+
+    playSound("wrong");
+
+    button.classList.add(
+        "wrong"
+    );
 
         answerButtons.forEach(
             btn => {
@@ -763,10 +772,13 @@ function verificarRecorde() {
         recorde;
 
     if (!avisoRecordeMostrado) {
-        avisoRecordeMostrado = true;
 
-        recordMessage.textContent =
-            "🏆 NOVO RECORDE!";
+    playSound("record");
+
+    avisoRecordeMostrado = true;
+
+    recordMessage.textContent =
+        "🏆 NOVO RECORDE!";
 
         recordMessage.classList.add(
             "new-record"
@@ -822,6 +834,7 @@ function finalizarJogo() {
             button.disabled = true;
         }
     );
+    playSound("timeout");
 
     questionElement.textContent =
         "🚀 Fim do desafio!";
