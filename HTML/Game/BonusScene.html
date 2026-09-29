@@ -11,7 +11,39 @@
 </head>
 
 <body>
+    <!-- Configurações -->
+<div class="game-settings">
 
+    <button
+        id="settingsBtn"
+        class="settings-btn"
+        aria-label="Abrir configurações"
+        title="Configurações"
+    >
+        ⚙️
+    </button>
+
+    <div
+        id="settingsPanel"
+        class="settings-panel"
+    >
+        <h3>⚙️ Configurações</h3>
+
+        <div class="settings-option">
+
+            <span>Efeitos sonoros</span>
+
+            <button
+                id="gameSoundToggle"
+                class="sound-toggle"
+            >
+                🔊 Ligado
+            </button>
+
+        </div>
+    </div>
+
+</div>
     <main class="game-container">
 
         <h1>🚀 Fase Bônus – Desafio Infinito</h1>
@@ -98,8 +130,8 @@
     </main>
 
     <script src="/JS/config.js"></script>
+    <script src="/JS/audio.js"></script>
     <script src="/JS/scriptBonus.js"></script>
-
 </body>
 
 </html>

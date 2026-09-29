@@ -15,7 +15,39 @@
 
 
 <body>
+    <!-- Configurações -->
+<div class="game-settings">
 
+    <button
+        id="settingsBtn"
+        class="settings-btn"
+        aria-label="Abrir configurações"
+        title="Configurações"
+    >
+        ⚙️
+    </button>
+
+    <div
+        id="settingsPanel"
+        class="settings-panel"
+    >
+        <h3>⚙️ Configurações</h3>
+
+        <div class="settings-option">
+
+            <span>Efeitos sonoros</span>
+
+            <button
+                id="gameSoundToggle"
+                class="sound-toggle"
+            >
+                🔊 Ligado
+            </button>
+
+        </div>
+    </div>
+
+</div>
     <div id="intro">
 
     <img src="/images/introfase2.png" alt="Introdução da fase">
@@ -150,8 +182,8 @@
     </main>
 
     <script src="/JS/config.js"></script>
+    <script src="/JS/audio.js"></script>
     <script src="/JS/scriptFase2.js"></script>
-    
  
 </body>
 

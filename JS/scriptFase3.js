@@ -625,17 +625,18 @@ function checkAnswer(button) {
     // RESPOSTA CORRETA
     // ========================================
 
-    if (
-        answer ===
-        question.correct
-    ) {
+   if (
+    answer ===
+    question.correct
+) {
 
-        busy = true;
+    playSound("correct");
 
+    busy = true;
 
-        button.classList.add(
-            "correct"
-        );
+    button.classList.add(
+        "correct"
+    );
 
 
         // Mostra feedback imediatamente
@@ -700,9 +701,11 @@ function checkAnswer(button) {
 
     else {
 
-        button.classList.add(
-            "wrong"
-        );
+    playSound("wrong");
+
+    button.classList.add(
+        "wrong"
+    );
 
 
         // Mostra feedback imediatamente
@@ -798,6 +801,8 @@ if (closeHint) {
 // ========================================
 
 function finishGame() {
+
+    playSound("complete");
 
     gameFinished = true;
 
