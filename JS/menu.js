@@ -60,4 +60,36 @@ function adicionarIcone(card, emoji) {
     }
 }
 
+const MIN_FONTE = 80;
+const MAX_FONTE = 150;
+const PASSO_FONTE = 10;
+
+function aplicarTamanhoFonte(percentual) {
+    document.documentElement.style.fontSize = `${percentual}%`;
+    document.getElementById('fontePercentual').textContent = `${percentual}%`;
+    localStorage.setItem('tamanhoFonte', percentual);
+}
+
+function carregarTamanhoFonte() {
+    const salvo = Number(localStorage.getItem('tamanhoFonte')) || 100;
+    aplicarTamanhoFonte(salvo);
+}
+
+document.getElementById('aumentarFonte').addEventListener('click', () => {
+    const atual = Number(localStorage.getItem('tamanhoFonte')) || 100;
+    aplicarTamanhoFonte(Math.min(atual + PASSO_FONTE, MAX_FONTE));
+});
+
+document.getElementById('diminuirFonte').addEventListener('click', () => {
+    const atual = Number(localStorage.getItem('tamanhoFonte')) || 100;
+    aplicarTamanhoFonte(Math.max(atual - PASSO_FONTE, MIN_FONTE));
+});
+
+function aplicarFeedbackReforcado(ativado) {
+    document.body.classList.toggle('feedback-reforcado', ativado);
+    localStorage.setItem('feedbackVisualReforcado', ativado);
+}
+
+carregarTamanhoFonte();
+
 carregarProgresso();

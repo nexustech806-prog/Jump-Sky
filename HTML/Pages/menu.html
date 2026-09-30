@@ -59,8 +59,32 @@
         </section>
 
         <section class="accessibility" aria-label="Acessibilidade">
+    <h2>Acessibilidade</h2>
 
-        </section>
+    <div class="option-item">
+        <label for="fonteAmpliada">Tamanho da fonte</label>
+        <div class="font-controls">
+            <button type="button" id="diminuirFonte" aria-label="Diminuir fonte">A-</button>
+            <span id="fontePercentual">100%</span>
+            <button type="button" id="aumentarFonte" aria-label="Aumentar fonte">A+</button>
+        </div>
+    </div>
+
+    <div class="option-item">
+        <label for="altoContraste">Alto contraste</label>
+        <input type="checkbox" id="altoContraste">
+    </div>
+
+    <div class="option-item">
+        <label for="feedbackSonoro">Sons de acerto/erro</label>
+        <input type="checkbox" id="feedbackSonoro" checked>
+    </div>
+
+    <div class="option-item">
+        <label for="feedbackVisualReforcado">Feedback visual reforçado</label>
+        <input type="checkbox" id="feedbackVisualReforcado">
+    </div>
+</section>
 
         <section class="instructions" aria-label="Instruções">
             <a href="/aprendendo-a-jogar">Tutorial</a>

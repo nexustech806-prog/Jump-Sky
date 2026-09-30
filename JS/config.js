@@ -9,3 +9,8 @@ const slugsPorFase = {
     4: 'dividindo-no-vulcao',
     5: 'pulando-no-espaco',
 };
+
+function aplicarFeedbackReforcado(ativado) {
+    document.body.classList.toggle('feedback-reforcado', ativado);
+    localStorage.setItem('feedbackVisualReforcado', ativado);
+}
