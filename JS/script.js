@@ -90,30 +90,6 @@ const feedback =
     document.getElementById("feedback");
 
 
-// Posição do personagem
-const characterPositions = [
-    {
-        left: "70px",
-        bottom: "80px"
-    },
-    {
-        left: "305px",
-        bottom: "155px"
-    },
-    {
-        left: "535px",
-        bottom: "240px"
-    },
-    {
-        left: "775px",
-        bottom: "170px"
-    },
-    {
-        left: "1000px",
-        bottom: "290px"
-    }
-];
-
 
 // Variáveis do jogo
 let questions = [];
@@ -382,20 +358,44 @@ function createQuestions() {
 
 function setCharacterPosition() {
 
-    const position =
-        characterPositions[currentPlatform];
+    const platform =
+        platforms[currentPlatform];
 
+    const scene =
+        document.querySelector(".scene");
 
-    if (!position) {
+    if (
+        !platform ||
+        !scene ||
+        !character
+    ) {
         return;
     }
 
+    const platformRect =
+        platform.getBoundingClientRect();
+
+    const sceneRect =
+        scene.getBoundingClientRect();
+
+    const characterWidth =
+        character.offsetWidth;
+
+    const left =
+        platformRect.left -
+        sceneRect.left +
+        (platformRect.width / 2) -
+        (characterWidth / 2);
+
+    const bottom =
+        sceneRect.bottom -
+        platformRect.top;
 
     character.style.left =
-        position.left;
+        `${left}px`;
 
     character.style.bottom =
-        position.bottom;
+        `${bottom}px`;
 }
 
 
@@ -936,3 +936,10 @@ updatePlatforms();
 setCharacterPosition();
 
 loadQuestion();
+
+window.addEventListener(
+    "resize",
+    () => {
+        setCharacterPosition();
+    }
+);

@@ -260,10 +260,22 @@ h1 {
 
 .game-over {
     display: none;
-    margin-top: 25px;
-    padding: 25px;
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: min(460px, calc(100vw - 30px));
+    max-height: calc(100vh - 30px);
+    overflow-y: auto;
+    margin: 0;
+    padding: 30px 25px;
     border-radius: 20px;
     background: #f2f2f2;
+    color: #111;
+    z-index: 5000;
+    box-shadow:
+        0 20px 60px rgba(0, 0, 0, 0.55),
+        0 0 0 100vmax rgba(0, 0, 0, 0.65);
 }
 
 .game-over h2 {
@@ -440,4 +452,177 @@ h1 {
 
 .sound-toggle:hover {
     transform: scale(1.03);
+}
+.volume-option {
+    margin-top: 18px;
+}
+
+.volume-option label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: bold;
+}
+
+.volume-control {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.volume-control input[type="range"] {
+    flex: 1;
+    cursor: pointer;
+}
+
+#volumeValue {
+    min-width: 42px;
+    text-align: right;
+    font-weight: bold;
+}
+
+/* ========================================
+   RESPONSIVIDADE DO CENÁRIO BÔNUS
+======================================== */
+
+body {
+    width: 100%;
+    overflow-x: hidden;
+}
+
+.game-container {
+    width: min(1200px, 100%);
+    max-width: 100%;
+}
+
+.scene {
+    width: 100%;
+    height: auto;
+    aspect-ratio: 12 / 5;
+    min-height: 300px;
+}
+
+#platform0 { left: 3.75%; bottom: 11%; }
+#platform1 { left: 13.33%; bottom: 23%; }
+#platform2 { left: 23.33%; bottom: 35%; }
+#platform3 { left: 33.33%; bottom: 47%; }
+#platform4 { left: 43.33%; bottom: 60%; }
+#platform5 { left: 54.17%; bottom: 67%; }
+#platform6 { left: 64.17%; bottom: 57%; }
+#platform7 { left: 73.33%; bottom: 44%; }
+#platform8 { left: 81.67%; bottom: 30%; }
+#platform9 { left: auto; right: 2.08%; bottom: 15%; }
+
+.platform {
+    width: clamp(58px, 8.75vw, 105px);
+    height: clamp(17px, 2.1vw, 25px);
+    transform: none;
+}
+
+.character {
+    width: clamp(46px, 6.67vw, 80px);
+    height: clamp(61px, 8.75vw, 105px);
+    transform: none;
+}
+
+.question-panel {
+    position: relative;
+    width: 100%;
+    padding: clamp(20px, 2.5vw, 30px) clamp(12px, 1.7vw, 20px)
+             clamp(24px, 2.9vw, 35px);
+}
+
+#question {
+    font-size: clamp(24px, 3.3vw, 40px);
+    overflow-wrap: anywhere;
+}
+
+.answers {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.answer-btn {
+    min-width: 0;
+    padding: clamp(12px, 1.7vw, 20px);
+    font-size: clamp(17px, 1.85vw, 22px);
+}
+
+.scene-info {
+    max-width: 90%;
+    white-space: normal;
+    font-size: clamp(12px, 1.5vw, 18px);
+}
+
+h1 {
+    font-size: clamp(27px, 3.2vw, 38px);
+}
+
+@media (max-width: 700px) {
+    body {
+        padding: 10px;
+    }
+
+    .scene {
+        min-height: 280px;
+        border-radius: 18px;
+    }
+
+    .answers {
+        grid-template-columns: 1fr;
+    }
+
+    .stats {
+        gap: 8px;
+    }
+
+    .stat {
+        padding: 8px 12px;
+    }
+
+    .game-settings {
+        top: 10px;
+        right: 10px;
+    }
+
+    .settings-panel {
+        width: min(250px, calc(100vw - 20px));
+    }
+}
+
+@media (max-width: 480px) {
+    .scene {
+        min-height: 250px;
+    }
+
+    .platform {
+        width: 52px;
+        height: 16px;
+    }
+
+    .character {
+        width: 42px;
+        height: 56px;
+    }
+}
+
+
+
+@media (max-width: 480px) {
+    .game-over {
+        width: calc(100vw - 24px);
+        padding: 24px 16px;
+    }
+
+    .game-over h2 {
+        font-size: 25px;
+    }
+
+    .game-over p {
+        font-size: 17px;
+    }
+
+    #playAgainBtn,
+    #menuBtn {
+        width: 100%;
+        margin: 5px 0;
+    }
 }

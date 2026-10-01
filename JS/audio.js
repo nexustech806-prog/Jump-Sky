@@ -3,6 +3,9 @@
 // ========================================
 
 const SOUND_STORAGE_KEY = "soundEnabled";
+const VOLUME_STORAGE_KEY = "soundVolume";
+
+const DEFAULT_VOLUME = 0.6;
 
 
 // ========================================
@@ -19,13 +22,75 @@ const gameSounds = {
 
 
 // ========================================
+// VOLUME
+// ========================================
+
+function getSoundVolume() {
+
+    const savedVolume =
+        localStorage.getItem(
+            VOLUME_STORAGE_KEY
+        );
+
+    if (savedVolume === null) {
+        return DEFAULT_VOLUME;
+    }
+
+    const volume =
+        Number(savedVolume);
+
+    if (
+        Number.isNaN(volume) ||
+        volume < 0 ||
+        volume > 1
+    ) {
+        return DEFAULT_VOLUME;
+    }
+
+    return volume;
+}
+
+
+function setSoundVolume(volume) {
+
+    const normalizedVolume =
+        Math.max(
+            0,
+            Math.min(1, volume)
+        );
+
+    localStorage.setItem(
+        VOLUME_STORAGE_KEY,
+        String(normalizedVolume)
+    );
+
+    Object.values(gameSounds).forEach(
+        sound => {
+
+            sound.volume =
+                normalizedVolume;
+
+        }
+    );
+
+    updateVolumeControl();
+}
+
+
+// ========================================
 // CONFIGURAÇÕES DOS SONS
 // ========================================
 
-Object.values(gameSounds).forEach(sound => {
-    sound.preload = "auto";
-    sound.volume = 0.6;
-});
+Object.values(gameSounds).forEach(
+    sound => {
+
+        sound.preload = "auto";
+
+        sound.volume =
+            getSoundVolume();
+
+    }
+);
 
 
 // ========================================
@@ -33,13 +98,12 @@ Object.values(gameSounds).forEach(sound => {
 // ========================================
 
 function isSoundEnabled() {
+
     const savedPreference =
         localStorage.getItem(
             SOUND_STORAGE_KEY
         );
 
-    // Se nunca foi configurado,
-    // o som começa ativado.
     if (savedPreference === null) {
         return true;
     }
@@ -53,12 +117,14 @@ function isSoundEnabled() {
 // ========================================
 
 function setSoundEnabled(enabled) {
+
     localStorage.setItem(
         SOUND_STORAGE_KEY,
         String(enabled)
     );
 
     updateSoundButton();
+    updateGameSoundButton();
 }
 
 
@@ -67,16 +133,11 @@ function setSoundEnabled(enabled) {
 // ========================================
 
 function toggleSound() {
+
     const newState =
         !isSoundEnabled();
 
     setSoundEnabled(newState);
-
-    /*
-        Se acabou de desligar o som,
-        interrompe qualquer efeito
-        que possa estar tocando.
-    */
 
     if (!newState) {
         stopAllSounds();
@@ -98,6 +159,7 @@ function playSound(soundName) {
         gameSounds[soundName];
 
     if (!sound) {
+
         console.warn(
             `Som não encontrado: ${soundName}`
         );
@@ -105,28 +167,22 @@ function playSound(soundName) {
         return;
     }
 
-    /*
-        Volta ao início para permitir
-        tocar o mesmo efeito várias vezes.
-    */
+    // Garante que o volume atual seja usado
+    sound.volume =
+        getSoundVolume();
 
     sound.currentTime = 0;
 
-    sound.play().catch(error => {
+    sound.play().catch(
+        error => {
 
-        /*
-            Alguns navegadores bloqueiam áudio
-            antes da primeira interação do usuário.
+            console.warn(
+                "Não foi possível reproduzir o som:",
+                error
+            );
 
-            Não interrompe o funcionamento do jogo.
-        */
-
-        console.warn(
-            "Não foi possível reproduzir o som:",
-            error
-        );
-
-    });
+        }
+    );
 }
 
 
@@ -136,15 +192,15 @@ function playSound(soundName) {
 
 function stopAllSounds() {
 
-    Object.values(
-        gameSounds
-    ).forEach(sound => {
+    Object.values(gameSounds).forEach(
+        sound => {
 
-        sound.pause();
+            sound.pause();
 
-        sound.currentTime = 0;
+            sound.currentTime = 0;
 
-    });
+        }
+    );
 }
 
 
@@ -186,33 +242,7 @@ function updateSoundButton() {
 
 
 // ========================================
-// BOTÃO DO MENU
-// ========================================
-
-document.addEventListener(
-    "DOMContentLoaded",
-    () => {
-
-        updateSoundButton();
-
-        const toggleSom =
-            document.getElementById(
-                "toggleSom"
-            );
-
-        if (toggleSom) {
-
-            toggleSom.addEventListener(
-                "click",
-                toggleSound
-            );
-
-        }
-
-    }
-);
-// ========================================
-// CONFIGURAÇÕES DENTRO DAS FASES
+// ATUALIZA BOTÃO DE SOM DAS FASES
 // ========================================
 
 function updateGameSoundButton() {
@@ -240,9 +270,78 @@ function updateGameSoundButton() {
     );
 }
 
+
+// ========================================
+// ATUALIZA CONTROLE DE VOLUME
+// ========================================
+
+function updateVolumeControl() {
+
+    const volumeSlider =
+        document.getElementById(
+            "volumeSlider"
+        );
+
+    const volumeValue =
+        document.getElementById(
+            "volumeValue"
+        );
+
+    if (
+        !volumeSlider ||
+        !volumeValue
+    ) {
+        return;
+    }
+
+    const volume =
+        getSoundVolume();
+
+    const percentage =
+        Math.round(
+            volume * 100
+        );
+
+    volumeSlider.value =
+        percentage;
+
+    volumeValue.textContent =
+        `${percentage}%`;
+}
+
+
+// ========================================
+// INICIALIZA CONTROLES
+// ========================================
+
 document.addEventListener(
     "DOMContentLoaded",
     () => {
+
+        // --------------------------------
+        // BOTÃO DE SOM DO MENU
+        // --------------------------------
+
+        updateSoundButton();
+
+        const toggleSom =
+            document.getElementById(
+                "toggleSom"
+            );
+
+        if (toggleSom) {
+
+            toggleSom.addEventListener(
+                "click",
+                toggleSound
+            );
+
+        }
+
+
+        // --------------------------------
+        // CONFIGURAÇÕES DAS FASES
+        // --------------------------------
 
         const settingsBtn =
             document.getElementById(
@@ -259,7 +358,9 @@ document.addEventListener(
                 "gameSoundToggle"
             );
 
+
         // Abrir / fechar configurações
+
         if (
             settingsBtn &&
             settingsPanel
@@ -278,6 +379,7 @@ document.addEventListener(
                 }
             );
 
+
             settingsPanel.addEventListener(
                 "click",
                 event => {
@@ -287,7 +389,9 @@ document.addEventListener(
                 }
             );
 
+
             // Fecha ao clicar fora
+
             document.addEventListener(
                 "click",
                 () => {
@@ -301,7 +405,11 @@ document.addEventListener(
 
         }
 
-        // Botão de som dentro da fase
+
+        // --------------------------------
+        // BOTÃO LIGAR / DESLIGAR SOM
+        // --------------------------------
+
         if (gameSoundToggle) {
 
             updateGameSoundButton();
@@ -313,6 +421,38 @@ document.addEventListener(
                     toggleSound();
 
                     updateGameSoundButton();
+
+                }
+            );
+
+        }
+
+
+        // --------------------------------
+        // CONTROLE DE VOLUME
+        // --------------------------------
+
+        const volumeSlider =
+            document.getElementById(
+                "volumeSlider"
+            );
+
+        if (volumeSlider) {
+
+            updateVolumeControl();
+
+            volumeSlider.addEventListener(
+                "input",
+                () => {
+
+                    const volume =
+                        Number(
+                            volumeSlider.value
+                        ) / 100;
+
+                    setSoundVolume(
+                        volume
+                    );
 
                 }
             );

@@ -699,3 +699,145 @@ h1 {
 .sound-toggle:hover {
     transform: scale(1.03);
 }
+.volume-option {
+    margin-top: 18px;
+}
+
+.volume-option label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: bold;
+}
+
+.volume-control {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.volume-control input[type="range"] {
+    flex: 1;
+    cursor: pointer;
+}
+
+#volumeValue {
+    min-width: 42px;
+    text-align: right;
+    font-weight: bold;
+}
+
+/* ========================================
+   RESPONSIVIDADE DO CENÁRIO
+======================================== */
+
+body {
+    width: 100%;
+    overflow-x: hidden;
+}
+
+.game-container {
+    width: min(1200px, 100%);
+    max-width: 100%;
+}
+
+.scene {
+    width: 100%;
+    height: auto;
+    aspect-ratio: 12 / 5;
+    min-height: 300px;
+}
+
+#platform0 { left: 2.92%; bottom: 8%; }
+#platform1 { left: 22.5%; bottom: 23%; }
+#platform2 { left: 41.67%; bottom: 40%; }
+#platform3 { left: 61.67%; bottom: 26%; }
+#platform4 { left: auto; right: 6.67%; bottom: 50%; }
+
+.platform {
+    height: clamp(32px, 3.5vw, 42px);
+    min-width: clamp(78px, 10vw, 120px);
+    padding: 6px clamp(8px, 1.6vw, 20px);
+    font-size: clamp(11px, 1.35vw, 16px);
+}
+
+.character {
+    width: clamp(50px, 7.1vw, 85px);
+    height: clamp(68px, 9.6vw, 115px);
+}
+
+.question-panel {
+    position: relative;
+    width: 100%;
+    padding: clamp(20px, 2.5vw, 30px) clamp(12px, 1.7vw, 20px)
+             clamp(24px, 2.9vw, 35px);
+}
+
+#question {
+    font-size: clamp(24px, 3.3vw, 40px);
+    overflow-wrap: anywhere;
+}
+
+.answers {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.answer-btn {
+    min-width: 0;
+    padding: clamp(12px, 1.7vw, 20px);
+    font-size: clamp(17px, 1.85vw, 22px);
+    overflow-wrap: anywhere;
+}
+
+h1 {
+    font-size: clamp(27px, 3.2vw, 38px);
+}
+
+@media (max-width: 700px) {
+    body {
+        padding: 10px;
+    }
+
+    .scene {
+        min-height: 280px;
+        border-radius: 18px;
+    }
+
+    .answers {
+        grid-template-columns: 1fr;
+    }
+
+    .stats {
+        gap: 8px;
+    }
+
+    .stat {
+        padding: 8px 12px;
+    }
+
+    .game-settings {
+        top: 10px;
+        right: 10px;
+    }
+
+    .settings-panel {
+        width: min(250px, calc(100vw - 20px));
+    }
+}
+
+@media (max-width: 480px) {
+    .scene {
+        min-height: 250px;
+    }
+
+    .platform {
+        min-width: 64px;
+        padding: 5px 7px;
+        font-size: 10px;
+    }
+
+    .character {
+        width: 46px;
+        height: 62px;
+    }
+}
+

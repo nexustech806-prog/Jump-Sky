@@ -429,21 +429,28 @@ function createQuestions() {
 // ========================================
 
 function setCharacterPosition() {
+    const platform = platforms[currentPlatform];
+    const scene = document.querySelector(".scene");
 
-    const position =
-        characterPositions[currentPlatform];
-
-
-    if (!position) {
+    if (!platform || !scene || !character) {
         return;
     }
 
+    const platformRect = platform.getBoundingClientRect();
+    const sceneRect = scene.getBoundingClientRect();
 
-    character.style.left =
-        position.left;
+    const left =
+        platformRect.left -
+        sceneRect.left +
+        (platformRect.width / 2) -
+        (character.offsetWidth / 2);
 
-    character.style.bottom =
-        position.bottom;
+    const bottom =
+        sceneRect.bottom -
+        platformRect.top;
+
+    character.style.left = `${left}px`;
+    character.style.bottom = `${bottom}px`;
 }
 
 
@@ -995,3 +1002,6 @@ updatePlatforms();
 setCharacterPosition();
 
 loadQuestion();
+
+// Reposiciona o personagem ao redimensionar a janela ou alterar o zoom.
+window.addEventListener("resize", setCharacterPosition);

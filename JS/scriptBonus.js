@@ -683,69 +683,58 @@ function atualizarCenario() {
 // ========================================
 
 function atualizarPersonagem(fazerPulo = false) {
-    const destino =
-        characterPositions[
-            posicaoPersonagem
-        ];
+    const platform = platforms[posicaoPersonagem];
 
-    if (!destino) {
+    if (!platform || !scene || !character) {
         return;
     }
 
     platforms.forEach(
-        (platform, index) => {
-            if (!platform) {
+        (item, index) => {
+            if (!item) {
                 return;
             }
 
-            platform.classList.remove(
+            item.classList.remove(
                 "current",
                 "completed"
             );
 
-            if (
-                index <
-                posicaoPersonagem
-            ) {
-                platform.classList.add(
-                    "completed"
-                );
+            if (index < posicaoPersonagem) {
+                item.classList.add("completed");
             }
 
-            if (
-                index ===
-                posicaoPersonagem
-            ) {
-                platform.classList.add(
-                    "current"
-                );
+            if (index === posicaoPersonagem) {
+                item.classList.add("current");
             }
         }
     );
 
     if (fazerPulo) {
-        character.classList.remove(
-            "jumping"
-        );
-
+        character.classList.remove("jumping");
         void character.offsetWidth;
-
-        character.classList.add(
-            "jumping"
-        );
+        character.classList.add("jumping");
     }
 
-    character.style.left =
-        destino.left;
+    const platformRect = platform.getBoundingClientRect();
+    const sceneRect = scene.getBoundingClientRect();
 
-    character.style.bottom =
-        destino.bottom;
+    const left =
+        platformRect.left -
+        sceneRect.left +
+        (platformRect.width / 2) -
+        (character.offsetWidth / 2);
+
+    const bottom =
+        sceneRect.bottom -
+        platformRect.top;
+
+    character.style.left = `${left}px`;
+    character.style.bottom = `${bottom}px`;
 
     setTimeout(
         () => {
-            character.classList.remove(
-                "jumping"
-            );
+            character.classList.remove("jumping");
         },
         650
     );
@@ -939,3 +928,6 @@ menuBtn.addEventListener(
 atualizarCenario();
 atualizarPersonagem(false);
 carregarQuestao();
+
+// Mantém o personagem alinhado à plataforma após resize/zoom.
+window.addEventListener("resize", () => atualizarPersonagem(false));

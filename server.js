@@ -19,9 +19,10 @@ app.use(cors({
     credentials: true   // necessário pra cookies funcionarem entre front e API
 }));
 
-app.use('/CSS', express.static(path.join(__dirname, 'CSS')));
-app.use('/JS', express.static(path.join(__dirname, 'JS')));
-app.use('/images', express.static(path.join(__dirname, 'images')));
+app.use("/CSS", express.static(path.join(__dirname, "CSS")));
+app.use("/JS", express.static(path.join(__dirname, "JS")));
+app.use("/images", express.static(path.join(__dirname, "images")));
+app.use("/audio", express.static(path.join(__dirname, "audio")));
 
 
 let isConnected = false;

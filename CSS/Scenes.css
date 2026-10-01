@@ -182,52 +182,34 @@ h1 {
 
 
 /* Plataforma inicial */
+/* Plataforma inicial */
 #platform0 {
-
-    left: 35px;
-
-    bottom: 40px;
-
+    left: 3%;
+    bottom: 8%;
 }
-
 
 /* Plataforma 1 */
 #platform1 {
-
-    left: 270px;
-
-    bottom: 115px;
-
+    left: 23%;
+    bottom: 23%;
 }
-
 
 /* Plataforma 2 */
 #platform2 {
-
-    left: 500px;
-
-    bottom: 200px;
-
+    left: 43%;
+    bottom: 40%;
 }
-
 
 /* Plataforma 3 */
 #platform3 {
-
-    left: 740px;
-
-    bottom: 130px;
-
+    left: 64%;
+    bottom: 26%;
 }
-
 
 /* Plataforma final */
 #platform4 {
-
-    right: 80px;
-
-    bottom: 250px;
-
+    right: 7%;
+    bottom: 50%;
 }
 
 
@@ -588,4 +570,405 @@ h1 {
 
 .feedback-wrong {
     color: #F44336;
+}
+/* ========================================
+   CONFIGURAÇÕES DO JOGO
+======================================== */
+
+.game-settings {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    z-index: 1000;
+}
+
+.settings-btn {
+    width: 52px;
+    height: 52px;
+
+    border: none;
+    border-radius: 50%;
+
+    font-size: 26px;
+
+    background: rgba(0, 0, 0, 0.65);
+    color: white;
+
+    cursor: pointer;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    transition:
+        transform 0.2s ease,
+        background 0.2s ease;
+}
+
+.settings-btn:hover {
+    transform: scale(1.08);
+    background: rgba(0, 0, 0, 0.8);
+}
+
+.settings-panel {
+    position: absolute;
+
+    top: 62px;
+    right: 0;
+
+    width: 250px;
+
+    padding: 18px;
+
+    border-radius: 15px;
+
+    background: rgba(25, 25, 25, 0.95);
+    color: white;
+
+    box-shadow:
+        0 8px 25px rgba(0, 0, 0, 0.35);
+
+    display: none;
+}
+
+.settings-panel.show {
+    display: block;
+}
+
+.settings-panel h3 {
+    margin: 0 0 15px 0;
+    text-align: center;
+}
+
+.settings-option {
+    display: flex;
+
+    align-items: center;
+    justify-content: space-between;
+
+    gap: 15px;
+}
+
+.sound-toggle {
+    border: none;
+    border-radius: 10px;
+
+    padding: 9px 12px;
+
+    font-weight: bold;
+
+    cursor: pointer;
+
+    background: white;
+    color: #333;
+}
+
+.sound-toggle:hover {
+    transform: scale(1.03);
+}
+.volume-option {
+    margin-top: 18px;
+}
+
+.volume-option label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: bold;
+}
+
+.volume-control {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.volume-control input[type="range"] {
+    flex: 1;
+    cursor: pointer;
+}
+
+#volumeValue {
+    min-width: 42px;
+    text-align: right;
+    font-weight: bold;
+}
+/* ========================================
+   RESPONSIVIDADE DA FASE 1
+======================================== */
+
+.game-container {
+    width: min(1200px, 100%);
+}
+
+.scene {
+    width: 100%;
+}
+
+h1 {
+    font-size: clamp(24px, 3vw, 38px);
+}
+
+.subtitle {
+    font-size: clamp(14px, 1.5vw, 16px);
+}
+
+#question {
+    font-size: clamp(24px, 3.5vw, 40px);
+    overflow-wrap: anywhere;
+}
+
+.question-panel {
+    width: 100%;
+}
+
+.answer-btn {
+    font-size: clamp(18px, 2vw, 22px);
+}
+
+@media (max-width: 800px) {
+
+    body {
+        padding: 10px;
+    }
+
+    .scene {
+        height: 420px;
+    }
+
+    .platform {
+        min-width: 90px;
+        height: 38px;
+        padding: 6px 12px;
+        font-size: 14px;
+    }
+
+    .character {
+        width: 68px;
+        height: 92px;
+    }
+
+    .question-panel {
+        padding: 22px 14px 25px;
+    }
+
+    .answers {
+         grid-template-columns: repeat(3, 1fr);
+        gap: 8px;
+    }
+
+    .answer-btn {
+        padding: 14px;
+    }
+
+    .stats {
+        gap: 8px;
+    }
+
+    .stat {
+        padding: 8px 12px;
+        font-size: 14px;
+    }
+}
+
+@media (max-width: 500px) {
+
+    .scene {
+        height: 350px;
+    }
+
+    .platform {
+        min-width: 70px;
+        height: 34px;
+        padding: 5px 8px;
+        font-size: 12px;
+    }
+
+    .character {
+        width: 55px;
+        height: 75px;
+    }
+
+    #question {
+        margin-bottom: 18px;
+    }
+}
+/* ========================================
+   RESPONSIVIDADE POR ALTURA
+   Mantém cenário + pergunta visíveis
+======================================== */
+
+/* Evita largura estourando a tela */
+html,
+body {
+    width: 100%;
+    min-height: 100%;
+}
+
+body {
+    overflow-x: hidden;
+}
+
+/* O container nunca ultrapassa a tela */
+.game-container {
+    width: min(1200px, 100%);
+    margin: 0 auto;
+}
+
+/* Tamanhos fluidos */
+h1 {
+    font-size: clamp(22px, 3vw, 38px);
+}
+
+.subtitle {
+    font-size: clamp(13px, 1.5vw, 16px);
+}
+
+#question {
+    font-size: clamp(22px, 3vw, 40px);
+}
+
+/* ==================================================
+   MONITORES COM POUCA ALTURA
+================================================== */
+
+@media (max-height: 850px) {
+
+    body {
+        padding: 8px 14px;
+    }
+
+    h1 {
+        font-size: 26px;
+        margin-bottom: 4px;
+    }
+
+    .subtitle {
+        margin-bottom: 8px;
+        font-size: 14px;
+    }
+
+    .stats {
+        margin-bottom: 8px;
+        gap: 8px;
+    }
+
+    .stat {
+        padding: 6px 12px;
+        font-size: 13px;
+    }
+
+    .scene {
+        height: 360px;
+    }
+
+    .character {
+        width: 65px;
+        height: 88px;
+    }
+
+    .platform {
+        min-width: 90px;
+        height: 34px;
+        padding: 5px 12px;
+        font-size: 13px;
+    }
+
+    .question-panel {
+        margin-top: 8px;
+        padding: 14px 16px 16px;
+    }
+
+    #question {
+        font-size: 25px;
+        margin-bottom: 10px;
+    }
+
+    .answers {
+        gap: 8px;
+    }
+
+    .answer-btn {
+        padding: 10px;
+        font-size: 18px;
+    }
+
+    #feedback {
+        min-height: 24px;
+        margin-top: 5px;
+        font-size: 16px;
+    }
+}
+
+/* ==================================================
+   MONITORES AINDA MENORES / NOTEBOOKS
+================================================== */
+
+@media (max-height: 700px) {
+
+    body {
+        padding: 5px 10px;
+    }
+
+    h1 {
+        font-size: 21px;
+        margin-bottom: 2px;
+    }
+
+    .subtitle {
+        margin-bottom: 5px;
+        font-size: 12px;
+    }
+
+    .stats {
+        margin-bottom: 5px;
+        gap: 5px;
+    }
+
+    .stat {
+        padding: 4px 9px;
+        font-size: 11px;
+    }
+
+    .scene {
+        height: 280px;
+    }
+
+    .character {
+        width: 52px;
+        height: 70px;
+    }
+
+    .platform {
+        min-width: 75px;
+        height: 30px;
+        padding: 4px 8px;
+        font-size: 11px;
+    }
+
+    .question-panel {
+        margin-top: 5px;
+        padding: 9px 12px 10px;
+        border-radius: 16px;
+    }
+
+    #question {
+        font-size: 20px;
+        margin-bottom: 7px;
+    }
+
+    .answers {
+        gap: 6px;
+    }
+
+    .answer-btn {
+        padding: 7px;
+        font-size: 16px;
+        border-width: 2px;
+    }
+
+    #feedback {
+        min-height: 20px;
+        margin-top: 3px;
+        font-size: 14px;
+    }
 }
