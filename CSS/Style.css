@@ -312,9 +312,20 @@ a {
 }
 
 body.alto-contraste {
-    --cor-fundo: #000000;
-    --cor-texto: #ffffff;
-    --cor-destaque: #ffff00;
+    background-color: #000000 !important;
+    color: #FFFF00 !important; /* Texto em amarelo de alto contraste ou branco puro */
+}
+
+body.alto-contraste .menu-card, 
+body.alto-contraste .card-floor,
+body.alto-contraste nav {
+    background-color: #121212 !important;
+    border: 2px solid #FFFF00 !important;
+    color: #FFFF00 !important;
+}
+
+body.alto-contraste a {
+    color: #00FFFF !important; /* Azul claro ou amarelo para links */
 }
 
 body {
