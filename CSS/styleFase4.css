@@ -807,4 +807,18 @@ h1 {
         height: 62px;
     }
 }
-
+.brightness-option 
+{ margin-top: 18px; 
+}
+.brightness-option label { 
+    display:block; margin-bottom:8px; font-weight:bold;
+}
+.brightness-control { 
+    display:flex; align-items:center; gap:10px; 
+}
+.brightness-control input[type="range"] { 
+    flex:1; cursor:pointer; 
+}
+#brightnessValue { 
+    min-width:48px; text-align:right; font-weight:bold;
+ }
