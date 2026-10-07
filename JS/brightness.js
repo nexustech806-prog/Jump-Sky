@@ -1,4 +1,4 @@
-const BRIGHTNESS_STORAGE_KEY = "gameBrightness", DEFAULT_BRIGHTNESS = 100, MIN_BRIGHTNESS = 50, MAX_BRIGHTNESS = 150;
+const BRIGHTNESS_STORAGE_KEY = "gameBrightness", DEFAULT_BRIGHTNESS = 100, MIN_BRIGHTNESS = 50, MAX_BRIGHTNESS = 120;
 function getGameBrightness() { const v = Number(localStorage.getItem(BRIGHTNESS_STORAGE_KEY)); return Number.isNaN(v) || v < MIN_BRIGHTNESS || v > MAX_BRIGHTNESS ? DEFAULT_BRIGHTNESS : v }
 function ensureBrightnessLayer() { let l = document.getElementById("brightnessLayer"); if (!l) { l = document.createElement("div"); l.id = "brightnessLayer"; l.setAttribute("aria-hidden", "true"); Object.assign(l.style, { position: "fixed", inset: "0", pointerEvents: "none", zIndex: "2147483000", background: "#000", opacity: "0" }); document.body.appendChild(l) } return l }
 function updateBrightnessControl() { const s = document.getElementById("brightnessSlider"), v = document.getElementById("brightnessValue"); if (!s || !v) return; const b = getGameBrightness(); s.value = b; v.textContent = `${b}%` }
