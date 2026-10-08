@@ -808,6 +808,7 @@ if (closeHint) {
 // ========================================
 
 function finishGame() {
+    stopBackgroundMusic();
 
     playSound("complete");
 
@@ -880,6 +881,7 @@ function finishGame() {
 // ========================================
 
 function restartGame() {
+    startBackgroundMusic();
 
     currentQuestion = 0;
 
