@@ -135,7 +135,7 @@ async function createUser(event) {
     if (answer.ok) {
       localStorage.removeItem('avatarSelecionado');
       alert('Usuário cadastrado com sucesso!');
-      window.location.href = "/menu";
+      window.location.href = "/selecionar-avatar";
     } else {
       alert('Erro: ' + (result.erro || result.mensagem));
     }

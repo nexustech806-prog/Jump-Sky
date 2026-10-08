@@ -55,6 +55,35 @@ header{
     padding: 20px;
 }
 
+.call-action {
+    padding-top: 30px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center; /* Centraliza o botão horizontalmente */
+    align-items: center;     /* Centraliza o botão verticalmente */
+    width: 100%;
+}
+
+.button-call {
+    display: inline-block;
+    background-color: #00FFFF;
+    color: #1a1a2e; /* Texto escuro para contraste */
+    padding: 12px 24px;
+    border-radius: 8px;
+    font-weight: bold;
+    text-align: center;
+    border: none;
+    cursor: pointer;
+    text-decoration: none;
+    transition: background-color 0.2s ease, transform 0.2s ease;
+}
+
+
+.button-call:hover {
+    background-color: #00cccc; /* Efeito mais escuro ao passar o mouse */
+    transform: translateY(-2px); /* Efeito de elevação */
+}
+
 .container-rank {
     width: 100%;
     max-width: 500px;

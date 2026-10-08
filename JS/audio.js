@@ -125,6 +125,7 @@ function setSoundEnabled(enabled) {
 
     updateSoundButton();
     updateGameSoundButton();
+    updateAccessibilityCheckbox();
 }
 
 
@@ -167,7 +168,6 @@ function playSound(soundName) {
         return;
     }
 
-    // Garante que o volume atual seja usado
     sound.volume =
         getSoundVolume();
 
@@ -272,6 +272,26 @@ function updateGameSoundButton() {
 
 
 // ========================================
+// SINCRONIZA O CHECKBOX DA TELA DE ACESSIBILIDADE
+// ========================================
+
+function updateAccessibilityCheckbox() {
+
+    const checkbox =
+        document.getElementById(
+            "feedbackSonoro"
+        );
+
+    if (!checkbox) {
+        return;
+    }
+
+    checkbox.checked =
+        isSoundEnabled();
+}
+
+
+// ========================================
 // ATUALIZA CONTROLE DE VOLUME
 // ========================================
 
@@ -318,11 +338,8 @@ document.addEventListener(
     "DOMContentLoaded",
     () => {
 
-        // --------------------------------
-        // BOTÃO DE SOM DO MENU
-        // --------------------------------
-
         updateSoundButton();
+        updateAccessibilityCheckbox();
 
         const toggleSom =
             document.getElementById(
@@ -339,10 +356,6 @@ document.addEventListener(
         }
 
 
-        // --------------------------------
-        // CONFIGURAÇÕES DAS FASES
-        // --------------------------------
-
         const settingsBtn =
             document.getElementById(
                 "settingsBtn"
@@ -358,8 +371,6 @@ document.addEventListener(
                 "gameSoundToggle"
             );
 
-
-        // Abrir / fechar configurações
 
         if (
             settingsBtn &&
@@ -390,8 +401,6 @@ document.addEventListener(
             );
 
 
-            // Fecha ao clicar fora
-
             document.addEventListener(
                 "click",
                 () => {
@@ -405,10 +414,6 @@ document.addEventListener(
 
         }
 
-
-        // --------------------------------
-        // BOTÃO LIGAR / DESLIGAR SOM
-        // --------------------------------
 
         if (gameSoundToggle) {
 
@@ -427,10 +432,6 @@ document.addEventListener(
 
         }
 
-
-        // --------------------------------
-        // CONTROLE DE VOLUME
-        // --------------------------------
 
         const volumeSlider =
             document.getElementById(
