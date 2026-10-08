@@ -812,6 +812,7 @@ function atualizarInterface() {
 // ========================================
 
 function finalizarJogo() {
+    stopBackgroundMusic();
     jogoFinalizado = true;
 
     pararTimer();
@@ -847,6 +848,7 @@ function finalizarJogo() {
 // ========================================
 
 function reiniciarJogo() {
+    startBackgroundMusic();
     pararTimer();
 
     vidas = 3;

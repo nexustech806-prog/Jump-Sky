@@ -26,6 +26,13 @@
         id="settingsPanel"
         class="settings-panel"
     >
+    <div class="brightness-option">
+            <label for="brightnessSlider">Brilho</label>
+        <div class="brightness-control">
+            <input type="range" id="brightnessSlider" min="50" max="120" step="5" value="100" aria-label="Ajustar brilho do jogo">
+            <span id="brightnessValue">100%</span>
+        </div>
+    </div>
     <div class="volume-option">
 
     <label for="volumeSlider">
@@ -54,7 +61,7 @@
 
         <div class="settings-option">
 
-            <span>Efeitos sonoros</span>
+            <span>Som do jogo (música e efeitos)</span>
 
             <button
                 id="gameSoundToggle"
@@ -200,8 +207,7 @@
     </div>
 
     <script src="/JS/config.js"></script>
-    <script src="/JS/audio.js"></script>
-    <script src="/JS/acessibilidade.js"></script>
-    <script src="/JS/scriptFase4.js"></script>
+<script src="/JS/audio.js"></script>
+<script src="/JS/scriptFase4.js"></script>
 </body>
 </html>

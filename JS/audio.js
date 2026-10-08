@@ -56,7 +56,7 @@ function setSoundVolume(volume) {
     const normalizedVolume =
         Math.max(
             0,
-            Math.min(1, volume)
+            Math.min(1, Number.isFinite(Number(volume)) ? Number(volume) : DEFAULT_VOLUME)
         );
 
     localStorage.setItem(
@@ -74,6 +74,7 @@ function setSoundVolume(volume) {
     );
 
     updateVolumeControl();
+    syncBackgroundMusic();
 }
 
 
@@ -125,6 +126,8 @@ function setSoundEnabled(enabled) {
 
     updateSoundButton();
     updateGameSoundButton();
+    if (!enabled) stopAllSounds();
+    syncBackgroundMusic();
     updateAccessibilityCheckbox();
 }
 
@@ -152,7 +155,7 @@ function toggleSound() {
 
 function playSound(soundName) {
 
-    if (!isSoundEnabled()) {
+    if (!isSoundEnabled() || localStorage.getItem("feedbackSonoro") === "false") {
         return;
     }
 
@@ -173,8 +176,12 @@ function playSound(soundName) {
 
     sound.currentTime = 0;
 
+    activeEffects.add(sound);
+    updateMusicVolume();
     sound.play().catch(
         error => {
+            activeEffects.delete(sound);
+            updateMusicVolume();
 
             console.warn(
                 "Não foi possível reproduzir o som:",
@@ -191,6 +198,9 @@ function playSound(soundName) {
 // ========================================
 
 function stopAllSounds() {
+    backgroundMusic.pause();
+    activeEffects.clear();
+    updateMusicVolume();
 
     Object.values(gameSounds).forEach(
         sound => {
@@ -229,14 +239,14 @@ function updateSoundButton() {
 
     toggleSom.title =
         enabled
-            ? "Desativar efeitos sonoros"
-            : "Ativar efeitos sonoros";
+            ? "Desativar som do jogo"
+            : "Ativar som do jogo";
 
     toggleSom.setAttribute(
         "aria-label",
         enabled
-            ? "Desativar efeitos sonoros"
-            : "Ativar efeitos sonoros"
+            ? "Desativar som do jogo"
+            : "Ativar som do jogo"
     );
 }
 
@@ -462,3 +472,90 @@ document.addEventListener(
 
     }
 );
+// Trilha instrumental em loop, sempre abaixo dos efeitos.
+const backgroundMusic = new Audio("/audio/background.wav");
+backgroundMusic.loop = true;
+backgroundMusic.preload = "auto";
+const activeEffects = new Set();
+let musicRequested = false;
+let musicPlayPending = false;
+
+document.addEventListener("DOMContentLoaded", () => {
+    if (document.getElementById("gameSoundToggle")) startBackgroundMusic();
+});
+
+function updateMusicVolume() {
+    backgroundMusic.volume = getSoundVolume() * (activeEffects.size ? 0.07 : 0.25);
+}
+
+function shouldPlayMusic() {
+    return musicRequested && isSoundEnabled() && getSoundVolume() > 0 && !document.hidden;
+}
+
+function syncBackgroundMusic() {
+    updateMusicVolume();
+    if (!shouldPlayMusic()) {
+        backgroundMusic.pause();
+        return;
+    }
+    if (!backgroundMusic.paused || musicPlayPending) return;
+    musicPlayPending = true;
+    backgroundMusic.play().then(() => {
+        // A preferência pode mudar enquanto o navegador carrega o áudio.
+        if (!shouldPlayMusic()) backgroundMusic.pause();
+    }).catch(() => {
+        // Autoplay bloqueado: tentar novamente no próximo gesto do jogador.
+    }).finally(() => { musicPlayPending = false; });
+}
+
+function startBackgroundMusic() {
+    musicRequested = true;
+    syncBackgroundMusic();
+}
+
+function stopBackgroundMusic() {
+    musicRequested = false;
+    backgroundMusic.pause();
+    backgroundMusic.currentTime = 0;
+}
+
+Object.values(gameSounds).forEach(sound => {
+    ["ended", "pause", "error"].forEach(eventName => {
+        sound.addEventListener(eventName, () => {
+            activeEffects.delete(sound);
+            updateMusicVolume();
+        });
+    });
+});
+
+// Também dá prioridade a elementos de áudio/vídeo de instruções.
+document.addEventListener("play", event => {
+    if (event.target instanceof HTMLMediaElement) {
+        activeEffects.add(event.target);
+        updateMusicVolume();
+    }
+}, true);
+["ended", "pause", "error"].forEach(eventName => {
+    document.addEventListener(eventName, event => {
+        activeEffects.delete(event.target);
+        updateMusicVolume();
+    }, true);
+});
+document.addEventListener("click", syncBackgroundMusic);
+document.addEventListener("keydown", syncBackgroundMusic);
+document.addEventListener("visibilitychange", () => {
+    if (document.hidden) stopAllSounds();
+    syncBackgroundMusic();
+});
+window.addEventListener("pagehide", () => { stopAllSounds(); });
+window.addEventListener("pageshow", syncBackgroundMusic);
+window.addEventListener("storage", event => {
+    if (event.key === null || [SOUND_STORAGE_KEY, VOLUME_STORAGE_KEY, "feedbackSonoro"].includes(event.key)) {
+        Object.values(gameSounds).forEach(sound => { sound.volume = getSoundVolume(); });
+        if (!isSoundEnabled() || localStorage.getItem("feedbackSonoro") === "false") stopAllSounds();
+        updateSoundButton();
+        updateGameSoundButton();
+        updateVolumeControl();
+        syncBackgroundMusic();
+    }
+});
