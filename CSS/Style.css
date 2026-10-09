@@ -433,3 +433,70 @@ a {
 .sound-toggle:hover {
     transform: scale(1.03);
 }
+
+/* ========================================
+   BOTÃO DE TUTORIAL (MENU)
+   ======================================== */
+
+.instructions {
+    display: flex;
+    justify-content: center;
+    margin: 1.5rem 0;
+}
+
+.btn-tutorial {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.6rem;
+
+    min-width: 12rem;
+    min-height: 3rem;          /* área de toque confortável para crianças */
+    padding: 0.8rem 1.8rem;
+
+    background: #e8912d;
+    color: #1a1a2e;
+    font-size: 1.1rem;
+    font-weight: bold;
+    text-decoration: none;
+
+    border: 3px solid #b86a12;
+    border-radius: 14px;
+    box-shadow: 0 5px 0 #b86a12;   /* efeito de botão "alto", combina com as plataformas */
+
+    cursor: pointer;
+    transition: transform 0.15s ease, box-shadow 0.15s ease, background 0.15s ease;
+}
+
+.btn-tutorial__icone {
+    font-size: 1.3em;
+}
+
+.btn-tutorial:hover {
+    background: #f5a43f;
+    transform: translateY(-2px);
+    box-shadow: 0 7px 0 #b86a12;
+}
+
+.btn-tutorial:active {
+    transform: translateY(3px);
+    box-shadow: 0 2px 0 #b86a12;
+}
+
+/* Foco visível para quem navega pelo teclado */
+.btn-tutorial:focus-visible {
+    outline: 4px solid #ffffff;
+    outline-offset: 3px;
+}
+
+/* Respeita quem desativou animações no sistema */
+@media (prefers-reduced-motion: reduce) {
+    .btn-tutorial {
+        transition: none;
+    }
+
+    .btn-tutorial:hover,
+    .btn-tutorial:active {
+        transform: none;
+    }
+}

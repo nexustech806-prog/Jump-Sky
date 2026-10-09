@@ -605,6 +605,26 @@ body {
 
 }
 
+.tutorial-audio {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    margin: 16px 0;
+}
+
+#audioBtn {
+    padding: 10px 20px;
+    font-size: 1rem;
+    border-radius: 12px;
+    cursor: pointer;
+}
+
+.audio-status {
+    min-height: 1.2em;
+    font-size: 0.9rem;
+}
+
 
 /* ========================================
    RESPONSIVO

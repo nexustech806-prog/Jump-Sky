@@ -233,8 +233,17 @@
 
 
             <!-- PROGRESSO -->
-            <div class="progress-container">
+            <!-- ÁUDIO DA ETAPA -->
+            <div class="tutorial-audio">
+                <button id="audioBtn" type="button">
+                    🔊 Ouvir esta etapa
+                </button>
+                <p id="audioStatus" class="audio-status" role="status" aria-live="polite"></p>
+            </div>
 
+
+            <!-- PROGRESSO -->
+            <div class="progress-container">
                 <span class="progress-dot active"></span>
                 <span class="progress-dot"></span>
                 <span class="progress-dot"></span>
@@ -242,7 +251,6 @@
                 <span class="progress-dot"></span>
                 <span class="progress-dot"></span>
                 <span class="progress-dot"></span>
-
             </div>
 
 
@@ -261,8 +269,8 @@
                     Próximo →
                 </button>
 
-               <a id="startBtn" href="/menu">
-                🎮 Voltar ao menu
+                <a id="startBtn" href="/menu">
+                    🎮 Voltar ao menu
                 </a>
 
             </div>
@@ -272,6 +280,8 @@
     </main>
 
 
+    <script src="/JS/audio.js"></script>
+    <script src="/JS/acessibilidade.js"></script>
     <script src="/JS/brightness.js"></script>
     <script src="/JS/tutorial.js"></script>
 
