@@ -9,9 +9,10 @@
 
     <link rel="stylesheet" href="/CSS/styleBonus.css">
     <link rel="stylesheet" href="/CSS/acessibilidade.css">
+    <link rel="stylesheet" href="/CSS/audio-settings.css">
 </head>
 
-<body>
+<body data-game-phase>
     <!-- Configurações -->
 <div class="game-settings">
 
@@ -35,44 +36,9 @@
             <span id="brightnessValue">100%</span>
         </div>
     </div>
-    <div class="volume-option">
 
-    <label for="volumeSlider">
-        Volume
-    </label>
 
-    <div class="volume-control">
-
-        <input
-            type="range"
-            id="volumeSlider"
-            min="0"
-            max="100"
-            step="5"
-            value="60"
-        >
-
-        <span id="volumeValue">
-            60%
-        </span>
-
-    </div>
-
-</div>
-        <h3>⚙️ Configurações</h3>
-
-        <div class="settings-option">
-
-            <span>Som do jogo (música e efeitos)</span>
-
-            <button
-                id="gameSoundToggle"
-                class="sound-toggle"
-            >
-                🔊 Ligado
-            </button>
-
-        </div>
+        <div data-audio-settings></div>
     </div>
 
 </div>
@@ -89,7 +55,7 @@
             <div class="stat">⭐ Pontos: <span id="score">0</span></div>
             <div class="stat">🏆 Recorde: <span id="highScore">0</span></div>
             <div class="stat">🧠 Questão: <span id="questionNumber">1</span></div>
-            <div class="stat timer">⏱️ Tempo: <span id="timer">15</span>s</div>
+            <div class="stat timer">⏱️ Tempo: <span id="timer">45</span>s</div>
         </div>
 
         <section class="scene" id="scene">
@@ -117,7 +83,7 @@
 
         <section class="question-panel">
 
-            <h2 id="question">Preparando desafio...</h2>
+            <h2 id="question">Leia a situação e escolha uma resposta.</h2>
 
             <div class="answers">
                 <button class="answer-btn" type="button">?</button>
@@ -162,7 +128,9 @@
     </main>
 
     <script src="/JS/config.js"></script>
+    <script src="/JS/avatar.js"></script>
     <script src="/JS/audio.js"></script>
+    <script src="/JS/problems.js"></script>
     <script src="/JS/acessibilidade.js"></script>
     <script src="/JS/brightness.js"></script>
     <script src="/JS/scriptBonus.js"></script>

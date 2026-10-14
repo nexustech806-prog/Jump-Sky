@@ -1,0 +1,9 @@
+[data-audio-settings] { text-align: left; }
+.audio-channel { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 8px; margin: 16px 0; align-items: center; }
+.audio-channel label { font-weight: bold; }
+.audio-channel input { min-width: 0; width: 100%; accent-color: #007d80; }
+.audio-channel button, [data-audio-master] { min-height: 40px; padding: 6px 12px; border: 2px solid #007d80; border-radius: 8px; background: #fff; color: #17333e; cursor: pointer; }
+.audio-channel button:focus-visible, .audio-channel input:focus-visible, [data-audio-master]:focus-visible { outline: 3px solid #007d80; outline-offset: 3px; }
+[data-audio-status]:empty { display: none; }
+.settings-panel { width: min(340px, calc(100vw - 32px)); max-height: calc(100dvh - 100px); overflow-y: auto; box-sizing: border-box; }
+#question, #bonusQuestion { line-height: 1.5; white-space: normal; overflow-wrap: break-word; font-size: clamp(1.15rem, 2.5vw, 1.65rem); }

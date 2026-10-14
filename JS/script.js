@@ -35,30 +35,8 @@ const closeHint =
 
 const faseAtual = 1;
 
-async function aplicarAvatar() {
-    try {
-        const resp = await fetch(`${API_URL}/api/save`, { credentials: 'include' });
-        const data = await resp.json();
 
-        if (data.avatar && character) {
-            const img = character.querySelector('img');
-            if (img) {
-                img.src = `/images/${data.avatar}`;
-            }
-        }
-    } catch (error) {
-        console.error('Erro ao aplicar avatar:', error);
-    }
-}
 
-aplicarAvatar();
-
-const characterImage = document.getElementById("characterImage");
-const avatarSelecionado = localStorage.getItem("avatarSelecionado");
-
-if (avatarSelecionado) {
-    characterImage.src = `/images/${avatarSelecionado}`;
-}
 
 async function completarFase(fase) {
     try {
@@ -198,141 +176,26 @@ function generateAnswers(correct) {
 // ========================================
 
 function generateQuestion(questionNumber) {
-
-    let number1;
-
-    let number2;
-
-    let correct;
-
-    let questionText;
-
-
-    // ------------------------------------
-    // Questões 1 e 2
-    // ------------------------------------
-
-    if (questionNumber <= 1) {
-
-        // Primeiro número
-        number1 =
-            Math.floor(
-                Math.random() * 15
-            ) + 6;
-
-        // Segundo número
-        number2 =
-            Math.floor(
-                Math.random() * 5
-            ) + 1;
-
-
-        // Faz a soma
-        correct =
-            number1 + number2;
-
-
-        questionText =
-            `Quanto é ${number1} + ${number2}?`;
+    const level = Math.max(0, Math.min(3, questionNumber));
+    const random = (min, max) => Math.floor(Math.random() * (max - min + 1)) + min;
+    let number1, number2, correct;
+    const operation = '+';
+    if (operation === '+' || operation === '-') {
+        number1 = random(6, [15, 20, 30, 40][level]);
+        number2 = random(2, operation === '-' ? number1 : [5, 10, 15, 20][level]);
+        correct = operation === '+' ? number1 + number2 : number1 - number2;
+    } else if (operation === '×') {
+        number1 = random(2, [4, 5, 8, 10][level]);
+        number2 = random(2, [5, 6, 8, 10][level]);
+        correct = number1 * number2;
+    } else {
+        number2 = random(2, [4, 5, 8, 10][level]);
+        correct = random(2, [5, 6, 8, 10][level]);
+        number1 = number2 * correct;
     }
-
-
-    // ------------------------------------
-    // Questão 3
-    // ------------------------------------
-
-    else if (questionNumber === 2) {
-
-        number1 =
-            Math.floor(
-                Math.random() * 25
-            ) + 10;
-
-        number2 =
-            Math.floor(
-                Math.random() * 10
-            ) + 1;
-
-
-        // Faz a soma
-        correct =
-            number1 + number2;
-
-
-        questionText =
-            `Quanto é ${number1} + ${number2}?`;
-    }
-
-
-    // ------------------------------------
-    // Questão 4
-    // ------------------------------------
-
-    else {
-
-        number1 =
-            Math.floor(
-                Math.random() * 30
-            ) + 15;
-
-        number2 =
-            Math.floor(
-                Math.random() * 12
-            ) + 1;
-
-
-        // Faz a soma
-        correct =
-            number1 + number2;
-
-
-        // Perguntas em formato de situação
-        const problems = [
-
-            `João tinha ${number1} bolinhas e ganhou mais ${number2}. Quantas bolinhas há agora?`,
-
-            `Havia ${number1} moedas e foram encontradas mais ${number2}. Quantas moedas há ao todo?`,
-
-            `Uma plataforma tinha ${number1} cristais e recebeu mais ${number2}. Quantos cristais há agora?`,
-
-            `Maria tinha ${number1} balas e ganhou mais ${number2}. Quantas balas ela tem ao todo?`
-
-        ];
-
-
-        questionText =
-            problems[
-                Math.floor(
-                    Math.random() *
-                    problems.length
-                )
-            ];
-    }
-
-
-    // Gera exatamente 3 respostas
-    const answers =
-        generateAnswers(correct);
-
-
-    return {
-
-        number1: number1,
-
-        number2: number2,
-
-        correct: correct,
-
-        answers: answers,
-
-        questionText: questionText
-    };
+    return { number1, number2, correct, answers: generateAnswers(correct),
+        questionText: createEverydayProblem(operation, number1, number2, questionNumber) };
 }
-
-
-// ========================================
-// CRIA AS 4 PERGUNTAS
-// ========================================
 
 function createQuestions() {
 
@@ -772,14 +635,6 @@ function finishGame() {
         restartBtn.style.display =
             "block";
     }
-
-    const menuBtn = document.getElementById("menuBtn");
-
-        if (menuBtn) {
-            menuBtn.addEventListener("click", () => {
-            window.location.href = "/menu";
-            });
-        }
 
     // Plataforma final
     currentPlatform = 4;

@@ -60,16 +60,7 @@ if (checkAltoContraste) {
 // SONS DE ACERTO/ERRO (usa audio.js)
 // ========================================
 
-const checkFeedbackSonoro = document.getElementById('feedbackSonoro');
-
-if (checkFeedbackSonoro) {
-    checkFeedbackSonoro.checked = isSoundEnabled();
-
-    checkFeedbackSonoro.addEventListener('change', (e) => {
-        setSoundEnabled(e.target.checked);
-    });
-}
-
+// Os canais de som são controlados em audio.js.
 
 // ========================================
 // FEEDBACK VISUAL REFORÇADO

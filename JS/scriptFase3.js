@@ -39,24 +39,6 @@ const closeHint =
     document.getElementById("closeHint");
 
 
-    async function aplicarAvatar() {
-    try {
-        const resp = await fetch(`${API_URL}/api/save`, { credentials: 'include' });
-        const data = await resp.json();
-
-        if (data.avatar && character) {
-            const img = character.querySelector('img');
-            if (img) {
-                img.src = `/images/${data.avatar}`;
-            }
-        }
-    } catch (error) {
-        console.error('Erro ao aplicar avatar:', error);
-    }
-}
-
-aplicarAvatar();
-
 const faseAtual = 3;
 
 async function completarFase(fase) {
@@ -224,163 +206,26 @@ function generateAnswers(correct) {
 // ========================================
 
 function generateQuestion(questionNumber) {
-
-    let number1;
-
-    let number2;
-
-    let correct;
-
-    let questionText;
-
-
-    // ====================================
-    // QUESTÃO 1
-    // Fácil
-    // 2 até 5 × 2 até 5
-    // ====================================
-
-    if (questionNumber === 0) {
-
-        number1 =
-            Math.floor(
-                Math.random() * 4
-            ) + 2;
-
-        number2 =
-            Math.floor(
-                Math.random() * 4
-            ) + 2;
-
-        correct =
-            number1 * number2;
-
-        questionText =
-            `Quanto é ${number1} × ${number2}?`;
+    const level = Math.max(0, Math.min(3, questionNumber));
+    const random = (min, max) => Math.floor(Math.random() * (max - min + 1)) + min;
+    let number1, number2, correct;
+    const operation = '×';
+    if (operation === '+' || operation === '-') {
+        number1 = random(6, [15, 20, 30, 40][level]);
+        number2 = random(2, operation === '-' ? number1 : [5, 10, 15, 20][level]);
+        correct = operation === '+' ? number1 + number2 : number1 - number2;
+    } else if (operation === '×') {
+        number1 = random(2, [4, 5, 8, 10][level]);
+        number2 = random(2, [5, 6, 8, 10][level]);
+        correct = number1 * number2;
+    } else {
+        number2 = random(2, [4, 5, 8, 10][level]);
+        correct = random(2, [5, 6, 8, 10][level]);
+        number1 = number2 * correct;
     }
-
-
-    // ====================================
-    // QUESTÃO 2
-    // Fácil
-    // 2 até 9 × 2 até 9
-    // ====================================
-
-    else if (questionNumber === 1) {
-
-        number1 =
-            Math.floor(
-                Math.random() * 8
-            ) + 2;
-
-        number2 =
-            Math.floor(
-                Math.random() * 8
-            ) + 2;
-
-        correct =
-            number1 * number2;
-
-        questionText =
-            `Quanto é ${number1} × ${number2}?`;
-    }
-
-
-    // ====================================
-    // QUESTÃO 3
-    // Médio
-    // 3 até 12 × 3 até 11
-    // ====================================
-
-    else if (questionNumber === 2) {
-
-        number1 =
-            Math.floor(
-                Math.random() * 10
-            ) + 3;
-
-        number2 =
-            Math.floor(
-                Math.random() * 9
-            ) + 3;
-
-        correct =
-            number1 * number2;
-
-        questionText =
-            `Quanto é ${number1} × ${number2}?`;
-    }
-
-
-    // ====================================
-    // QUESTÃO 4
-    // Difícil
-    // 4 até 15 × 4 até 12
-    // ====================================
-
-    else {
-
-        number1 =
-            Math.floor(
-                Math.random() * 12
-            ) + 4;
-
-        number2 =
-            Math.floor(
-                Math.random() * 9
-            ) + 4;
-
-        correct =
-            number1 * number2;
-
-
-        // Situações do cotidiano
-        const problems = [
-
-            `João organizou ${number1} caixas com ${number2} brinquedos em cada uma. Quantos brinquedos há ao todo?`,
-
-            `Ana montou ${number1} grupos com ${number2} crianças em cada grupo. Quantas crianças há ao todo?`,
-
-            `Pedro comprou ${number1} pacotes com ${number2} figurinhas em cada pacote. Quantas figurinhas ele comprou ao todo?`,
-
-            `Lucas colocou ${number2} lápis em cada uma das ${number1} caixas. Quantos lápis há ao todo?`
-
-        ];
-
-
-        questionText =
-            problems[
-                Math.floor(
-                    Math.random() *
-                    problems.length
-                )
-            ];
-    }
-
-
-    // Gera exatamente 3 respostas
-    const answers =
-        generateAnswers(correct);
-
-
-    return {
-
-        number1: number1,
-
-        number2: number2,
-
-        correct: correct,
-
-        answers: answers,
-
-        questionText: questionText
-    };
+    return { number1, number2, correct, answers: generateAnswers(correct),
+        questionText: createEverydayProblem(operation, number1, number2, questionNumber) };
 }
-
-
-// ========================================
-// CRIA AS 4 PERGUNTAS
-// ========================================
 
 function createQuestions() {
 
@@ -836,15 +681,6 @@ function finishGame() {
             "block";
     }
 
-    const menuBtn = document.getElementById("menuBtn");
-
-    if (menuBtn) {
-        menuBtn.addEventListener("click", () => {
-        window.location.href = "/menu";
-        });
-    }
-
-
     // Plataforma final
     currentPlatform = 4;
 
@@ -1007,3 +843,4 @@ loadQuestion();
 
 // Reposiciona o personagem ao redimensionar a janela ou alterar o zoom.
 window.addEventListener("resize", setCharacterPosition);
+

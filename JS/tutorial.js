@@ -37,6 +37,11 @@ const NARRACOES = [
 
 const narracao = new Audio();
 narracao.preload = "none";
+registerNarration(narracao);
+let narrationRequest = 0;
+narracao.addEventListener("pause", () => atualizarBotaoAudio(false));
+document.addEventListener("visibilitychange", () => { if (document.hidden) pararNarracao(); });
+window.addEventListener("pagehide", pararNarracao);
 
 function mostrarStatusAudio(mensagem) {
     if (audioStatus) {
@@ -53,32 +58,30 @@ function atualizarBotaoAudio(tocando) {
 }
 
 function pararNarracao() {
+    narrationRequest++;
     narracao.pause();
     narracao.currentTime = 0;
     atualizarBotaoAudio(false);
 }
 
 function tocarNarracao() {
-    mostrarStatusAudio("");
-
+    if (!canPlayChannel('voice')) {
+        mostrarStatusAudio('O som geral está desligado. Ative-o nas configurações de som do menu para ouvir.');
+        return;
+    }
+    mostrarStatusAudio('');
+    const request = ++narrationRequest;
     narracao.src = NARRACOES[currentStep];
-
-    // Usa o mesmo volume salvo pelo audio.js, se ele estiver carregado
-    narracao.volume =
-        typeof getSoundVolume === "function"
-            ? getSoundVolume()
-            : 0.8;
-
-    narracao.play()
-        .then(() => {
-            atualizarBotaoAudio(true);
-        })
-        .catch(() => {
-            atualizarBotaoAudio(false);
-            mostrarStatusAudio(
-                "O áudio desta etapa ainda não está disponível."
-            );
-        });
+    narracao.volume = getChannelVolume('voice');
+    narracao.play().then(() => {
+        if (request !== narrationRequest) return;
+        if (!canPlayChannel('voice')) { pararNarracao(); return; }
+        atualizarBotaoAudio(true);
+    }).catch(() => {
+        if (request !== narrationRequest) return;
+        atualizarBotaoAudio(false);
+        mostrarStatusAudio('Não foi possível tocar o áudio. Tente novamente.');
+    });
 }
 
 function alternarNarracao() {

@@ -12,10 +12,11 @@
     <link rel="stylesheet" href="/CSS/StyleFase2.css">
     <link rel="stylesheet" href="/CSS/acessibilidade.css">
 
+    <link rel="stylesheet" href="/CSS/audio-settings.css">
 </head>
 
 
-<body>
+<body data-game-phase>
     <!-- Configurações -->
 <div class="game-settings">
 
@@ -39,44 +40,9 @@
             <span id="brightnessValue">100%</span>
         </div>
     </div>
-    <div class="volume-option">
 
-    <label for="volumeSlider">
-        Volume
-    </label>
 
-    <div class="volume-control">
-
-        <input
-            type="range"
-            id="volumeSlider"
-            min="0"
-            max="100"
-            step="5"
-            value="60"
-        >
-
-        <span id="volumeValue">
-            60%
-        </span>
-
-    </div>
-
-</div>
-        <h3>⚙️ Configurações</h3>
-
-        <div class="settings-option">
-
-            <span>Som do jogo (música e efeitos)</span>
-
-            <button
-                id="gameSoundToggle"
-                class="sound-toggle"
-            >
-                🔊 Ligado
-            </button>
-
-        </div>
+        <div data-audio-settings></div>
     </div>
 
 </div>
@@ -166,9 +132,7 @@
         <!-- Área da pergunta -->
         <section class="question-panel">
 
-            <h2 id="question">
-                Quanto é 18 - 5?
-            </h2>
+            <h2 id="question">Leia a situação e escolha uma resposta.</h2>
 
 
             <!-- Respostas -->
@@ -214,7 +178,9 @@
     </main>
 
     <script src="/JS/config.js"></script>
+    <script src="/JS/avatar.js"></script>
     <script src="/JS/audio.js"></script>
+    <script src="/JS/problems.js"></script>
     <script src="/JS/brightness.js"></script>
     <script src="/JS/acessibilidade.js"></script>
     <script src="/JS/scriptFase2.js"></script>

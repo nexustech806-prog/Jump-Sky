@@ -116,7 +116,7 @@ async function createUser(event) {
     return;
   }
 
-  const avatarEscolhido = localStorage.getItem('avatarSelecionado') || 'personagem.png';
+  const avatarEscolhido = 'Personagem.png';
 
   try {
     const answer = await fetch(`${API_URL}/register`, {

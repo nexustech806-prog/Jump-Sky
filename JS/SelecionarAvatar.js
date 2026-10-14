@@ -22,12 +22,29 @@ avatares.forEach((avatar) => {
     });
 });
 
-continuarBtn.addEventListener("click", () => {
+continuarBtn.addEventListener("click", async () => {
     if (!avatarSelecionado) return;
-
-    localStorage.setItem("avatarSelecionado", avatarSelecionado);
-
-    console.log("Avatar salvo:", avatarSelecionado);
-
-    window.location.href = "/menu"; 
+    continuarBtn.disabled = true;
+    avatares.forEach(avatar => { avatar.disabled = true; });
+    mensagem.textContent = "Salvando seu personagem...";
+    try {
+        const response = await fetch(`${API_URL}/api/avatar`, {
+            method: 'PUT',
+            credentials: 'include',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ avatar: avatarSelecionado })
+        });
+        if (response.status === 401) {
+            mensagem.textContent = 'Entre na sua conta para salvar o personagem.';
+            return;
+        }
+        if (!response.ok) throw new Error('Falha ao salvar');
+        mensagem.textContent = 'Personagem salvo!';
+        window.location.href = '/menu';
+    } catch (error) {
+        mensagem.textContent = 'Não foi possível salvar. Confira a conexão e tente novamente.';
+    } finally {
+        continuarBtn.disabled = false;
+        avatares.forEach(avatar => { avatar.disabled = false; });
+    }
 });

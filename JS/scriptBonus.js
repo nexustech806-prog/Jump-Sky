@@ -34,27 +34,6 @@ const nextQuestionBtn = document.getElementById("nextQuestionBtn");
 
 const character = document.getElementById("character");
 
-async function aplicarAvatar() {
-    try {
-        const resp = await fetch(`${API_URL}/api/save`, {
-            credentials: "include"
-        });
-
-        const data = await resp.json();
-
-        if (data.avatar && character) {
-            const img = character.querySelector("img");
-
-            if (img) {
-                img.src = `/images/${data.avatar}`;
-            }
-        }
-    } catch (error) {
-        console.error("Erro ao aplicar avatar:", error);
-    }
-}
-
-aplicarAvatar();
 
 const platforms = [
     document.getElementById("platform0"),
@@ -87,7 +66,7 @@ const characterPositions = [
 // CONFIGURAÇÕES
 // ========================================
 
-const TEMPO_POR_QUESTAO = 15;
+const TEMPO_POR_QUESTAO = 45; // Tempo para ler a situação-problema.
 const TOTAL_PLATAFORMAS = 10;
 
 const cenarios = [
@@ -156,7 +135,7 @@ function embaralhar(array) {
 }
 
 function obterDificuldade() {
-    return Math.floor(pontos / 5) + 1;
+    return Math.min(3, Math.floor(pontos / 5) + 1);
 }
 
 
@@ -192,10 +171,10 @@ function gerarQuestao() {
             10 + (dificuldade * 5);
 
         numero1 =
-            numeroAleatorio(1, maximo);
+            numeroAleatorio(2, maximo);
 
         numero2 =
-            numeroAleatorio(1, maximo);
+            numeroAleatorio(2, maximo);
 
         resposta =
             numero1 + numero2;
@@ -209,7 +188,7 @@ function gerarQuestao() {
             numeroAleatorio(2, maximo);
 
         numero2 =
-            numeroAleatorio(1, numero1);
+            numeroAleatorio(2, numero1);
 
         resposta =
             numero1 - numero2;
@@ -262,7 +241,7 @@ function gerarQuestao() {
         correta: resposta,
         respostas,
         texto:
-            `Quanto é ${numero1} ${operacao} ${numero2}?`
+            createEverydayProblem(operacao, numero1, numero2)
     };
 }
 

@@ -1,561 +1,157 @@
-// ========================================
-// SISTEMA GLOBAL DE ÁUDIO - JUMP SKY
-// ========================================
-
-const SOUND_STORAGE_KEY = "soundEnabled";
-const VOLUME_STORAGE_KEY = "soundVolume";
-
-const DEFAULT_VOLUME = 0.6;
-
-
-// ========================================
-// CAMINHOS DOS EFEITOS SONOROS
-// ========================================
-
-const gameSounds = {
-    correct: new Audio("/audio/correct.mp3"),
-    wrong: new Audio("/audio/wrong.mp3"),
-    complete: new Audio("/audio/complete.mp3"),
-    timeout: new Audio("/audio/timeout.mp3"),
-    record: new Audio("/audio/record.mp3")
-};
-
-
-// ========================================
-// VOLUME
-// ========================================
-
-function getSoundVolume() {
-
-    const savedVolume =
-        localStorage.getItem(
-            VOLUME_STORAGE_KEY
-        );
-
-    if (savedVolume === null) {
-        return DEFAULT_VOLUME;
-    }
-
-    const volume =
-        Number(savedVolume);
-
-    if (
-        Number.isNaN(volume) ||
-        volume < 0 ||
-        volume > 1
-    ) {
-        return DEFAULT_VOLUME;
-    }
-
-    return volume;
+// Som geral preserva a preferência antiga. Cada canal tem volume e mute próprios.
+const audioChannels = ['music', 'effects'];
+const channelLabels = { music: 'Música', effects: 'Efeitos sonoros' };
+const audioMemory = new Map();
+function readAudioSetting(key) {
+    try { return localStorage.getItem(key); } catch { return audioMemory.get(key) ?? null; }
 }
-
-
-function setSoundVolume(volume) {
-
-    const normalizedVolume =
-        Math.max(
-            0,
-            Math.min(1, Number.isFinite(Number(volume)) ? Number(volume) : DEFAULT_VOLUME)
-        );
-
-    localStorage.setItem(
-        VOLUME_STORAGE_KEY,
-        String(normalizedVolume)
-    );
-
-    Object.values(gameSounds).forEach(
-        sound => {
-
-            sound.volume =
-                normalizedVolume;
-
-        }
-    );
-
-    updateVolumeControl();
-    syncBackgroundMusic();
+function saveAudioSetting(key, value) {
+    audioMemory.set(key, String(value));
+    try { localStorage.setItem(key, String(value)); } catch { /* Preferência vale nesta página. */ }
 }
-
-
-// ========================================
-// CONFIGURAÇÕES DOS SONS
-// ========================================
-
-Object.values(gameSounds).forEach(
-    sound => {
-
-        sound.preload = "auto";
-
-        sound.volume =
-            getSoundVolume();
-
-    }
-);
-
-
-// ========================================
-// VERIFICA SE O SOM ESTÁ ATIVADO
-// ========================================
-
-function isSoundEnabled() {
-
-    const savedPreference =
-        localStorage.getItem(
-            SOUND_STORAGE_KEY
-        );
-
-    if (savedPreference === null) {
-        return true;
-    }
-
-    return savedPreference === "true";
+function safeVolume(value, fallback) {
+    return value !== null && Number.isFinite(Number(value)) ? Math.max(0, Math.min(1, Number(value))) : fallback;
 }
-
-
-// ========================================
-// SALVA A PREFERÊNCIA
-// ========================================
-
-function setSoundEnabled(enabled) {
-
-    localStorage.setItem(
-        SOUND_STORAGE_KEY,
-        String(enabled)
-    );
-
-    updateSoundButton();
-    updateGameSoundButton();
-    if (!enabled) stopAllSounds();
-    syncBackgroundMusic();
-    updateAccessibilityCheckbox();
+function isSoundEnabled() { return readAudioSetting('soundEnabled') !== 'false'; }
+function getChannelEnabled(channel) {
+    if (channel === 'voice') return true; // Narração controlada pelo botão ouvir/parar.
+    const saved = readAudioSetting(channel + 'Enabled');
+    return saved === null ? (channel !== 'effects' || readAudioSetting('feedbackSonoro') !== 'false') : saved !== 'false';
 }
-
-
-// ========================================
-// LIGA / DESLIGA
-// ========================================
-
-function toggleSound() {
-
-    const newState =
-        !isSoundEnabled();
-
-    setSoundEnabled(newState);
-
-    if (!newState) {
-        stopAllSounds();
-    }
+function getChannelVolume(channel) {
+    if (channel === 'voice') return 0.8; // Volume fixo; ignora ajustes antigos de narração.
+    const legacy = safeVolume(readAudioSetting('soundVolume'), 0.6);
+    return safeVolume(readAudioSetting(channel + 'Volume'), channel === 'music' ? legacy * 0.25 : legacy);
 }
-
-
-// ========================================
-// TOCA UM EFEITO
-// ========================================
-
-function playSound(soundName) {
-
-    if (!isSoundEnabled() || localStorage.getItem("feedbackSonoro") === "false") {
-        return;
-    }
-
-    const sound =
-        gameSounds[soundName];
-
-    if (!sound) {
-
-        console.warn(
-            `Som não encontrado: ${soundName}`
-        );
-
-        return;
-    }
-
-    sound.volume =
-        getSoundVolume();
-
-    sound.currentTime = 0;
-
-    activeEffects.add(sound);
-    updateMusicVolume();
-    sound.play().catch(
-        error => {
-            activeEffects.delete(sound);
-            updateMusicVolume();
-
-            console.warn(
-                "Não foi possível reproduzir o som:",
-                error
-            );
-
-        }
-    );
+function canPlayChannel(channel) {
+    return isSoundEnabled() && getChannelEnabled(channel) && getChannelVolume(channel) > 0 && !document.hidden;
 }
-
-
-// ========================================
-// PARA TODOS OS SONS
-// ========================================
-
-function stopAllSounds() {
-    backgroundMusic.pause();
-    activeEffects.clear();
-    updateMusicVolume();
-
-    Object.values(gameSounds).forEach(
-        sound => {
-
-            sound.pause();
-
-            sound.currentTime = 0;
-
-        }
-    );
-}
-
-
-// ========================================
-// ATUALIZA BOTÃO DO MENU
-// ========================================
-
-function updateSoundButton() {
-
-    const toggleSom =
-        document.getElementById(
-            "toggleSom"
-        );
-
-    if (!toggleSom) {
-        return;
-    }
-
-    const enabled =
-        isSoundEnabled();
-
-    toggleSom.textContent =
-        enabled
-            ? "🔊"
-            : "🔇";
-
-    toggleSom.title =
-        enabled
-            ? "Desativar som do jogo"
-            : "Ativar som do jogo";
-
-    toggleSom.setAttribute(
-        "aria-label",
-        enabled
-            ? "Desativar som do jogo"
-            : "Ativar som do jogo"
-    );
-}
-
-
-// ========================================
-// ATUALIZA BOTÃO DE SOM DAS FASES
-// ========================================
-
-function updateGameSoundButton() {
-
-    const button =
-        document.getElementById(
-            "gameSoundToggle"
-        );
-
-    if (!button) {
-        return;
-    }
-
-    const enabled =
-        isSoundEnabled();
-
-    button.textContent =
-        enabled
-            ? "🔊 Ligado"
-            : "🔇 Desligado";
-
-    button.setAttribute(
-        "aria-pressed",
-        String(enabled)
-    );
-}
-
-
-// ========================================
-// SINCRONIZA O CHECKBOX DA TELA DE ACESSIBILIDADE
-// ========================================
-
-function updateAccessibilityCheckbox() {
-
-    const checkbox =
-        document.getElementById(
-            "feedbackSonoro"
-        );
-
-    if (!checkbox) {
-        return;
-    }
-
-    checkbox.checked =
-        isSoundEnabled();
-}
-
-
-// ========================================
-// ATUALIZA CONTROLE DE VOLUME
-// ========================================
-
-function updateVolumeControl() {
-
-    const volumeSlider =
-        document.getElementById(
-            "volumeSlider"
-        );
-
-    const volumeValue =
-        document.getElementById(
-            "volumeValue"
-        );
-
-    if (
-        !volumeSlider ||
-        !volumeValue
-    ) {
-        return;
-    }
-
-    const volume =
-        getSoundVolume();
-
-    const percentage =
-        Math.round(
-            volume * 100
-        );
-
-    volumeSlider.value =
-        percentage;
-
-    volumeValue.textContent =
-        `${percentage}%`;
-}
-
-
-// ========================================
-// INICIALIZA CONTROLES
-// ========================================
-
-document.addEventListener(
-    "DOMContentLoaded",
-    () => {
-
-        updateSoundButton();
-        updateAccessibilityCheckbox();
-
-        const toggleSom =
-            document.getElementById(
-                "toggleSom"
-            );
-
-        if (toggleSom) {
-
-            toggleSom.addEventListener(
-                "click",
-                toggleSound
-            );
-
-        }
-
-
-        const settingsBtn =
-            document.getElementById(
-                "settingsBtn"
-            );
-
-        const settingsPanel =
-            document.getElementById(
-                "settingsPanel"
-            );
-
-        const gameSoundToggle =
-            document.getElementById(
-                "gameSoundToggle"
-            );
-
-
-        if (
-            settingsBtn &&
-            settingsPanel
-        ) {
-
-            settingsBtn.addEventListener(
-                "click",
-                event => {
-
-                    event.stopPropagation();
-
-                    settingsPanel.classList.toggle(
-                        "show"
-                    );
-
-                }
-            );
-
-
-            settingsPanel.addEventListener(
-                "click",
-                event => {
-
-                    event.stopPropagation();
-
-                }
-            );
-
-
-            document.addEventListener(
-                "click",
-                () => {
-
-                    settingsPanel.classList.remove(
-                        "show"
-                    );
-
-                }
-            );
-
-        }
-
-
-        if (gameSoundToggle) {
-
-            updateGameSoundButton();
-
-            gameSoundToggle.addEventListener(
-                "click",
-                () => {
-
-                    toggleSound();
-
-                    updateGameSoundButton();
-
-                }
-            );
-
-        }
-
-
-        const volumeSlider =
-            document.getElementById(
-                "volumeSlider"
-            );
-
-        if (volumeSlider) {
-
-            updateVolumeControl();
-
-            volumeSlider.addEventListener(
-                "input",
-                () => {
-
-                    const volume =
-                        Number(
-                            volumeSlider.value
-                        ) / 100;
-
-                    setSoundVolume(
-                        volume
-                    );
-
-                }
-            );
-
-        }
-
-    }
-);
-// Trilha instrumental em loop, sempre abaixo dos efeitos.
-const backgroundMusic = new Audio("/audio/background.wav");
+function setSoundEnabled(enabled) { saveAudioSetting('soundEnabled', Boolean(enabled)); applyAudioSettings(); }
+function toggleSound() { setSoundEnabled(!isSoundEnabled()); }
+function setChannelEnabled(channel, enabled) { saveAudioSetting(channel + 'Enabled', Boolean(enabled)); applyAudioSettings(); }
+function setChannelVolume(channel, volume) { saveAudioSetting(channel + 'Volume', safeVolume(volume, getChannelVolume(channel))); applyAudioSettings(); }
+// Compatibilidade com chamadas existentes: volume de efeitos.
+function getSoundVolume() { return getChannelVolume('effects'); }
+function setSoundVolume(volume) { setChannelVolume('effects', volume); }
+
+const gameSounds = Object.fromEntries(['correct', 'wrong', 'complete', 'timeout', 'record'].map(name => [name, new Audio('/audio/' + name + '.mp3')]));
+const backgroundMusic = new Audio('/audio/background.wav');
 backgroundMusic.loop = true;
-backgroundMusic.preload = "auto";
+backgroundMusic.preload = 'auto';
 const activeEffects = new Set();
+const narrationSounds = new Set();
 let musicRequested = false;
 let musicPlayPending = false;
-
-document.addEventListener("DOMContentLoaded", () => {
-    if (document.getElementById("gameSoundToggle")) startBackgroundMusic();
-});
-
 function updateMusicVolume() {
-    backgroundMusic.volume = getSoundVolume() * (activeEffects.size ? 0.07 : 0.25);
+    const speaking = [...narrationSounds].some(sound => !sound.paused);
+    backgroundMusic.volume = getChannelVolume('music') * (activeEffects.size || speaking ? 0.28 : 1);
 }
-
-function shouldPlayMusic() {
-    return musicRequested && isSoundEnabled() && getSoundVolume() > 0 && !document.hidden;
-}
-
 function syncBackgroundMusic() {
     updateMusicVolume();
-    if (!shouldPlayMusic()) {
-        backgroundMusic.pause();
-        return;
-    }
+    if (!musicRequested || !canPlayChannel('music')) { backgroundMusic.pause(); return; }
     if (!backgroundMusic.paused || musicPlayPending) return;
     musicPlayPending = true;
     backgroundMusic.play().then(() => {
-        // A preferência pode mudar enquanto o navegador carrega o áudio.
-        if (!shouldPlayMusic()) backgroundMusic.pause();
-    }).catch(() => {
-        // Autoplay bloqueado: tentar novamente no próximo gesto do jogador.
-    }).finally(() => { musicPlayPending = false; });
+        if (!musicRequested || !canPlayChannel('music')) backgroundMusic.pause();
+    }).catch(() => { /* Tentar novamente no próximo clique ou tecla. */ })
+        .finally(() => { musicPlayPending = false; });
 }
-
-function startBackgroundMusic() {
-    musicRequested = true;
-    syncBackgroundMusic();
-}
-
-function stopBackgroundMusic() {
-    musicRequested = false;
-    backgroundMusic.pause();
-    backgroundMusic.currentTime = 0;
-}
-
-Object.values(gameSounds).forEach(sound => {
-    ["ended", "pause", "error"].forEach(eventName => {
-        sound.addEventListener(eventName, () => {
-            activeEffects.delete(sound);
-            updateMusicVolume();
-        });
+function startBackgroundMusic() { musicRequested = true; syncBackgroundMusic(); }
+function stopBackgroundMusic() { musicRequested = false; backgroundMusic.pause(); backgroundMusic.currentTime = 0; }
+function playSound(name) {
+    const sound = gameSounds[name];
+    if (!sound || !canPlayChannel('effects')) return;
+    sound.volume = getChannelVolume('effects');
+    sound.currentTime = 0;
+    activeEffects.add(sound);
+    updateMusicVolume();
+    sound.play().then(() => { if (!canPlayChannel('effects')) sound.pause(); }).catch(() => {
+        activeEffects.delete(sound); updateMusicVolume();
     });
+}
+Object.values(gameSounds).forEach(sound => {
+    sound.preload = 'auto';
+    ['pause', 'ended', 'error'].forEach(event => sound.addEventListener(event, () => {
+        activeEffects.delete(sound); updateMusicVolume();
+    }));
 });
-
-// Também dá prioridade a elementos de áudio/vídeo de instruções.
-document.addEventListener("play", event => {
-    if (event.target instanceof HTMLMediaElement) {
-        activeEffects.add(event.target);
-        updateMusicVolume();
-    }
-}, true);
-["ended", "pause", "error"].forEach(eventName => {
-    document.addEventListener(eventName, event => {
-        activeEffects.delete(event.target);
-        updateMusicVolume();
-    }, true);
-});
-document.addEventListener("click", syncBackgroundMusic);
-document.addEventListener("keydown", syncBackgroundMusic);
-document.addEventListener("visibilitychange", () => {
-    if (document.hidden) stopAllSounds();
+function registerNarration(sound) {
+    narrationSounds.add(sound);
+    ['play', 'pause', 'ended', 'error'].forEach(event => sound.addEventListener(event, updateMusicVolume));
+    sound.volume = getChannelVolume('voice');
+}
+function stopAllSounds() {
+    backgroundMusic.pause();
+    [...Object.values(gameSounds), ...narrationSounds].forEach(sound => { sound.pause(); sound.currentTime = 0; });
+    activeEffects.clear();
+    updateMusicVolume();
+}
+function applyAudioSettings() {
+    Object.values(gameSounds).forEach(sound => {
+        sound.volume = getChannelVolume('effects');
+        if (!canPlayChannel('effects')) sound.pause();
+    });
+    narrationSounds.forEach(sound => {
+        sound.volume = getChannelVolume('voice');
+        if (!canPlayChannel('voice')) sound.pause();
+    });
     syncBackgroundMusic();
-});
-window.addEventListener("pagehide", () => { stopAllSounds(); });
-window.addEventListener("pageshow", syncBackgroundMusic);
-window.addEventListener("storage", event => {
-    if (event.key === null || [SOUND_STORAGE_KEY, VOLUME_STORAGE_KEY, "feedbackSonoro"].includes(event.key)) {
-        Object.values(gameSounds).forEach(sound => { sound.volume = getSoundVolume(); });
-        if (!isSoundEnabled() || localStorage.getItem("feedbackSonoro") === "false") stopAllSounds();
-        updateSoundButton();
-        updateGameSoundButton();
-        updateVolumeControl();
-        syncBackgroundMusic();
+    updateAudioControls();
+}
+function updateAudioControls() {
+    document.querySelectorAll('[data-audio-master]').forEach(button => {
+        button.textContent = isSoundEnabled() ? 'Silenciar tudo' : 'Ativar som geral';
+        button.setAttribute('aria-pressed', String(!isSoundEnabled()));
+    });
+    for (const channel of audioChannels) {
+        document.querySelectorAll('[data-audio-toggle="' + channel + '"]').forEach(button => {
+            button.textContent = getChannelEnabled(channel) ? 'Ligado' : 'Desligado';
+            button.setAttribute('aria-pressed', String(getChannelEnabled(channel)));
+        });
+        document.querySelectorAll('[data-audio-volume="' + channel + '"]').forEach(input => { input.value = Math.round(getChannelVolume(channel) * 100); });
+        document.querySelectorAll('[data-audio-value="' + channel + '"]').forEach(output => { output.textContent = Math.round(getChannelVolume(channel) * 100) + '%'; });
     }
+    document.querySelectorAll('[data-audio-status]').forEach(el => {
+        el.textContent = isSoundEnabled() ? '' : 'Som geral desligado. Ative-o para ouvir os canais ligados.';
+    });
+}
+function updateAccessibilityCheckbox() { updateAudioControls(); }
+document.addEventListener('DOMContentLoaded', () => {
+    document.querySelectorAll('[data-audio-settings]').forEach((host, index) => {
+        host.innerHTML = '<h3>Som</h3><button type="button" data-audio-master></button><p data-audio-status role="status"></p>' + audioChannels.map(channel => {
+            const id = 'audio-' + index + '-' + channel;
+            return '<div class="audio-channel"><label for="' + id + '">' + channelLabels[channel] + '</label>' +
+                '<button type="button" data-audio-toggle="' + channel + '" aria-label="Ligar ou desligar ' + channelLabels[channel] + '"></button>' +
+                '<input id="' + id + '" type="range" min="0" max="100" step="1" data-audio-volume="' + channel + '">' +
+                '<output for="' + id + '" data-audio-value="' + channel + '"></output></div>';
+        }).join('');
+        host.querySelector('[data-audio-master]').addEventListener('click', toggleSound);
+        host.querySelectorAll('[data-audio-toggle]').forEach(button => button.addEventListener('click', () => {
+            const channel = button.dataset.audioToggle; setChannelEnabled(channel, !getChannelEnabled(channel));
+        }));
+        host.querySelectorAll('[data-audio-volume]').forEach(input => input.addEventListener('input', () => setChannelVolume(input.dataset.audioVolume, Number(input.value) / 100)));
+    });
+    const settingsBtn = document.getElementById('settingsBtn');
+    const settingsPanel = document.getElementById('settingsPanel');
+    if (settingsBtn && settingsPanel) {
+        settingsBtn.setAttribute('aria-expanded', 'false');
+        settingsBtn.addEventListener('click', event => {
+            event.stopPropagation();
+            settingsPanel.classList.toggle('show');
+            settingsBtn.setAttribute('aria-expanded', String(settingsPanel.classList.contains('show')));
+        });
+        settingsPanel.addEventListener('click', event => event.stopPropagation());
+        document.addEventListener('click', () => { settingsPanel.classList.remove('show'); settingsBtn.setAttribute('aria-expanded', 'false'); });
+        document.addEventListener('keydown', event => {
+            if (event.key === 'Escape') { settingsPanel.classList.remove('show'); settingsBtn.setAttribute('aria-expanded', 'false'); }
+        });
+    }
+    applyAudioSettings();
+    if (document.body.hasAttribute('data-game-phase')) startBackgroundMusic();
 });
+document.addEventListener('click', syncBackgroundMusic);
+document.addEventListener('keydown', syncBackgroundMusic);
+document.addEventListener('visibilitychange', () => { if (document.hidden) stopAllSounds(); else applyAudioSettings(); });
+window.addEventListener('pagehide', stopAllSounds);
+window.addEventListener('pageshow', applyAudioSettings);
+window.addEventListener('storage', applyAudioSettings);

@@ -25,23 +25,6 @@ const intro =
 const feedback =
     document.getElementById("feedback");
 
-async function aplicarAvatar() {
-    try {
-        const resp = await fetch(`${API_URL}/api/save`, { credentials: 'include' });
-        const data = await resp.json();
-
-        if (data.avatar && character) {
-            const img = character.querySelector('img');
-            if (img) {
-                img.src = `/images/${data.avatar}`;
-            }
-        }
-    } catch (error) {
-        console.error('Erro ao aplicar avatar:', error);
-    }
-}
-
-aplicarAvatar();
 
 const bonusChallenge =
     document.getElementById("bonusChallenge");
@@ -264,135 +247,26 @@ function generateAnswers(correct) {
 // ========================================
 
 function generateQuestion(questionNumber) {
-
-    let divisor;
-
-    let correct;
-
-    let number1;
-
-    let questionText;
-
-    if (
-        questionNumber === 0
-    ) {
-
-        divisor =
-            Math.floor(
-                Math.random() * 5
-            ) + 3;
-
-        correct =
-            Math.floor(
-                Math.random() * 7
-            ) + 4;
-
-        number1 =
-            divisor * correct;
-
-        questionText =
-            `Quanto é ${number1} ÷ ${divisor}?`;
-
+    const level = Math.max(0, Math.min(3, questionNumber));
+    const random = (min, max) => Math.floor(Math.random() * (max - min + 1)) + min;
+    let number1, number2, correct;
+    const operation = '÷';
+    if (operation === '+' || operation === '-') {
+        number1 = random(6, [15, 20, 30, 40][level]);
+        number2 = random(2, operation === '-' ? number1 : [5, 10, 15, 20][level]);
+        correct = operation === '+' ? number1 + number2 : number1 - number2;
+    } else if (operation === '×') {
+        number1 = random(2, [4, 5, 8, 10][level]);
+        number2 = random(2, [5, 6, 8, 10][level]);
+        correct = number1 * number2;
+    } else {
+        number2 = random(2, [4, 5, 8, 10][level]);
+        correct = random(2, [5, 6, 8, 10][level]);
+        number1 = number2 * correct;
     }
-
-    else if (
-        questionNumber === 1
-    ) {
-
-        divisor =
-            Math.floor(
-                Math.random() * 6
-            ) + 4;
-
-        correct =
-            Math.floor(
-                Math.random() * 8
-            ) + 5;
-
-        number1 =
-            divisor * correct;
-
-        questionText =
-            `Quanto é ${number1} ÷ ${divisor}?`;
-
-    }
-
-    else if (
-        questionNumber === 2
-    ) {
-
-        divisor =
-            Math.floor(
-                Math.random() * 8
-            ) + 5;
-
-        correct =
-            Math.floor(
-                Math.random() * 10
-            ) + 6;
-
-        number1 =
-            divisor * correct;
-
-        questionText =
-            `Quanto é ${number1} ÷ ${divisor}?`;
-
-    }
-
-    else {
-
-        divisor =
-            Math.floor(
-                Math.random() * 10
-            ) + 6;
-
-        correct =
-            Math.floor(
-                Math.random() * 14
-            ) + 7;
-
-        number1 =
-            divisor * correct;
-
-        const problems = [
-            `Carlos tem ${number1} moedas para dividir igualmente entre ${divisor} crianças. Quantas moedas cada criança receberá?`,
-
-            `Beatriz tem ${number1} lápis e quer dividir igualmente entre ${divisor} alunos. Quantos lápis cada aluno receberá?`,
-
-            `Rafael tem ${number1} estrelas e vai colocá-las igualmente em ${divisor} grupos. Quantas estrelas ficarão em cada grupo?`,
-
-            `Sofia tem ${number1} brinquedos para dividir igualmente entre ${divisor} crianças. Quantos brinquedos cada criança receberá?`,
-
-            `Lucas recebeu ${number1} cartas e decidiu dividir igualmente entre ${divisor} amigos. Quantas cartas cada amigo receberá?`
-        ];
-
-        questionText =
-            problems[
-                Math.floor(
-                    Math.random() *
-                    problems.length
-                )
-            ];
-
-    }
-
-    const answers =
-        generateAnswers(correct);
-
-    return {
-        number1: number1,
-        number2: divisor,
-        correct: correct,
-        answers: answers,
-        questionText: questionText
-    };
-
+    return { number1, number2, correct, answers: generateAnswers(correct),
+        questionText: createEverydayProblem(operation, number1, number2, questionNumber) };
 }
-
-
-// ========================================
-// CRIA AS 4 PERGUNTAS
-// ========================================
 
 function createQuestions() {
 
@@ -807,7 +681,7 @@ if (closeHint) {
 
 function generateBonusChallenge() {
 
-    const operations = ["+", "-", "×", "÷"];
+    const operations = ["÷"];
 
     const operation =
         operations[
@@ -872,7 +746,7 @@ function generateBonusChallenge() {
     bonusCorrectAnswer = correct;
 
     bonusQuestion.textContent =
-        `Quanto é ${number1} ${operation} ${number2}?`;
+        createEverydayProblem(operation, number1, number2);
 
     const answers = [correct];
 
