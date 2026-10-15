@@ -877,6 +877,9 @@ function checkBonusAnswer(button) {
         tryBonusAgain.style.display =
             "inline-block";
 
+        tryBonusAgain.textContent = "↻ Tentar novamente";
+        tryBonusAgain.focus();
+
     }
 
 }

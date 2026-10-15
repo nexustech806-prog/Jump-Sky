@@ -435,6 +435,9 @@ h1 {
 .bonus-modal {
     width: 550px;
     max-width: 95%;
+    max-height: calc(100vh - 40px);
+    overflow-y: auto;
+    overscroll-behavior: contain;
     padding: 35px;
     background: white;
     border-radius: 25px;
@@ -510,6 +513,10 @@ h1 {
 }
 
 .bonus-actions {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 8px;
     margin-top: 18px;
 }
 
@@ -559,6 +566,7 @@ h1 {
     }
 
     .bonus-modal {
+        max-height: calc(100dvh - 24px);
         padding: 25px 18px;
     }
 

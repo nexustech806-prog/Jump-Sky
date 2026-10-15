@@ -150,15 +150,16 @@
                     14
                 </button>
 
-                <div id="hintPopup" class="hint-popup">
-                <div class="hint-content">
-                <h3>💡 Dica!</h3>
-                <p id="hintText"></p>
-                <button id="closeHint">Entendi!</button>
-                </div>
-            </div>
             </div>
             <div id="feedback"></div>
+
+            <div id="hintPopup" class="hint-popup" role="dialog" aria-modal="true" aria-labelledby="hintTitle">
+                <div class="hint-content">
+                    <h3 id="hintTitle">💡 Dica!</h3>
+                    <p id="hintText"></p>
+                    <button id="closeHint" type="button">Entendi!</button>
+                </div>
+            </div>
 
 
             <!-- Botão Próxima -->
