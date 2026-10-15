@@ -4,37 +4,36 @@
     box-sizing: border-box;
 }
 
-body{
+body {
     background-color: #292943;
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     color: #ffffff;
 }
 
 a {
-    text-decoration: none; 
-    color: inherit;
-}
-
-header{
-    padding-bottom: 30px;
-}
-
-.Menu{
-    background-color: #3a3a80;
-    height: 70px;
-    align-items: center;
-    align-content: center;
-    border-radius: 0px 0px 10px 10px;
     text-decoration: none;
     color: inherit;
 }
 
-.Menu-Content{
-    display: flex;
-   gap: 80%;
-   padding: 20px;
+header {
+    padding-bottom: 30px;
 }
 
+.Menu {
+    background-color: #3a3a80;
+    height: 70px;
+    align-items: center;
+    align-content: center;
+    border-radius: 0 0 10px 10px;
+    text-decoration: none;
+    color: inherit;
+}
+
+.Menu-Content {
+    display: flex;
+    gap: 80%;
+    padding: 20px;
+}
 
 .Container-Card {
     flex: 1 1 300px;
@@ -46,7 +45,7 @@ header{
     text-align: center;
 }
 
-.Container-First-Section{
+.Container-First-Section {
     display: flex;
     flex-wrap: wrap;
     justify-content: space-around;
@@ -59,15 +58,15 @@ header{
     padding-top: 30px;
     display: flex;
     flex-direction: column;
-    justify-content: center; /* Centraliza o botão horizontalmente */
-    align-items: center;     /* Centraliza o botão verticalmente */
+    justify-content: center;
+    align-items: center;
     width: 100%;
 }
 
 .button-call {
     display: inline-block;
     background-color: #00FFFF;
-    color: #1a1a2e; /* Texto escuro para contraste */
+    color: #1a1a2e;
     padding: 12px 24px;
     border-radius: 8px;
     font-weight: bold;
@@ -78,12 +77,12 @@ header{
     transition: background-color 0.2s ease, transform 0.2s ease;
 }
 
-
 .button-call:hover {
-    background-color: #00cccc; /* Efeito mais escuro ao passar o mouse */
-    transform: translateY(-2px); /* Efeito de elevação */
+    background-color: #00cccc;
+    transform: translateY(-2px);
 }
 
+/* ===== Ranking ===== */
 .container-rank {
     width: 100%;
     max-width: 500px;
@@ -91,15 +90,12 @@ header{
     margin: 40px auto;
 }
 
-/* Seção do Topo */
-.top-ranking {
-    text-align: center;
-}
+.top-ranking { text-align: center; }
 
 .top-ranking h2 {
     margin-bottom: 5px;
     font-size: 1.8rem;
-    color: #a855f7; /* Roxo vibrante */
+    color: #a855f7;
 }
 
 .top-ranking p {
@@ -108,7 +104,6 @@ header{
     font-size: 0.95rem;
 }
 
-/* Card do Ranking (Efeito Vidro/Dark) */
 .card-ranking {
     background: #1e1e2f;
     border-radius: 12px;
@@ -117,7 +112,6 @@ header{
     border: 1px solid #2d2b42;
 }
 
-/* Estilização da Tabela */
 table {
     width: 100%;
     border-collapse: collapse;
@@ -133,15 +127,8 @@ table {
     border-bottom: 2px solid #3f3f5f;
 }
 
-.table-title:first-child {
-    border-top-left-radius: 6px;
-    border-bottom-left-radius: 6px;
-}
-
-.table-title:last-child {
-    border-top-right-radius: 6px;
-    border-bottom-right-radius: 6px;
-}
+.table-title:first-child { border-top-left-radius: 6px; border-bottom-left-radius: 6px; }
+.table-title:last-child  { border-top-right-radius: 6px; border-bottom-right-radius: 6px; }
 
 .table-content {
     padding: 14px 12px;
@@ -150,16 +137,10 @@ table {
     font-size: 0.9rem;
 }
 
-tbody tr:hover {
-    background-color: rgba(168, 85, 247, 0.05);
-}
+tbody tr:hover { background-color: rgba(168, 85, 247, 0.05); }
+tr:last-child .table-content { border-bottom: none; }
 
-tr:last-child .table-content {
-    border-bottom: none;
-}
-
-
-
+/* ===== Formulários ===== */
 .container-forms {
     background-color: #1e1e2f;
     width: 350px;
@@ -174,15 +155,14 @@ tr:last-child .table-content {
 .container-forms form {
     display: flex;
     flex-direction: column;
-    gap: 20px; /* Cria um espaçamento uniforme entre cada bloco */
+    gap: 20px;
     width: 100%;
 }
 
-/* Cada grupo de input/label fica em coluna */
 .input-group, .btn-group {
     display: flex;
     flex-direction: column;
-    align-items: flex-start; /* Alinha os textos à esquerda do card */
+    align-items: flex-start;
     width: 100%;
 }
 
@@ -192,156 +172,216 @@ tr:last-child .table-content {
     margin-top: 5px;
 }
 
-/* Grupo do link de cadastro */
-.link-group {
-    margin-top: -5px;
+.link-group { margin-top: -5px; }
+.link-group p { font-size: 0.9rem; color: #fff; }
+.link-group a { text-decoration: none; color: #a855f7; font-size: 0.85rem; }
+
+/* =========================================================
+   MENU: mapa de fases
+   ========================================================= */
+.menu-container {
+    padding: 20px;
 }
 
-.link-group p {
-    font-size: 0.9rem;
+.game-floor {
+    position: relative;
+    width: min(100%, 1000px, calc((100vh - 120px) * 1672 / 941));
+    margin: 0 auto;
+    aspect-ratio: 1672 / 941;
+    container-type: inline-size;     
+    background: url('/images/Aventuras\ nas\ Ilhas\ do\ Céu.png') center / cover no-repeat;
+    border-radius: 16px;
+    overflow: hidden;
+}
+
+/* ===== Card base ===== */
+.card-floor {
+    --w: clamp(70px, 11cqw, 150px);
+    position: absolute;
+    width: var(--w);
+    aspect-ratio: 1 / 1;
+    transform: translate(-50%, -50%);
+    text-decoration: none;
     color: #fff;
+    text-align: center;
+    background-image: var(--img-colorida);
+    background-size: contain;
+    background-position: center;
+    background-repeat: no-repeat;
+    image-rendering: pixelated;
+    transition: transform .2s ease, filter .2s ease;
 }
 
-.link-group a {
-    text-decoration: none;
-    color: #a855f7;
-    font-size: 0.85rem;
+/* Cada fase: imagens + posição (x%, y%) sobre o background */
+.fase-1 {
+    --img-colorida:  url('/images/fase-1-colorida.png');
+    --img-bloqueada: url('/images/fase-1-bloqueada.png');
+    left: 23%; top: 42%;
+}
+.fase-2 {
+    --img-colorida:  url('/images/fase-2-colorida.png');
+    --img-bloqueada: url('/images/fase-2-bloqueada.png');
+    left: 36%; top: 68%;
+}
+.fase-3 {
+    --img-colorida:  url('/images/fase-3-colorida.png');
+    --img-bloqueada: url('/images/fase-3-bloqueada.png');
+    left: 51%; top: 42%; 
+}
+.fase-4 {
+    --img-colorida:  url('/images/fase-4-colorida.png');
+    --img-bloqueada: url('/images/fase-4-bloqueada.png');
+    left: 67%; top: 66%;
+}
+.fase-5 {
+    --img-colorida:  url('/images/fase-5-colorida.png');
+    --img-bloqueada: url('/images/fase-5-bloqueada.png');
+    left: 82%; top: 42%;
 }
 
-
-a {
-    text-decoration: none;
-    color: inherit;
+/* Etiqueta da fase: fora da imagem, logo abaixo */
+.fase-info {
+    position: absolute;
+    top: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    margin-top: 4px;
+    width: max-content;
+    max-width: 220%;
+    padding: 4px 10px;
+    background: rgba(10, 30, 60, .72);
+    border-radius: 10px;
+    color: #fff;
+    text-align: center;
+    pointer-events: none;
 }
+.fase-info h3 { margin: 0; font-size: clamp(.7rem, 1.5cqw, 1rem); }
+.fase-info p  { margin: 0; font-size: clamp(.6rem, 1.15cqw, .8rem); }
 
+/* ===== Estados ===== */
+.card-floor.concluido { filter: saturate(.85) brightness(1.05); }
 
-.game-floor{
-    display: grid;
-    grid-template-columns: auto auto auto;
-    background-color: dodgerblue;
-    padding: 10px;
-}
+.card-floor.atual { animation: pulsar 1.6s ease-in-out infinite; }
 
 .card-floor.bloqueado {
-    opacity: 0.5;
+    background-image: var(--img-bloqueada);
     cursor: not-allowed;
-    filter: grayscale(60%);
 }
 
-.card-floor.concluido {
-    border: 2px solid #2ecc71; /* verde, ajusta pra cor do seu tema */
+.card-floor:not(.bloqueado):hover,
+.card-floor:not(.bloqueado):focus-visible {
+    transform: translate(-50%, -54%) scale(1.06);
+    outline: none;
+}
+.card-floor:focus-visible { filter: drop-shadow(0 0 6px #fff); }
+
+.icone-status { margin-left: 4px; }
+
+@keyframes pulsar {
+    0%, 100% { transform: translate(-50%, -50%) scale(1); }
+    50%      { transform: translate(-50%, -50%) scale(1.07); }
 }
 
-.card-floor.atual {
-    border: 2px solid #f39c12; /* laranja/destaque, ajusta pra cor do seu tema */
-    box-shadow: 0 0 8px rgba(243, 156, 18, 0.6);
-
-}
-.game-settings {
-    position: fixed;
-    top: 20px;
-    right: 20px;
-    z-index: 1000;
+@media (prefers-reduced-motion: reduce) {
+    .card-floor.atual { animation: none; }
 }
 
-.settings-btn {
-    width: 52px;
-    height: 52px;
-
-    border: none;
-    border-radius: 50%;
-
-    font-size: 26px;
-
-    background: rgba(0, 0, 0, 0.65);
-    color: white;
-
-    cursor: pointer;
-
-    display: flex;
-    align-items: center;
-    justify-content: center;
-
-    transition:
-        transform 0.2s ease,
-        background 0.2s ease;
-}
-
-.settings-btn:hover {
-    transform: scale(1.08);
-    background: rgba(0, 0, 0, 0.8);
-}
-
-.settings-panel {
+/* ===== Botões de ação (Tutorial / Configurações) ===== */
+.menu-actions {
     position: absolute;
-
-    top: 62px;
-    right: 0;
-
-    width: 250px;
-
-    padding: 18px;
-
-    border-radius: 15px;
-
-    background: rgba(25, 25, 25, 0.95);
-    color: white;
-
-    box-shadow:
-        0 8px 25px rgba(0, 0, 0, 0.35);
-
-    display: none;
-}
-
-.settings-panel.show {
-    display: block;
-}
-
-.settings-panel h3 {
-    margin:
-        0
-        0
-        15px
-        0;
-
-    text-align: center;
-}
-
-.settings-option {
+    top: 3%;
+    left: 2%;
     display: flex;
+    gap: clamp(10px, 2cqw, 28px);
+    z-index: 2;
+}
 
+.menu-action {
+    display: flex;
+    flex-direction: column;
     align-items: center;
-    justify-content: space-between;
-
-    gap: 15px;
-}
-
-.sound-toggle {
-    border: none;
-    border-radius: 10px;
-
-    padding: 9px 12px;
-
-    font-weight: bold;
-
+    gap: 4px;
+    background: none;
+    border: 0;
+    padding: 0;
     cursor: pointer;
-
-    background: white;
-    color: #333;
+    text-decoration: none;
+    color: #fff;
+    font: inherit;
 }
 
-.sound-toggle:hover {
-    transform: scale(1.03);
+.menu-action__icone {
+    display: grid;
+    place-items: center;
+    width: clamp(44px, 6cqw, 72px);
+    aspect-ratio: 1 / 1;
+    font-size: clamp(1.4rem, 3cqw, 2.2rem);
+    background: linear-gradient(#ffd54a, #ff9f1c);
+    border: 3px solid #fff;
+    border-radius: 50%;
+    box-shadow: 0 4px 0 rgba(0, 0, 0, .25);
+    transition: transform .15s ease;
 }
 
+.menu-action__texto {
+    padding: 2px 8px;
+    font-size: clamp(.65rem, 1.2cqw, .85rem);
+    background: rgba(10, 30, 60, .72);
+    border-radius: 8px;
+}
+
+.menu-action:hover .menu-action__icone,
+.menu-action:focus-visible .menu-action__icone {
+    transform: translateY(-3px) scale(1.06);
+}
+.menu-action:focus-visible { outline: none; }
+.menu-action:focus-visible .menu-action__icone { outline: 3px solid #fff; outline-offset: 3px; }
+
+/* ===== Painel de configurações ===== */
+.config-dialog {
+    width: min(92vw, 460px);
+    max-height: 85vh;
+    overflow-y: auto;
+    margin: auto;
+    padding: 20px;
+    border: 3px solid #fff;
+    border-radius: 16px;
+    background: #1b3a6b;
+    color: #fff;
+}
+.config-dialog::backdrop { background: rgba(0, 0, 0, .55); }
+
+.config-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 12px;
+}
+.config-header h2 { margin: 0; }
+
+.config-fechar {
+    width: 36px;
+    height: 36px;
+    border: 0;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, .15);
+    color: #fff;
+    font-size: 1.1rem;
+    cursor: pointer;
+}
+
+.config-dialog section { margin-bottom: 16px; }
+.config-dialog section h3 { margin: 0 0 8px; }
+
+/* =========================================================
+   Configurações dentro do jogo (cenas)
+   ========================================================= */
 :root {
     --cor-fundo: #1a1a2e;
     --cor-texto: #ffffff;
     --cor-destaque: #f39c12;
 }
 
-
-
 .game-settings {
     position: fixed;
     top: 20px;
@@ -352,24 +392,16 @@ a {
 .settings-btn {
     width: 52px;
     height: 52px;
-
     border: none;
     border-radius: 50%;
-
     font-size: 26px;
-
     background: rgba(0, 0, 0, 0.65);
     color: white;
-
     cursor: pointer;
-
     display: flex;
     align-items: center;
     justify-content: center;
-
-    transition:
-        transform 0.2s ease,
-        background 0.2s ease;
+    transition: transform 0.2s ease, background 0.2s ease;
 }
 
 .settings-btn:hover {
@@ -379,28 +411,18 @@ a {
 
 .settings-panel {
     position: absolute;
-
     top: 62px;
     right: 0;
-
     width: 250px;
-
     padding: 18px;
-
     border-radius: 15px;
-
     background: rgba(25, 25, 25, 0.95);
     color: white;
-
-    box-shadow:
-        0 8px 25px rgba(0, 0, 0, 0.35);
-
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.35);
     display: none;
 }
 
-.settings-panel.show {
-    display: block;
-}
+.settings-panel.show { display: block; }
 
 .settings-panel h3 {
     margin: 0 0 15px 0;
@@ -409,94 +431,19 @@ a {
 
 .settings-option {
     display: flex;
-
     align-items: center;
     justify-content: space-between;
-
     gap: 15px;
 }
 
 .sound-toggle {
     border: none;
     border-radius: 10px;
-
     padding: 9px 12px;
-
     font-weight: bold;
-
     cursor: pointer;
-
     background: white;
     color: #333;
 }
 
-.sound-toggle:hover {
-    transform: scale(1.03);
-}
-
-/* ========================================
-   BOTÃO DE TUTORIAL (MENU)
-   ======================================== */
-
-.instructions {
-    display: flex;
-    justify-content: center;
-    margin: 1.5rem 0;
-}
-
-.btn-tutorial {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    gap: 0.6rem;
-
-    min-width: 12rem;
-    min-height: 3rem;          /* área de toque confortável para crianças */
-    padding: 0.8rem 1.8rem;
-
-    background: #e8912d;
-    color: #1a1a2e;
-    font-size: 1.1rem;
-    font-weight: bold;
-    text-decoration: none;
-
-    border: 3px solid #b86a12;
-    border-radius: 14px;
-    box-shadow: 0 5px 0 #b86a12;   /* efeito de botão "alto", combina com as plataformas */
-
-    cursor: pointer;
-    transition: transform 0.15s ease, box-shadow 0.15s ease, background 0.15s ease;
-}
-
-.btn-tutorial__icone {
-    font-size: 1.3em;
-}
-
-.btn-tutorial:hover {
-    background: #f5a43f;
-    transform: translateY(-2px);
-    box-shadow: 0 7px 0 #b86a12;
-}
-
-.btn-tutorial:active {
-    transform: translateY(3px);
-    box-shadow: 0 2px 0 #b86a12;
-}
-
-/* Foco visível para quem navega pelo teclado */
-.btn-tutorial:focus-visible {
-    outline: 4px solid #ffffff;
-    outline-offset: 3px;
-}
-
-/* Respeita quem desativou animações no sistema */
-@media (prefers-reduced-motion: reduce) {
-    .btn-tutorial {
-        transition: none;
-    }
-
-    .btn-tutorial:hover,
-    .btn-tutorial:active {
-        transform: none;
-    }
-}
+.sound-toggle:hover { transform: scale(1.03); }

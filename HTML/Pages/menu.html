@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -7,94 +7,114 @@
     <link rel="stylesheet" href="/CSS/Style.css">
     <link rel="stylesheet" href="/CSS/acessibilidade.css">
     <link rel="stylesheet" href="/CSS/audio-settings.css">
+
+    <!-- Preload para a troca bloqueada/colorida ser instantânea -->
+    <link rel="preload" as="image" href="/images/fase-1-colorida.png">
+    <link rel="preload" as="image" href="/images/fase-1-bloqueada.png">
+    <link rel="preload" as="image" href="/images/fase-2-colorida.png">
+    <link rel="preload" as="image" href="/images/fase-2-bloqueada.png">
+    <link rel="preload" as="image" href="/images/fase-3-colorida.png">
+    <link rel="preload" as="image" href="/images/fase-3-bloqueada.png">
+    <link rel="preload" as="image" href="/images/fase-4-colorida.png">
+    <link rel="preload" as="image" href="/images/fase-4-bloqueada.png">
+    <link rel="preload" as="image" href="/images/fase-5-colorida.png">
+    <link rel="preload" as="image" href="/images/fase-5-bloqueada.png">
 </head>
 <body>
     <nav>
         <div class="Menu">
             <section class="Menu-Content">
-                <Span class="Game-Title"><a href="/">Jump Sky</a></Span>
+                <span class="Game-Title"><a href="/">Jump Sky</a></span>
                 <div class="Menu-Text">
-                <span><a href="/somando-nas-nuvens">Jogar </a></span>
-                <span><a href="/login"> Entrar</a> </span>
-                <span> <a href="/registrar"> Registrar</a></span>
+                    <span><a href="/somando-nas-nuvens">Jogar </a></span>
+                    <span><a href="/login"> Entrar</a> </span>
+                    <span> <a href="/registrar"> Registrar</a></span>
                 </div>
             </section>
         </div>
     </nav>
 
     <main class="menu-container">
-    <div class="menu-card">
-        <section class="game-floor" aria-label="Fases do jogo">
-            <a class="card-floor" href="/somando-nas-nuvens" data-fase="1">
-                <h3>Fase 1</h3>
-                <p>Somando nas Nuvens</p>
-            </a>
-            <a class="card-floor" href="/subtraindo-no-subsolo" data-fase="2">
-                <h3>Fase 2</h3>
-                <p>Subtraindo no Subsolo</p>
-            </a>
-            <a class="card-floor" href="/multiplicando-no-oceano" data-fase="3">
-                <h3>Fase 3</h3>
-                <p>Multiplicando no Oceano</p>
-            </a>
-            <a class="card-floor" href="/dividindo-no-vulcao" data-fase="4">
-                <h3>Fase 4</h3>
-                <p>Dividindo no Vulcao</p>
-            </a>
-            <a class="card-floor" href="pulando-no-espaco" data-fase="5" data-slug="Bonus">
-                <h3>Fase bonus</h3>
-                <p>?</p>
-            </a>
-        </section>
+        <div class="menu-card">
 
-        <section class="options" aria-label="Opções">
-            <h2>Opções</h2>
+            <section class="game-floor" aria-label="Fases do jogo">
 
-            <div data-audio-settings></div>
+                <!-- Botões de ação -->
+                <div class="menu-actions">
+                    <a class="menu-action" href="/aprendendo-a-jogar">
+                        <span class="menu-action__icone" aria-hidden="true">📖</span>
+                        <span class="menu-action__texto">Tutorial</span>
+                    </a>
+                    <button type="button" class="menu-action" id="abrirConfig" aria-haspopup="dialog">
+                        <span class="menu-action__icone" aria-hidden="true">⚙️</span>
+                        <span class="menu-action__texto">Configurações</span>
+                    </button>
+                </div>
 
-            <div class="option-item">
-                <button id="sairBtn">Sair da conta</button>
-            </div>
-        </section>
-
-        <section class="accessibility" aria-label="Acessibilidade">
-    <h2>Acessibilidade</h2>
-
-    <div class="option-item">
-        <label for="fonteAmpliada">Tamanho da fonte</label>
-        <div class="font-controls">
-            <button type="button" id="diminuirFonte" aria-label="Diminuir fonte">A-</button>
-            <span id="fontePercentual">100%</span>
-            <button type="button" id="aumentarFonte" aria-label="Aumentar fonte">A+</button>
-        </div>
-    </div>
-
-        <div class="option-item">
-            <label for="altoContraste">Alto contraste</label>
-            <input type="checkbox" id="altoContraste">
-        </div>
-
-        
-
-        <div class="option-item">
-            <label for="feedbackVisualReforcado">Feedback visual reforçado</label>
-            <input type="checkbox" id="feedbackVisualReforcado">
-        </div>
-    </section>
-
-        <section class="instructions" aria-label="Instruções">
-                <a class="btn-tutorial" href="/aprendendo-a-jogar">
-                    <span class="btn-tutorial__icone" aria-hidden="true">📖</span>
-                    Tutorial
+                <!-- Fases -->
+                <a class="card-floor fase-1" href="/somando-nas-nuvens" data-fase="1">
+                    <span class="fase-info"><h3>Fase 1</h3><p>Somando nas Nuvens</p></span>
                 </a>
-        </section>
-    </div>
-</main>
+                <a class="card-floor fase-2" href="/subtraindo-no-subsolo" data-fase="2">
+                    <span class="fase-info"><h3>Fase 2</h3><p>Subtraindo no Subsolo</p></span>
+                </a>
+                <a class="card-floor fase-3" href="/multiplicando-no-oceano" data-fase="3">
+                    <span class="fase-info"><h3>Fase 3</h3><p>Multiplicando no Oceano</p></span>
+                </a>
+                <a class="card-floor fase-4" href="/dividindo-no-vulcao" data-fase="4">
+                    <span class="fase-info"><h3>Fase 4</h3><p>Dividindo no Vulcão</p></span>
+                </a>
+                <a class="card-floor fase-5" href="/pulando-no-espaco" data-fase="5" data-slug="Bonus">
+                    <span class="fase-info"><h3>Fase bônus</h3><p>?</p></span>
+                </a>
+            </section>
+
+            <!-- Painel de configurações -->
+            <dialog id="configDialog" class="config-dialog" aria-labelledby="configTitulo">
+                <div class="config-header">
+                    <h2 id="configTitulo">Configurações</h2>
+                    <button type="button" id="fecharConfig" class="config-fechar" aria-label="Fechar configurações">✕</button>
+                </div>
+
+                <section class="options" aria-label="Opções">
+                    <h3>Opções</h3>
+                    <div data-audio-settings></div>
+                    <div class="option-item">
+                        <button id="sairBtn">Sair da conta</button>
+                    </div>
+                </section>
+
+                <section class="accessibility" aria-label="Acessibilidade">
+                    <h3>Acessibilidade</h3>
+
+                    <div class="option-item">
+                        <label for="fonteAmpliada">Tamanho da fonte</label>
+                        <div class="font-controls">
+                            <button type="button" id="diminuirFonte" aria-label="Diminuir fonte">A-</button>
+                            <span id="fontePercentual">100%</span>
+                            <button type="button" id="aumentarFonte" aria-label="Aumentar fonte">A+</button>
+                        </div>
+                    </div>
+
+                    <div class="option-item">
+                        <label for="altoContraste">Alto contraste</label>
+                        <input type="checkbox" id="altoContraste">
+                    </div>
+
+                    <div class="option-item">
+                        <label for="feedbackVisualReforcado">Feedback visual reforçado</label>
+                        <input type="checkbox" id="feedbackVisualReforcado">
+                    </div>
+                </section>
+            </dialog>
+
+        </div>
+    </main>
+
     <script src="/JS/brightness.js"></script>
     <script src="/JS/config.js"></script>
     <script src="/JS/audio.js"></script>
     <script src="/JS/acessibilidade.js"></script>
     <script src="/JS/menu.js"></script>
-
 </body>
-</html>    
+</html>

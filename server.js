@@ -154,6 +154,38 @@ app.post('/register', async (req, res) => {
     }
 });
 
+const AVATARES_VALIDOS = [
+    'personagem.png',
+    'personagem2.png',
+    'personagem3.png',
+    'personagem4.png',
+];
+
+app.put('/api/avatar', verificarToken, async (req, res) => {
+    try {
+        const { avatar } = req.body;
+
+        if (typeof avatar !== 'string' || !AVATARES_VALIDOS.includes(avatar)) {
+            return res.status(400).json({ mensagem: 'Avatar inválido' });
+        }
+
+        const user = await User.findByIdAndUpdate(
+            req.userId,
+            { avatar },
+            { new: true }
+        );
+
+        if (!user) {
+            return res.status(404).json({ mensagem: 'Usuário não encontrado' });
+        }
+
+        return res.status(200).json({ avatar: user.avatar });
+    } catch (error) {
+        console.error('Erro ao salvar avatar:', error.message);
+        return res.status(500).json({ mensagem: 'Erro ao salvar avatar' });
+    }
+});
+
 // ===== LOGIN =====
 app.post('/login', async (req, res) => {
     try {
