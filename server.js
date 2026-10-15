@@ -11,6 +11,11 @@ const nomesComuns = require('./nomesComuns.json');
 const sobrenomesComuns = require('./sobrenomesComuns.json');
 const bcrypt = require('bcryptjs');
 
+const VALID_AVATARS = ['Personagem.png', 'personagem2.png', 'personagem3.png', 'personagem4.png'];
+function normalizeSavedAvatar(value) {
+    return VALID_AVATARS.find(name => typeof value === 'string' && name.toLowerCase() === value.toLowerCase()) || 'Personagem.png';
+}
+
 const app = express();
 app.use(express.json());
 app.use(cookieParser());
@@ -125,7 +130,7 @@ app.post('/register', async (req, res) => {
         const newUser = new User({
             nickname,
             password: hashedPassword,
-            avatar: avatar || 'personagem.png' 
+            avatar: normalizeSavedAvatar(avatar) 
         });
         await newUser.save();
 
@@ -245,13 +250,28 @@ app.get('/api/save', verificarToken, async (req, res) => {
 
         return res.status(200).json({
             saveProgress: save.saveProgress,
-            avatar: user ? user.avatar : 'personagem.png'
+            avatar: normalizeSavedAvatar(user && user.avatar)
         });
     } catch (error) {
         return res.status(400).json({ mensagem: 'Erro ao buscar progresso' });
     }
 });
 
+
+// A escolha acontece após o cadastro; persistir na conta autenticada.
+app.put('/api/avatar', verificarToken, async (req, res) => {
+    const avatar = req.body && req.body.avatar;
+    if (!VALID_AVATARS.includes(avatar)) {
+        return res.status(400).json({ mensagem: 'Escolha um dos personagens disponíveis.' });
+    }
+    try {
+        const user = await User.findByIdAndUpdate(req.userId, { $set: { avatar } }, { new: true, runValidators: true });
+        if (!user) return res.status(404).json({ mensagem: 'Conta não encontrada.' });
+        return res.status(200).json({ avatar: user.avatar });
+    } catch (error) {
+        return res.status(500).json({ mensagem: 'Não foi possível salvar o personagem. Tente novamente.' });
+    }
+});
 
 app.put('/api/save/avancar', verificarToken, async (req, res) => {
     try {
