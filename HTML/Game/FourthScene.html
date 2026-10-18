@@ -8,9 +8,10 @@
     <link rel="stylesheet" href="/CSS/styleFase4.css">
     <link rel="stylesheet" href="/CSS/acessibilidade.css">
     <link rel="stylesheet" href="/CSS/audio-settings.css">
+    <link rel="stylesheet" href="/CSS/instruction-audio.css">
 </head>
 
-<body data-game-phase>
+<body data-game-phase data-phase="4">
     <!-- Configurações -->
 <div class="game-settings">
 
@@ -52,6 +53,12 @@
         <p class="subtitle">
             Acerte a conta e o personagem pula para a próxima plataforma!
         </p>
+
+        
+        <div class="instruction-audio">
+            <button id="playInstructions" class="instruction-audio__button" type="button" aria-describedby="instructionAudioStatus">🔊 Ouvir instruções</button>
+            <span id="instructionAudioStatus" class="instruction-audio__status" role="status" aria-live="polite"></span>
+        </div>
 
         <div class="stats">
             <div class="stat">
@@ -173,6 +180,7 @@
     <script src="/JS/config.js"></script>
     <script src="/JS/avatar.js"></script>
 <script src="/JS/audio.js"></script>
+    <script src="/JS/instruction-audio.js"></script>
     <script src="/JS/problems.js"></script>
 <script src="/JS/scriptFase4.js"></script>
     <script src="/JS/brightness.js"></script>

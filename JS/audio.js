@@ -85,6 +85,7 @@ function stopAllSounds() {
     [...Object.values(gameSounds), ...narrationSounds].forEach(sound => { sound.pause(); sound.currentTime = 0; });
     activeEffects.clear();
     updateMusicVolume();
+    document.dispatchEvent(new Event('instructionaudio:stop'));
 }
 function applyAudioSettings() {
     Object.values(gameSounds).forEach(sound => {
@@ -95,6 +96,7 @@ function applyAudioSettings() {
         sound.volume = getChannelVolume('voice');
         if (!canPlayChannel('voice')) sound.pause();
     });
+    if (!canPlayChannel('voice')) document.dispatchEvent(new Event('instructionaudio:stop'));
     syncBackgroundMusic();
     updateAudioControls();
 }
