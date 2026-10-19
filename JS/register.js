@@ -1,104 +1,81 @@
-function gerarUmNome() {
-  const adjetivos = [
-    "Shadow", "Iron", "Storm", "Dark", "Fire", "Night", "Silver", "Ghost", 
-    "Blood", "Frost", "Thunder", "Swift", "Brave", "Ancient", "Toxic", 
-    "Solar", "Lunar", "Cyber", "Neon", "Crystal", "Golden", "Abyssal"
-  ];
-  
-  const animais = [
-    "Wolf", "Bear", "Tiger", "Eagle", "Fox", "Dragon", "Panther", "Hawk", 
-    "Lion", "Shark", "Snake", "Raven", "Viper", "Phoenix", "Griffin", 
-    "Hydra", "Kraken", "Scorpion", "Stag", "Badger", "Cobra", "Falcon"
-  ];
-  
-  const titulos = [
-    "Warrior", "Mage", "Hunter", "Knight", "Rogue", "Paladin", "Lord", 
-    "Seeker", "Blade", "Heart", "Stalker", "Guardian", "Warden", "Berserker", 
-    "Assassin", "Titan", "Nomad", "Reaper", "Champion", "Slayer"
-  ];
-
-  const numeroAleatorio = Math.floor(Math.random() * 900) + 100;
-  const tipoCombinacao = Math.floor(Math.random() * 2);
-  const tituloAleatorio = titulos[Math.floor(Math.random() * titulos.length)];
-
-  if (tipoCombinacao === 0) {
-    const animalAleatorio = animais[Math.floor(Math.random() * animais.length)];
-    return `${tituloAleatorio}${animalAleatorio}${numeroAleatorio}`;
-  } else {
-    const adjAleatorio = adjetivos[Math.floor(Math.random() * adjetivos.length)];
-    return `${tituloAleatorio}${adjAleatorio}${numeroAleatorio}`;
-  }
-}
+const proximoApelido = JumpSkyNomes.criarGerador();
+let gerandoNomes = false;
+let cadastrando = false;
 
 function atualizarBotaoContinuar() {
-  const nickname = document.getElementById("login_reg").value;
-  const botaoCriar = document.getElementById("bttn_reg"); // <- ajustado
-
-  if (botaoCriar) {
-    botaoCriar.disabled = !nickname;
-  }
+  document.getElementById('bttn_reg').disabled = gerandoNomes || cadastrando || !document.getElementById('login_reg').value;
 }
 
-function gerarNome() {
-  const container = document.getElementById("nomesSugeridos");
-  const apelidoEscolhidoTexto = document.getElementById("apelidoEscolhido");
-  if (!container) return;
-
-  container.innerHTML = "";
-
-  // limpa a seleção anterior, já que as opções mudaram
-  document.getElementById("login_reg").value = "";
-  if (apelidoEscolhidoTexto) {
-    apelidoEscolhidoTexto.textContent = "Escolha um dos apelidos abaixo:";
-  }
+async function gerarNome() {
+  if (gerandoNomes || cadastrando) return;
+  const container = document.getElementById('nomesSugeridos');
+  const status = document.getElementById('apelidoEscolhido');
+  const gerar = document.getElementById('Dice_Name');
+  gerandoNomes = true;
+  gerar.disabled = true;
+  container.setAttribute('aria-busy', 'true');
+  container.replaceChildren();
+  document.getElementById('login_reg').value = '';
+  status.textContent = 'Buscando apelidos livres...';
   atualizarBotaoContinuar();
-
-  const nomesGerados = new Set();
-  while (nomesGerados.size < 3) {
-    nomesGerados.add(gerarUmNome());
-  }
-
-  nomesGerados.forEach(nome => {
-    const botao = document.createElement("button");
-    botao.type = "button";
-    botao.textContent = nome;
-    botao.classList.add("nome-sugestao-btn");
-    botao.setAttribute("aria-pressed", "false");
-
-    botao.addEventListener("click", () => {
-      document.getElementById("login_reg").value = nome;
-
-      // marca visualmente qual foi escolhido
-      container.querySelectorAll(".nome-sugestao-btn").forEach(b => {
-        b.classList.remove("selecionado");
-        b.setAttribute("aria-pressed", "false");
-      });
-      botao.classList.add("selecionado");
-      botao.setAttribute("aria-pressed", "true");
-
-      if (apelidoEscolhidoTexto) {
-        apelidoEscolhidoTexto.textContent = `Apelido escolhido: ${nome}`;
+  try {
+    const nomes = [];
+    for (let tentativa = 0; tentativa < 5 && nomes.length < 3; tentativa++) {
+      const candidates = [];
+      for (let i = 0; i < 12; i++) {
+        const nome = proximoApelido();
+        if (nome === null) break;
+        candidates.push(nome);
       }
-
-      atualizarBotaoContinuar();
+      if (!candidates.length) break;
+      const resposta = await fetch(`${API_URL}/api/nicknames/available`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ candidates })
+      });
+      if (!resposta.ok) throw new Error('Falha ao consultar apelidos');
+      const dados = await resposta.json();
+      if (!Array.isArray(dados.available)) throw new Error('Resposta inesperada');
+      nomes.push(...candidates.filter(nome => dados.available.includes(nome)).slice(0, 3 - nomes.length));
+    }
+    if (!nomes.length) throw new Error('Sem novas sugestoes');
+    nomes.forEach(nome => {
+      const botao = document.createElement('button');
+      botao.type = 'button';
+      botao.textContent = nome;
+      botao.classList.add('nome-sugestao-btn');
+      botao.setAttribute('aria-pressed', 'false');
+      botao.addEventListener('click', () => {
+        if (cadastrando) return;
+        document.getElementById('login_reg').value = nome;
+        container.querySelectorAll('.nome-sugestao-btn').forEach(item => {
+          item.classList.remove('selecionado');
+          item.setAttribute('aria-pressed', 'false');
+        });
+        botao.classList.add('selecionado');
+        botao.setAttribute('aria-pressed', 'true');
+        status.textContent = `Seu apelido: ${nome}. Guarde esse nome para entrar!`;
+        atualizarBotaoContinuar();
+      });
+      container.appendChild(botao);
     });
-
-    container.appendChild(botao);
-  });
+    status.textContent = 'Qual destes apelidos combina com voc\u00ea?';
+  } catch (error) {
+    status.textContent = 'N\u00e3o conseguimos buscar novos apelidos. Tente novamente no bot\u00e3o abaixo.';
+  } finally {
+    gerandoNomes = false;
+    gerar.disabled = false;
+    container.setAttribute('aria-busy', 'false');
+    atualizarBotaoContinuar();
+  }
 }
 
-const diceIcon = document.getElementById("Dice_Name");
-if (diceIcon) {
-  diceIcon.addEventListener("click", gerarNome);
-}
-
-// gera as 3 sugestões automaticamente assim que a página carrega
-document.addEventListener("DOMContentLoaded", () => {
-  gerarNome();
-});
+document.getElementById('Dice_Name').addEventListener('click', gerarNome);
+document.addEventListener('DOMContentLoaded', gerarNome);
 
 async function createUser(event) {
   event.preventDefault();
+  if (cadastrando || gerandoNomes) return;
 
   const nicknameValue = document.getElementById("login_reg").value.trim();
   const passwordValue = document.getElementById("password_reg").value;
@@ -121,6 +98,9 @@ async function createUser(event) {
 
   const avatarEscolhido = 'Personagem.png';
 
+  cadastrando = true;
+  atualizarBotaoContinuar();
+  document.getElementById('Dice_Name').disabled = true;
   try {
     const answer = await fetch(`${API_URL}/register`, {
       method: 'POST',
@@ -139,11 +119,19 @@ async function createUser(event) {
       localStorage.removeItem('avatarSelecionado');
       alert('Usuário cadastrado com sucesso!');
       window.location.href = "/selecionar-avatar";
+    } else if (answer.status === 409) {
+      alert('Esse apelido acabou de ser escolhido. Escolha outro para continuar.');
+      cadastrando = false;
+      await gerarNome();
     } else {
       alert('Erro: ' + (result.erro || result.mensagem));
     }
   } catch (error) {
     console.error('Erro de conexão com o servidor:', error);
     alert('Não foi possível conectar ao servidor.');
+  } finally {
+    cadastrando = false;
+    document.getElementById('Dice_Name').disabled = false;
+    atualizarBotaoContinuar();
   }
 }

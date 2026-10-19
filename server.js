@@ -10,6 +10,7 @@ const SaveData = require('./Schema/Save');
 const nomesComuns = require('./nomesComuns.json');
 const sobrenomesComuns = require('./sobrenomesComuns.json');
 const bcrypt = require('bcryptjs');
+const nicknames = require('./JS/nicknames');
 
 const VALID_AVATARS = ['Personagem.png', 'personagem2.png', 'personagem3.png', 'personagem4.png'];
 function normalizeSavedAvatar(value) {
@@ -109,9 +110,28 @@ app.get('/selecionar-avatar', (req, res) => {
     res.sendFile(path.join(__dirname, 'HTML/Pages/SelecionarAvatar.html'));
 });
 
+app.post('/api/nicknames/available', async (req, res) => {
+    const candidates = req.body && req.body.candidates;
+    if (!Array.isArray(candidates) || candidates.length > 12 || !candidates.length || !candidates.every(nicknames.valido)) {
+        return res.status(400).json({ mensagem: 'Escolha uma das sugestões de apelido.' });
+    }
+    res.set('Cache-Control', 'no-store');
+    try {
+        const users = await User.find({ nickname: { $in: candidates } }).select('nickname').lean();
+        const used = new Set(users.map(user => user.nickname));
+        return res.json({ available: [...new Set(candidates)].filter(name => !used.has(name)) });
+    } catch (error) {
+        return res.status(503).json({ mensagem: 'Não foi possível consultar os apelidos. Tente novamente.' });
+    }
+});
+
 app.post('/register', async (req, res) => {
     try {
         const { nickname, password, avatar } = req.body; 
+
+        if (!nicknames.valido(nickname) || typeof password !== 'string' || !password.length) {
+            return res.status(400).json({ mensagem: 'Escolha um apelido sugerido e preencha sua senha.' });
+        }
 
         if (contemNomeReal(nickname)) {
             return res.status(400).json({
@@ -132,6 +152,8 @@ app.post('/register', async (req, res) => {
             password: hashedPassword,
             avatar: normalizeSavedAvatar(avatar) 
         });
+        // Wait for the unique index before accepting accounts, including simultaneous requests.
+        await User.init();
         await newUser.save();
 
         await SaveData.create({
@@ -149,6 +171,9 @@ app.post('/register', async (req, res) => {
 
         return res.status(201).json({ mensagem: 'Usuario criado com sucesso!' });
     } catch (error) {
+        if (error.code === 11000) {
+            return res.status(409).json({ mensagem: 'Esse apelido acabou de ser escolhido. Vamos buscar outras opções!' });
+        }
         console.error("Erro ao salvar:", error.message);
         return res.status(400).json({ mensagem: 'erro ao criar o usuario', erro: error.message });
     }
