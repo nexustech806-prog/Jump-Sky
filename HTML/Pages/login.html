@@ -1,56 +1,26 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login</title>
+    <meta name="description" content="Sua aventura continua.">
+    <meta name="theme-color" content="#292943">
+    <title>Entrar | Jump Sky</title>
     <link rel="stylesheet" href="/CSS/Style.css">
+    <link rel="stylesheet" href="/CSS/public-pages.css">
     <link rel="stylesheet" href="/CSS/acessibilidade.css">
 </head>
-<body>
-    <nav>
-        <div class="Menu">
-            <section class="Menu-Content">
-                <Span class="Game-Title"><a href="/">Jump Sky</a></Span>
-                <div class="Menu-Text">
-                <span><a href="/somando-nas-nuvens">Jogar </a></span>
-                <span><a href="/login"> Entrar</a> </span>
-                <span> <a href="/registrar"> Registrar</a></span>
-                </div>
-            </section>
-        </div>
+<body class="public-page auth-page"><a class="skip-link" href="#conteudo">Pular para o conteúdo</a>
+    <nav class="site-nav" aria-label="Navegação principal">
+        <a class="brand" href="/" aria-label="Jump Sky — início"> Jump<span>Sky</span></a>
+        <div class="nav-links"><a href="/somando-nas-nuvens">Jogar</a><a href="/login" aria-current="page">Entrar</a><a class="nav-register" href="/registrar">Criar conta </a></div>
     </nav>
-
-    <div class="container-login">
-        <section class="container-forms">
-            <form id="form_log">
-                
-                <div class="input-group">
-                    <label>Escreva seu apelido</label>
-                    <input type="text" id="nickname_log" placeholder="Digite seu apelido criado">
-                </div>
-
-                <div class="input-group">
-                    <label>Escreva sua senha</label>
-                    <input type="password" id="password_log" placeholder="Digite sua senha aqui">
-                </div>
-                <div class="btn-group">
-                    <label>Aperte para Entrar</label>
-                    <button type="submit" id="btn_log" >Entrar</button>
-                </div>
-
-                <div class="link-group">
-                    <p>Não é cadastrado?</p>
-                    <a href="/registrar">Cadastre-se aqui</a>
-                </div>
-
-            </form>
-        </section>
-    </div>
-    <script src="/JS/config.js"></script>
-    <script src="/JS/audio.js"></script>
-    <script src="/JS/acessibilidade.js"></script>
-    <script src="/JS/login.js"></script>
-    
-</body>
-</html>    
+    <main class="auth-layout page-width" id="conteudo">
+        <section class="auth-story" aria-labelledby="story-title"><p class="eyebrow">MATEMÁTICA. DIVERSÃO. AVENTURA.</p><h1 id="story-title">Continue de onde parou.</h1><p>Explore novos mundos e transforme cada desafio em uma chance de aprender.</p><div class="auth-illustration"><img src="/images/Aventuras%20nas%20Ilhas%20do%20C%C3%A9u.png" alt="Ilhas flutuantes do universo Jump Sky" width="1672" height="941"></div></section>
+        <section class="auth-card" aria-labelledby="form-title"><a class="back-link" href="/">← Voltar ao início</a><div class="form-heading"><p class="eyebrow">Sua aventura continua.</p><h2 id="form-title">Bem-vindo de volta!</h2><p>Entre com seu apelido e prepare o próximo salto.</p></div><form id="form_log">
+        <div class="input-group"><label for="nickname_log">Seu apelido</label><input type="text" id="nickname_log" placeholder="Digite seu apelido" autocomplete="username" spellcheck="false" autocapitalize="none" required></div>
+        <div class="input-group"><label for="password_log">Sua senha</label><input type="password" id="password_log" placeholder="Digite sua senha" autocomplete="current-password" required></div>
+        <button class="primary-button submit-button" type="submit" id="btn_log">Entrar e jogar </button>
+        <p class="form-switch">Ainda não tem uma conta? <a href="/registrar">Cadastre-se</a></p>
+    </form></section>
+    </main><footer class="site-footer"><a class="footer-brand" href="/">Jump Sky<span>.</span></a><p>Aprender pode ser uma grande aventura.</p><small>Todos os direitos reservados à Universidade Cruzeiro do Sul.</small></footer><script src="/JS/config.js"></script><script src="/JS/audio.js"></script><script src="/JS/acessibilidade.js"></script><script src="/JS/login.js"></script></body></html>

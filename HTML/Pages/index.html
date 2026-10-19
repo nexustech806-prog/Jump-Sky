@@ -1,100 +1,43 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Início</title>
+    <meta name="description" content="Pule entre nuvens, descubra novos mundos e pratique matemática com Jump Sky.">
+    <meta name="theme-color" content="#292943">
+    <title>Início | Jump Sky</title>
     <link rel="stylesheet" href="/CSS/Style.css">
+    <link rel="stylesheet" href="/CSS/public-pages.css">
     <link rel="stylesheet" href="/CSS/acessibilidade.css">
 </head>
-<body>
-    <nav>
-        <div class="Menu">
-            <section class="Menu-Content">
-                <Span class="Game-Title"><a href="/">Jump Sky</a></Span>
-                <div class="Menu-Text">
-                <span><a href="/somando-nas-nuvens">Jogar </a></span>
-                <span><a href="/login"> Entrar</a> </span>
-                <span> <a href="/selecionar-avatar"> Registrar</a></span>
-                </div>
-            </section>
-        </div>
+<body class="public-page home-page"><a class="skip-link" href="#conteudo">Pular para o conteúdo</a>
+    <nav class="site-nav" aria-label="Navegação principal">
+        <a class="brand" href="/" aria-label="Jump Sky — início"> Jump<span>Sky</span></a>
+        <div class="nav-links"><a href="/somando-nas-nuvens">Jogar</a><a href="/login">Entrar</a><a class="nav-register" href="/registrar">Criar conta </a></div>
     </nav>
-
-    <header>
-        <div class="Container-First-Section">
-            <div class="Container-Card">
-                <div class="Container-Right">
-                    <div class="Container-Text">
-                        <h1>Veja nossos melhores jogadores no ranking do nosso site!!</h1>
-                        <button class="Button-Ranking">Clique aqui</button>
-                    </div>
-                </div>
+    <main id="conteudo">
+        <section class="hero page-width" aria-labelledby="hero-title">
+            <div class="hero-copy">
+                <p class="eyebrow"> APRENDA BRINCANDO</p>
+                <h1 id="hero-title">Aprenda e se divirta<br>com <span>Jump Sky.</span></h1>
+                <p class="lead">O céu é só o começo. Explore mundos, supere desafios e descubra um jeito mais divertido de aprender matemática.</p>
+                <div class="hero-actions"><a class="primary-button" href="/login">Jogar agora </a><a class="text-link" href="#como-jogar">Conheça a aventura </a></div>
             </div>
-            <div class="Container-Card">   
-                <div class="Container-Left">
-                    <div class="Container-Text">
-                        <h1>O melhor jeito de aprender a se divertir e contar!!</h1>
-                    </div>
-                    
-                </div>
+            <div class="hero-art">
+                <div class="art-frame"><img src="/images/Aventuras%20nas%20Ilhas%20do%20C%C3%A9u.png" alt="Mundo Jump Sky com ilhas flutuantes, nuvens e um aventureiro pronto para jogar" width="1672" height="941" fetchpriority="high"></div>
+
             </div>
-        </div>
-    </header>
-
-    <div class="Body-Content">
-        <div class="Game-Desc">
-            <p>Jump Sky é um jogo projetado para que pessoas de qualquer idade, possam aprender e interpretar contas de operadores básicos da matemática como subtração, adição, divisão e multiplicação, caso tenha interesse venha jogar conosco</p>  
-        </div>
-
-        <div class="call-action">
-            <span>Venha Jogar agora</span>
-            <a href="/login" class="button-call">Jogar Agora</a>
-        </div>
-
-    </div>
-
-    <div class="container-rank">
-    <section class="top-ranking">
-        <h2>Ranking de Jogadores</h2>
-        <p>Veja nossos melhores jogadores!</p>
-        
-        <div class="card-ranking">
-            <table>
-                <thead>
-                    <tr>
-                        <th class="table-title">Apelido</th>
-                        <th class="table-title">Pontuação</th>
-                        <th class="table-title">Data</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr>
-                        <td class="table-content">ShadowK</td>
-                        <td class="table-content">15.420</td>
-                        <td class="table-content">24/08/2026</td>
-                    </tr>
-                    <tr>
-                        <td class="table-content">PixelQueen</td>
-                        <td class="table-content">14.890</td>
-                        <td class="table-content">25/08/2026</td>
-                    </tr>
-                    <tr>
-                        <td class="table-content">Vortex</td>
-                        <td class="table-content">12.350</td>
-                        <td class="table-content">22/08/2026</td>
-                    </tr>
-                </tbody>
-            </table>
-        </div>
-    </section>
-</div>
-
-    <footer class="Footer-Conteiner">
-        <div class="Footer-Content">
-            <p class="copyright">Todos os direitos reservados a Universidade Cruzeiro do sul</p>
-        </div>
-    </footer>
-
-</body>
-</html>
+        </section>
+        <section class="learning-section page-width" id="como-jogar" aria-labelledby="learning-title">
+            <div class="section-heading"><div><p class="eyebrow">APRENDER BRINCANDO</p><h2 id="learning-title">Cada desafio, uma nova descoberta.</h2></div><p>Para todas as idades.<br>Para quem quer ir mais longe.</p></div>
+            <div class="feature-grid">
+                <article class="feature-card"><span class="feature-number">01 / EXPLORE</span><h3>Um mundo de possibilidades</h3><p>Das nuvens ao vulcão, descubra cenários e avance pelas fases da sua jornada.</p></article>
+                <article class="feature-card"><span class="feature-number">02 / APRENDA</span><h3>Matemática em movimento</h3><p>Pratique adição, subtração, multiplicação e divisão enquanto se diverte.</p></article>
+                <article class="feature-card"><span class="feature-number">03 / SUPERE-SE</span><h3>Seu próximo grande salto</h3><p>Escolha seu personagem, enfrente os desafios e continue a sua aventura.</p></article>
+            </div>
+        </section>
+        <section class="ranking-section page-width" id="ranking" aria-labelledby="ranking-title">
+            <div class="ranking-copy"><p class="eyebrow">LÁ NO ALTO</p><h2 id="ranking-title">Ranking de jogadores</h2><p>Uma dose de inspiração para a sua próxima aventura. Quem sabe seu apelido não é o próximo por aqui?</p><a class="text-link" href="/registrar">Começar minha jornada </a></div>
+            <div class="ranking-panel"><div class="ranking-header"><h3>Ranking de jogadores</h3><span>Demonstrativo</span></div><p class="ranking-note">Pontuações ilustrativas da comunidade Jump Sky.</p><div class="table-scroll"><table><caption class="sr-only">Exemplo de ranking de jogadores</caption><thead><tr><th scope="col">Jogador</th><th scope="col">Pontuação</th><th scope="col">Data</th></tr></thead><tbody><tr><td><span class="rank-position first">01</span> ShadowK</td><td>15.420</td><td>24/08/2026</td></tr><tr><td><span class="rank-position">02</span> PixelQueen</td><td>14.890</td><td>25/08/2026</td></tr><tr><td><span class="rank-position">03</span> Vortex</td><td>12.350</td><td>22/08/2026</td></tr></tbody></table></div></div>
+        </section>
+    </main><footer class="site-footer"><a class="footer-brand" href="/">Jump Sky<span>.</span></a><p>Aprender pode ser uma grande aventura.</p><small>Todos os direitos reservados à Universidade Cruzeiro do Sul.</small></footer><script src="/JS/acessibilidade.js"></script></body></html>

@@ -1,63 +1,27 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Registrar-se</title>
+    <meta name="description" content="Seu primeiro salto começa aqui.">
+    <meta name="theme-color" content="#292943">
+    <title>Cadastro | Jump Sky</title>
     <link rel="stylesheet" href="/CSS/Style.css">
+    <link rel="stylesheet" href="/CSS/public-pages.css">
     <link rel="stylesheet" href="/CSS/acessibilidade.css">
 </head>
-<body>
-    <nav>
-        <div class="Menu">
-            <section class="Menu-Content">
-                <Span class="Game-Title"><a href="/">Jump Sky</a></Span>
-                <div class="Menu-Text">
-                <span><a href="/somando-nas-nuvens">Jogar </a></span>
-                <span><a href="/login"> Entrar</a> </span>
-                <span> <a href="/registrar"> Registrar</a></span>
-                </div>
-            </section>
-        </div>
+<body class="public-page auth-page"><a class="skip-link" href="#conteudo">Pular para o conteúdo</a>
+    <nav class="site-nav" aria-label="Navegação principal">
+        <a class="brand" href="/" aria-label="Jump Sky — início"> Jump<span>Sky</span></a>
+        <div class="nav-links"><a href="/somando-nas-nuvens">Jogar</a><a href="/login">Entrar</a><a class="nav-register" href="/registrar" aria-current="page">Criar conta </a></div>
     </nav>
-
-    <div class="container-login-register">
-        <section class="container-forms">
-            <form onsubmit="createUser(event)">
-                
-                <div class="input-group">
-                    <label>Crie um apelido</label>
-                    <p id="apelidoEscolhido">Escolha um dos apelidos abaixo:</p>
-                    <div id="nomesSugeridos"></div>
-                    <span id="Dice_Name">🎲 Gerar novas opções</span>
-                    <input type="hidden" id="login_reg" value="">
-                </div>
-
-                <div class="input-group">
-                    <label>Crie uma senha</label>
-                    <input type="password" id="password_reg" placeholder="Digite sua senha aqui">
-                </div>
-                <div class="input-group">
-                    <label>Confirme sua senha</label>
-                    <input type="password" id="confirm_password_reg" placeholder="Digite sua senha aqui">
-                </div>
-                <div class="btn-group">
-                    <label>Aperte para se registrar</label>
-                    <button type="submit" id="bttn_reg">Registrar-se</button>
-                </div>
-
-                <div class="link-group">
-                    <p>Já é cadastrado?</p>
-                    <a href="/login">Faça login aqui</a>
-                </div>
-
-            </form>
-        </section>
-    </div> 
-    
-    <script src="/JS/config.js"></script>
-    <script src="/JS/audio.js"></script>
-    <script src="/JS/acessibilidade.js"></script>
-    <script src="/JS/register.js"></script>
-</body>
-</html>    
+    <main class="auth-layout page-width" id="conteudo">
+        <section class="auth-story" aria-labelledby="story-title"><p class="eyebrow">MATEMÁTICA. DIVERSÃO. AVENTURA.</p><h1 id="story-title">Comece sua aventura.</h1><p>Explore novos mundos e transforme cada desafio em uma chance de aprender.</p><div class="auth-illustration"><img src="/images/Aventuras%20nas%20Ilhas%20do%20C%C3%A9u.png" alt="Ilhas flutuantes do universo Jump Sky" width="1672" height="941"></div></section>
+        <section class="auth-card" aria-labelledby="form-title"><a class="back-link" href="/">← Voltar ao início</a><div class="form-heading"><p class="eyebrow">Seu primeiro salto começa aqui.</p><h2 id="form-title">Crie sua conta</h2><p>Escolha um apelido e prepare-se para explorar.</p></div><form onsubmit="createUser(event)">
+        <div class="input-group"><label id="nickname-label">Escolha seu apelido</label><p class="field-hint" id="apelidoEscolhido" aria-live="polite">Escolha um dos apelidos abaixo:</p><div id="nomesSugeridos" role="group" aria-labelledby="nickname-label"></div><button type="button" id="Dice_Name">⤨ Gerar novas opções</button><input type="hidden" id="login_reg" value=""></div>
+        <div class="input-group"><label for="password_reg">Crie uma senha</label><input type="password" id="password_reg" placeholder="Digite sua senha" autocomplete="new-password" required></div>
+        <div class="input-group"><label for="confirm_password_reg">Confirme sua senha</label><input type="password" id="confirm_password_reg" placeholder="Repita sua senha" autocomplete="new-password" required></div>
+        <button class="primary-button submit-button" type="submit" id="bttn_reg" disabled>Criar conta </button>
+        <p class="form-switch">Já tem uma conta? <a href="/login">Entre aqui</a></p>
+    </form></section>
+    </main><footer class="site-footer"><a class="footer-brand" href="/">Jump Sky<span>.</span></a><p>Aprender pode ser uma grande aventura.</p><small>Todos os direitos reservados à Universidade Cruzeiro do Sul.</small></footer><script src="/JS/config.js"></script><script src="/JS/audio.js"></script><script src="/JS/acessibilidade.js"></script><script src="/JS/register.js"></script></body></html>

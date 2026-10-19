@@ -63,15 +63,18 @@ function gerarNome() {
     botao.type = "button";
     botao.textContent = nome;
     botao.classList.add("nome-sugestao-btn");
+    botao.setAttribute("aria-pressed", "false");
 
     botao.addEventListener("click", () => {
       document.getElementById("login_reg").value = nome;
 
       // marca visualmente qual foi escolhido
-      container.querySelectorAll(".nome-sugestao-btn").forEach(b =>
-        b.classList.remove("selecionado")
-      );
+      container.querySelectorAll(".nome-sugestao-btn").forEach(b => {
+        b.classList.remove("selecionado");
+        b.setAttribute("aria-pressed", "false");
+      });
       botao.classList.add("selecionado");
+      botao.setAttribute("aria-pressed", "true");
 
       if (apelidoEscolhidoTexto) {
         apelidoEscolhidoTexto.textContent = `Apelido escolhido: ${nome}`;

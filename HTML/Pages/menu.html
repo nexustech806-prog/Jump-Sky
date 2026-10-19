@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Menu</title>
     <link rel="stylesheet" href="/CSS/Style.css">
+    <link rel="stylesheet" href="/CSS/public-pages.css">
     <link rel="stylesheet" href="/CSS/acessibilidade.css">
     <link rel="stylesheet" href="/CSS/audio-settings.css">
 
@@ -20,36 +21,41 @@
     <link rel="preload" as="image" href="/images/fase-5-colorida.png">
     <link rel="preload" as="image" href="/images/fase-5-bloqueada.png">
 </head>
-<body>
-    <nav>
-        <div class="Menu">
-            <section class="Menu-Content">
-                <span class="Game-Title"><a href="/">Jump Sky</a></span>
-                <div class="Menu-Text">
-                    <span><a href="/somando-nas-nuvens">Jogar </a></span>
-                    <span><a href="/login"> Entrar</a> </span>
-                    <span> <a href="/registrar"> Registrar</a></span>
-                </div>
-            </section>
+<body class="public-page journey-page">
+    <a class="skip-link" href="#conteudo">Pular para o conte&#250;do</a>
+    <nav class="site-nav" aria-label="Navega&#231;&#227;o principal">
+        <a class="brand" href="/" aria-label="Jump Sky - in&#237;cio">Jump<span>Sky</span></a>
+        <div class="nav-links">
+            <a href="/menu" aria-current="page">Fases</a>
+            <a href="/aprendendo-a-jogar">Como jogar</a>
         </div>
     </nav>
 
-    <main class="menu-container">
+    <main class="menu-container page-width" id="conteudo">
+        <div class="journey-heading"><div><p class="eyebrow">SUA AVENTURA</p><h1>Escolha sua pr&#243;xima fase</h1><p>Avance pelos desafios para desbloquear novos mundos.</p></div></div>
         <div class="menu-card">
 
             <section class="game-floor" aria-label="Fases do jogo">
-
-                <!-- Botões de ação -->
                 <div class="menu-actions">
                     <a class="menu-action" href="/aprendendo-a-jogar">
-                        <span class="menu-action__icone" aria-hidden="true">📖</span>
+                        <svg class="menu-action__symbol" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">
+                            <path d="M12 5v15M12 5C9 3 5 3 2 4v15c3-1 7-1 10 1 3-2 7-2 10-1V4c-3-1-7-1-10 1Z"/>
+                            <path d="M5 8h3M5 12h3M16 8h3M16 12h3"/>
+                        </svg>
                         <span class="menu-action__texto">Tutorial</span>
                     </a>
                     <button type="button" class="menu-action" id="abrirConfig" aria-haspopup="dialog">
-                        <span class="menu-action__icone" aria-hidden="true">⚙️</span>
+                        <svg class="menu-action__symbol" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">
+                            <path d="m9.5 3-.6 2.2-1.4.8-2.2-.6-2.5 4.3L4.4 11v2L2.8 14.3l2.5 4.3 2.2-.6 1.4.8.6 2.2h5l.6-2.2 1.4-.8 2.2.6 2.5-4.3-1.6-1.3v-2l1.6-1.3-2.5-4.3-2.2.6-1.4-.8-.6-2.2Z"/>
+                            <circle cx="12" cy="12" r="3"/>
+                        </svg>
                         <span class="menu-action__texto">Configurações</span>
                     </button>
                 </div>
+
+
+                <!-- Botões de ação -->
+
 
                 <!-- Fases -->
                 <a class="card-floor fase-1" href="/somando-nas-nuvens" data-fase="1">
@@ -88,7 +94,7 @@
                     <h3>Acessibilidade</h3>
 
                     <div class="option-item">
-                        <label for="fonteAmpliada">Tamanho da fonte</label>
+                        <span>Tamanho da fonte</span>
                         <div class="font-controls">
                             <button type="button" id="diminuirFonte" aria-label="Diminuir fonte">A-</button>
                             <span id="fontePercentual">100%</span>
@@ -110,6 +116,8 @@
 
         </div>
     </main>
+
+    <footer class="site-footer"><a class="footer-brand" href="/">Jump Sky</a><p>Aprender pode ser uma grande aventura.</p></footer>
 
     <script src="/JS/brightness.js"></script>
     <script src="/JS/config.js"></script>
