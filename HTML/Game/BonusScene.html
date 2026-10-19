@@ -10,9 +10,10 @@
     <link rel="stylesheet" href="/CSS/styleBonus.css">
     <link rel="stylesheet" href="/CSS/acessibilidade.css">
     <link rel="stylesheet" href="/CSS/audio-settings.css">
+    <link rel="stylesheet" href="/CSS/instruction-audio.css">
 </head>
 
-<body data-game-phase>
+<body data-game-phase data-phase="bonus">
     <!-- Configurações -->
 <div class="game-settings">
 
@@ -49,6 +50,12 @@
         <p class="subtitle">
             Resolva as operações antes que o tempo acabe e tente chegar o mais longe possível!
         </p>
+
+        
+        <div class="instruction-audio">
+            <button id="playInstructions" class="instruction-audio__button" type="button" aria-describedby="instructionAudioStatus">🔊 Ouvir instruções</button>
+            <span id="instructionAudioStatus" class="instruction-audio__status" role="status" aria-live="polite"></span>
+        </div>
 
         <div class="stats">
             <div class="stat">❤️ Vidas: <span id="lives">3</span></div>
@@ -130,6 +137,7 @@
     <script src="/JS/config.js"></script>
     <script src="/JS/avatar.js"></script>
     <script src="/JS/audio.js"></script>
+    <script src="/JS/instruction-audio.js"></script>
     <script src="/JS/problems.js"></script>
     <script src="/JS/acessibilidade.js"></script>
     <script src="/JS/brightness.js"></script>

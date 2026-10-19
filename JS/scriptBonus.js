@@ -382,6 +382,34 @@ function pararTimer() {
     }
 }
 
+let timerPausedForInstructions = false;
+
+function resumeTimerWithoutReset() {
+    if (intervaloTimer || jogoFinalizado || bloqueado) return;
+    intervaloTimer = setInterval(() => {
+        tempoRestante--;
+        timerElement.textContent = tempoRestante;
+        if (tempoRestante <= 0) {
+            pararTimer();
+            tempoEsgotado();
+        }
+    }, 1000);
+}
+
+document.addEventListener("instructionaudio:start", () => {
+    if (!jogoFinalizado && !bloqueado && intervaloTimer) {
+        pararTimer();
+        timerPausedForInstructions = true;
+    }
+});
+
+document.addEventListener("instructionaudio:end", () => {
+    if (timerPausedForInstructions && !jogoFinalizado && !bloqueado) {
+        timerPausedForInstructions = false;
+        resumeTimerWithoutReset();
+    }
+});
+
 
 // ========================================
 // TEMPO ESGOTADO
