@@ -2,6 +2,28 @@ const proximoApelido = JumpSkyNomes.criarGerador();
 let gerandoNomes = false;
 let cadastrando = false;
 
+async function solicitarJSON(url, options) {
+  const controller = new AbortController();
+  let timer;
+  try {
+    return await Promise.race([
+      (async () => {
+        const resposta = await fetch(url, { ...options, signal: controller.signal });
+        const dados = await resposta.json();
+        return { resposta, dados };
+      })(),
+      new Promise((resolve, reject) => {
+        timer = setTimeout(() => {
+          controller.abort();
+          reject(Object.assign(new Error('Tempo de resposta excedido'), { name: 'TimeoutError' }));
+        }, 15000);
+      })
+    ]);
+  } finally {
+    clearTimeout(timer);
+  }
+}
+
 function atualizarBotaoContinuar() {
   document.getElementById('bttn_reg').disabled = gerandoNomes || cadastrando || !document.getElementById('login_reg').value;
 }
@@ -28,13 +50,12 @@ async function gerarNome() {
         candidates.push(nome);
       }
       if (!candidates.length) break;
-      const resposta = await fetch(`${API_URL}/api/nicknames/available`, {
+      const { resposta, dados } = await solicitarJSON(`${API_URL}/api/nicknames/available`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ candidates })
       });
       if (!resposta.ok) throw new Error('Falha ao consultar apelidos');
-      const dados = await resposta.json();
       if (!Array.isArray(dados.available)) throw new Error('Resposta inesperada');
       nomes.push(...candidates.filter(nome => dados.available.includes(nome)).slice(0, 3 - nomes.length));
     }
@@ -99,10 +120,14 @@ async function createUser(event) {
   const avatarEscolhido = 'Personagem.png';
 
   cadastrando = true;
+  const statusCadastro = document.getElementById('statusCadastro');
+  const botaoCadastro = document.getElementById('bttn_reg');
+  statusCadastro.textContent = 'Criando sua conta...';
+  botaoCadastro.textContent = 'Criando conta...';
   atualizarBotaoContinuar();
   document.getElementById('Dice_Name').disabled = true;
   try {
-    const answer = await fetch(`${API_URL}/register`, {
+    const { resposta: answer, dados: result } = await solicitarJSON(`${API_URL}/register`, {
       method: 'POST',
       credentials: 'include',
       headers: { 'Content-Type': 'application/json' },
@@ -113,24 +138,25 @@ async function createUser(event) {
       })
     });
 
-    const result = await answer.json();
-
     if (answer.ok) {
+      statusCadastro.textContent = 'Conta criada! Escolha seu personagem.';
       localStorage.removeItem('avatarSelecionado');
       alert('Usuário cadastrado com sucesso!');
       window.location.href = "/selecionar-avatar";
     } else if (answer.status === 409) {
+      statusCadastro.textContent = 'Escolha um novo apelido para continuar.';
       alert('Esse apelido acabou de ser escolhido. Escolha outro para continuar.');
       cadastrando = false;
       await gerarNome();
     } else {
-      alert('Erro: ' + (result.erro || result.mensagem));
+      statusCadastro.textContent = result.mensagem || 'Não foi possível criar a conta. Tente novamente.';
     }
   } catch (error) {
     console.error('Erro de conexão com o servidor:', error);
-    alert('Não foi possível conectar ao servidor.');
+    statusCadastro.textContent = 'Não conseguimos confirmar o cadastro. Tente entrar com este apelido e senha antes de cadastrar novamente.';
   } finally {
     cadastrando = false;
+    botaoCadastro.textContent = 'Criar conta';
     document.getElementById('Dice_Name').disabled = false;
     atualizarBotaoContinuar();
   }

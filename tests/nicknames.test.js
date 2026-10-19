@@ -77,14 +77,21 @@ test('availability failures are retryable and never report names as available', 
   assert.equal(res.body.available, undefined);
 });
 
-test('simultaneous registrations return a conflict for the losing insert', async () => {
+test('simultaneous registrations share index creation and reject the losing insert without Model.init', async () => {
   let saved = false;
   let indexChecks = 0;
   class User {
     constructor(data) { Object.assign(this, data); this._id = 'user-id'; }
     static async findOne() { return null; }
-    static async init() { indexChecks++; }
+    static collection = { createIndex: async (key, options) => {
+      assert.equal(key.registrationNickname, 1);
+      assert.equal(options.unique, true);
+      assert.equal(options.sparse, true);
+      indexChecks++;
+    } };
+    static init() { throw new Error('Model.init must not block registration'); }
     async save() {
+      assert.equal(this.registrationNickname, this.nickname);
       if (saved) throw Object.assign(new Error('duplicate'), { code: 11000 });
       saved = true;
     }
@@ -95,24 +102,57 @@ test('simultaneous registrations return a conflict for the losing insert', async
   await Promise.all([routes.get('/register')(req, first), routes.get('/register')(req, second)]);
   assert.equal(first.code, 201);
   assert.equal(second.code, 409);
-  assert.equal(indexChecks, 2);
+  assert.equal(indexChecks, 1);
 });
 
-test('user schema declares a unique nickname index', () => {
+test('index creation failures respond with 503 and can be retried', async () => {
+  let attempts = 0;
+  class User {
+    constructor(data) { Object.assign(this, data); }
+    static async findOne() { return null; }
+    static collection = { createIndex: async () => {
+      if (++attempts === 1) throw Object.assign(new Error('existing duplicates'), { code: 11000 });
+    } };
+    async save() {}
+  }
+  const routes = serverWith(User);
+  const req = { body: { nickname: 'PandaPipoca07', password: 'test-password' } };
+  const first = response(), second = response();
+  await routes.get('/register')(req, first);
+  assert.equal(first.code, 503);
+  await routes.get('/register')(req, second);
+  assert.equal(second.code, 201);
+  assert.equal(attempts, 2);
+});
+
+test('new registration keys have a sparse unique index that tolerates legacy nicknames', () => {
   const User = require('../Schema/User');
-  assert.ok(User.schema.indexes().some(([keys, options]) => keys.nickname === 1 && options.unique));
+  assert.ok(User.schema.indexes().some(([keys, options]) => keys.registrationNickname === 1 && options.unique && options.sparse));
+  assert.ok(!User.schema.indexes().some(([keys]) => keys.nickname === 1));
 });
 
-function registrationScreen(fetch) {
+test('legacy nicknames remain unavailable even without a registration key', async () => {
+  class User {
+    static async findOne() { return { nickname: 'PandaPipoca07' }; }
+    static collection = { createIndex() { throw new Error('should not reach index creation'); } };
+  }
+  const routes = serverWith(User);
+  const res = response();
+  await routes.get('/register')({ body: { nickname: 'PandaPipoca07', password: 'test-password' } }, res);
+  assert.equal(res.code, 409);
+});
+
+function registrationScreen(fetch, timers = { setTimeout, clearTimeout }) {
   function element() {
     return { value: '', disabled: false, children: [], attrs: {}, events: {},
       classList: { add() {}, remove() {} }, setAttribute(k, v) { this.attrs[k] = v; },
       addEventListener(k, v) { this.events[k] = v; }, replaceChildren() { this.children = []; },
       appendChild(child) { this.children.push(child); }, querySelectorAll() { return this.children; } };
   }
-  const ids = Object.fromEntries(['bttn_reg', 'login_reg', 'nomesSugeridos', 'apelidoEscolhido', 'Dice_Name', 'password_reg', 'confirm_password_reg'].map(id => [id, element()]));
+  const ids = Object.fromEntries(['bttn_reg', 'login_reg', 'nomesSugeridos', 'apelidoEscolhido', 'Dice_Name', 'password_reg', 'confirm_password_reg', 'statusCadastro'].map(id => [id, element()]));
   const context = vm.createContext({
-    JumpSkyNomes: nomes, API_URL: '', fetch, console, alert() {},
+    JumpSkyNomes: nomes, API_URL: '', fetch, console, alert() {}, AbortController,
+    setTimeout: timers.setTimeout, clearTimeout: timers.clearTimeout,
     document: { getElementById: id => ids[id], createElement: element, addEventListener() {} }
   });
   vm.runInContext(fs.readFileSync(path.resolve(__dirname, '../JS/register.js'), 'utf8'), context);
@@ -156,4 +196,40 @@ test('a registration conflict offers new names and requires another selection', 
   assert.equal(ids.nomesSugeridos.children.length, 3);
   assert.equal(ids.bttn_reg.disabled, true);
   assert.equal(ids.Dice_Name.disabled, false);
+});
+
+test('a pending registration times out, aborts, and unlocks the screen without changing the nickname', async () => {
+  let expire;
+  let signal;
+  const { ids, context } = registrationScreen(async (url, options) => {
+    signal = options.signal;
+    return new Promise(() => {});
+  }, { setTimeout(callback) { expire = callback; return 1; }, clearTimeout() {} });
+  ids.login_reg.value = 'PandaPipoca07';
+  ids.password_reg.value = ids.confirm_password_reg.value = 'test-password';
+  const pending = vm.runInContext('createUser({preventDefault(){}})', context);
+  assert.equal(ids.bttn_reg.disabled, true);
+  assert.equal(ids.Dice_Name.disabled, true);
+  assert.equal(ids.bttn_reg.textContent, 'Criando conta...');
+  expire();
+  await pending;
+  assert.equal(signal.aborted, true);
+  assert.equal(ids.bttn_reg.disabled, false);
+  assert.equal(ids.Dice_Name.disabled, false);
+  assert.equal(ids.login_reg.value, 'PandaPipoca07');
+  assert.match(ids.statusCadastro.textContent, /confirmar o cadastro/);
+});
+
+test('a response with a pending JSON body also times out', async () => {
+  let expire;
+  const { ids, context } = registrationScreen(async () => ({ json: () => new Promise(() => {}) }), {
+    setTimeout(callback) { expire = callback; return 1; }, clearTimeout() {}
+  });
+  ids.login_reg.value = 'PandaPipoca07';
+  ids.password_reg.value = ids.confirm_password_reg.value = 'test-password';
+  const pending = vm.runInContext('createUser({preventDefault(){}})', context);
+  await Promise.resolve();
+  expire();
+  await pending;
+  assert.equal(ids.bttn_reg.disabled, false);
 });

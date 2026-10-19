@@ -31,21 +31,41 @@ app.use("/images", express.static(path.join(__dirname, "images")));
 app.use("/audio", express.static(path.join(__dirname, "audio")));
 
 
-let isConnected = false;
+let connecting;
 async function connectDB() {
-    if (isConnected) return;
-    try {
-        await mongoose.connect(process.env.MONGO_URI);
-        isConnected = true;
-        console.log('Conectado ao MongoDB com sucesso!');
-    } catch (err) {
-        console.log('Erro ao conectar:', err);
+    if (mongoose.connection.readyState === 1) return;
+    if (!connecting) {
+        connecting = mongoose.connect(process.env.MONGO_URI, {
+            serverSelectionTimeoutMS: 5000,
+            connectTimeoutMS: 5000,
+            socketTimeoutMS: 10000
+        }).finally(() => { connecting = null; });
     }
+    await connecting;
 }
 app.use(async (req, res, next) => {
-    await connectDB();
-    next();
+    try {
+        await connectDB();
+        next();
+    } catch (error) {
+        return res.status(503).json({ mensagem: 'Banco de dados indisponível. Tente novamente em instantes.' });
+    }
 });
+
+let nicknameIndex;
+async function ensureNicknameIndex() {
+    if (!nicknameIndex) {
+        // Use the connected collection directly instead of waiting for Model.init(),
+        // which also waits for automatic collection creation and unrelated indexes.
+        nicknameIndex = User.collection.createIndex({ registrationNickname: 1 }, { unique: true, sparse: true, maxTimeMS: 5000 });
+    }
+    try {
+        await nicknameIndex;
+    } catch (error) {
+        nicknameIndex = null;
+        throw Object.assign(new Error('Nickname index unavailable'), { code: 'NICKNAME_INDEX_UNAVAILABLE' });
+    }
+}
 
 
 function verificarToken(req, res, next) {
@@ -149,11 +169,11 @@ app.post('/register', async (req, res) => {
 
         const newUser = new User({
             nickname,
+            registrationNickname: nickname,
             password: hashedPassword,
             avatar: normalizeSavedAvatar(avatar) 
         });
-        // Wait for the unique index before accepting accounts, including simultaneous requests.
-        await User.init();
+        await ensureNicknameIndex();
         await newUser.save();
 
         await SaveData.create({
@@ -171,6 +191,9 @@ app.post('/register', async (req, res) => {
 
         return res.status(201).json({ mensagem: 'Usuario criado com sucesso!' });
     } catch (error) {
+        if (error.code === 'NICKNAME_INDEX_UNAVAILABLE') {
+            return res.status(503).json({ mensagem: 'Não foi possível preparar o cadastro. Tente novamente em instantes.' });
+        }
         if (error.code === 11000) {
             return res.status(409).json({ mensagem: 'Esse apelido acabou de ser escolhido. Vamos buscar outras opções!' });
         }
