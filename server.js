@@ -1,4 +1,8 @@
 require('dotenv').config();
+// Optional DNS override for networks that reject MongoDB Atlas SRV queries.
+if (process.env.DNS_SERVERS) {
+    require('dns').setServers(process.env.DNS_SERVERS.split(',').map(server => server.trim()).filter(Boolean));
+}
 const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
@@ -11,6 +15,7 @@ const nomesComuns = require('./nomesComuns.json');
 const sobrenomesComuns = require('./sobrenomesComuns.json');
 const bcrypt = require('bcryptjs');
 const nicknames = require('./JS/nicknames');
+const { createPhaseChallenge, createBonusChallenge, verifyChallenge } = require('./lib/game-challenges');
 
 const VALID_AVATARS = ['Personagem.png', 'personagem2.png', 'personagem3.png', 'personagem4.png'];
 function normalizeSavedAvatar(value) {
@@ -43,14 +48,48 @@ async function connectDB() {
     }
     await connecting;
 }
-app.use(async (req, res, next) => {
+async function requireDatabase(req, res, next) {
     try {
         await connectDB();
         next();
     } catch (error) {
         return res.status(503).json({ mensagem: 'Banco de dados indisponível. Tente novamente em instantes.' });
     }
-});
+}
+
+// Upserting also repairs accounts left without a save by an interrupted registration.
+async function ensureSaveForUser(userId) {
+    // Preserve legacy documents, whose generated save _id differs from the account id.
+    const existingSave = await SaveData.findOne({ userId });
+    if (existingSave) return existingSave;
+    try {
+        return await SaveData.findOneAndUpdate(
+            // The collection's existing unique _id index serializes concurrent repairs;
+            // no new userId index or migration of historical saves is required.
+            { _id: userId, userId },
+            { $setOnInsert: { saveProgress: 1, phase4Completed: false, bonusHighScore: 0 } },
+            { upsert: true, new: true, runValidators: true, setDefaultsOnInsert: true }
+        );
+    } catch (error) {
+        // Another request may have created the same user's save concurrently.
+        if (error.code === 11000) {
+            const save = await SaveData.findOne({ userId });
+            if (save) return save;
+        }
+        throw error;
+    }
+}
+
+function normalizedProgress(save) {
+    return Math.min(5, Math.max(1, Number(save && save.saveProgress) || 1));
+}
+
+function verifySession(token) {
+    const payload = jwt.verify(token, process.env.JWT_SECRET, { algorithms: ['HS256'] });
+    // Keep existing session cookies valid, but never accept a game challenge as a session.
+    if (!payload.userId || (payload.purpose && payload.purpose !== 'session')) throw new Error('Invalid session');
+    return payload;
+}
 
 let nicknameIndex;
 async function ensureNicknameIndex() {
@@ -76,7 +115,7 @@ function verificarToken(req, res, next) {
     }
 
     try {
-        const payload = jwt.verify(token, process.env.JWT_SECRET);
+        const payload = verifySession(token);
         req.userId = payload.userId; 
         next();
     } catch (error) {
@@ -93,7 +132,7 @@ function verificarTokenPagina(req, res, next) {
     }
 
     try {
-        const payload = jwt.verify(token, process.env.JWT_SECRET);
+        const payload = verifySession(token);
         req.userId = payload.userId;
         next();
     } catch (error) {
@@ -126,11 +165,11 @@ app.get('/menu', (req, res) => {
     res.sendFile(path.join(__dirname, 'HTML/Pages/menu.html'));
 });
 
-app.get('/selecionar-avatar', (req, res) => {
+app.get('/selecionar-avatar', verificarTokenPagina, (req, res) => {
     res.sendFile(path.join(__dirname, 'HTML/Pages/SelecionarAvatar.html'));
 });
 
-app.post('/api/nicknames/available', async (req, res) => {
+app.post('/api/nicknames/available', requireDatabase, async (req, res) => {
     const candidates = req.body && req.body.candidates;
     if (!Array.isArray(candidates) || candidates.length > 12 || !candidates.length || !candidates.every(nicknames.valido)) {
         return res.status(400).json({ mensagem: 'Escolha uma das sugestões de apelido.' });
@@ -145,12 +184,17 @@ app.post('/api/nicknames/available', async (req, res) => {
     }
 });
 
-app.post('/register', async (req, res) => {
+app.post('/register', requireDatabase, async (req, res) => {
+    let createdUserId;
     try {
         const { nickname, password, avatar } = req.body; 
 
         if (!nicknames.valido(nickname) || typeof password !== 'string' || !password.length) {
             return res.status(400).json({ mensagem: 'Escolha um apelido sugerido e preencha sua senha.' });
+        }
+
+        if (Buffer.byteLength(password, 'utf8') > 72) {
+            return res.status(400).json({ mensagem: 'Escolha uma senha com até 72 bytes (letras com acento podem ocupar mais espaço).' });
         }
 
         if (contemNomeReal(nickname)) {
@@ -173,15 +217,18 @@ app.post('/register', async (req, res) => {
             password: hashedPassword,
             avatar: normalizeSavedAvatar(avatar) 
         });
+        // Signing can fail on missing configuration; do that before persisting either document.
+        const token = jwt.sign({ purpose: 'session', userId: newUser._id }, process.env.JWT_SECRET, { expiresIn: '2h', algorithm: 'HS256' });
         await ensureNicknameIndex();
         await newUser.save();
+        createdUserId = newUser._id;
 
         await SaveData.create({
+            _id: newUser._id,
             userId: newUser._id,
             saveProgress: 1
         });
 
-        const token = jwt.sign({ userId: newUser._id }, process.env.JWT_SECRET, { expiresIn: '2h' });
         res.cookie('token', token, {
             httpOnly: true,
             secure: true,
@@ -191,6 +238,14 @@ app.post('/register', async (req, res) => {
 
         return res.status(201).json({ mensagem: 'Usuario criado com sucesso!' });
     } catch (error) {
+        if (createdUserId) {
+            // Compensate without requiring a replica set. If the database is unreachable,
+            // login and phase loading will repair the save when it becomes available.
+            await Promise.allSettled([
+                SaveData.deleteOne({ userId: createdUserId }),
+                User.deleteOne({ _id: createdUserId })
+            ]);
+        }
         if (error.code === 'NICKNAME_INDEX_UNAVAILABLE') {
             return res.status(503).json({ mensagem: 'Não foi possível preparar o cadastro. Tente novamente em instantes.' });
         }
@@ -202,42 +257,15 @@ app.post('/register', async (req, res) => {
     }
 });
 
-const AVATARES_VALIDOS = [
-    'personagem.png',
-    'personagem2.png',
-    'personagem3.png',
-    'personagem4.png',
-];
-
-app.put('/api/avatar', verificarToken, async (req, res) => {
-    try {
-        const { avatar } = req.body;
-
-        if (typeof avatar !== 'string' || !AVATARES_VALIDOS.includes(avatar)) {
-            return res.status(400).json({ mensagem: 'Avatar inválido' });
-        }
-
-        const user = await User.findByIdAndUpdate(
-            req.userId,
-            { avatar },
-            { new: true }
-        );
-
-        if (!user) {
-            return res.status(404).json({ mensagem: 'Usuário não encontrado' });
-        }
-
-        return res.status(200).json({ avatar: user.avatar });
-    } catch (error) {
-        console.error('Erro ao salvar avatar:', error.message);
-        return res.status(500).json({ mensagem: 'Erro ao salvar avatar' });
-    }
-});
 
 // ===== LOGIN =====
-app.post('/login', async (req, res) => {
+app.post('/login', requireDatabase, async (req, res) => {
     try {
         const { nickname, password } = req.body;
+
+        if (typeof nickname !== 'string' || !nickname.trim() || typeof password !== 'string' || !password.length) {
+            return res.status(400).json({ mensagem: 'Preencha seu apelido e sua senha.' });
+        }
 
         const user = await User.findOne({ nickname });
         if (!user) {
@@ -249,11 +277,13 @@ app.post('/login', async (req, res) => {
             return res.status(401).json({ mensagem: 'Senha incorreta!' });
         }
 
+        await ensureSaveForUser(user._id);
+
         // gera o token
         const token = jwt.sign(
-            { userId: user._id },
+            { purpose: 'session', userId: user._id },
             process.env.JWT_SECRET,
-            { expiresIn: '2h' }
+            { expiresIn: '2h', algorithm: 'HS256' }
         );
 
         
@@ -290,7 +320,18 @@ app.get('/aprendendo-a-jogar', verificarTokenPagina, (req, res) => {
     res.sendFile(path.join(__dirname, 'HTML/Pages/tutorial.html'));
 });
 
-app.get('/:slug', verificarTokenPagina, async (req, res, next) => {
+app.get('/jogar', verificarTokenPagina, requireDatabase, async (req, res) => {
+    try {
+        const save = await SaveData.findOne({ userId: req.userId });
+        const numero = Math.min(5, Math.max(1, Number(save?.saveProgress) || 1));
+        const slug = Object.keys(fasesConfig).find(key => fasesConfig[key].numero === numero);
+        return res.redirect(`/${slug}`);
+    } catch (error) {
+        return res.redirect('/menu');
+    }
+});
+
+app.get('/:slug', (req, res, next) => fasesConfig[req.params.slug] ? next() : next('route'), verificarTokenPagina, requireDatabase, async (req, res, next) => {
     const config = fasesConfig[req.params.slug];
 
   
@@ -299,15 +340,13 @@ app.get('/:slug', verificarTokenPagina, async (req, res, next) => {
     }
 
     try {
-        const save = await SaveData.findOne({ userId: new mongoose.Types.ObjectId(req.userId) });
-        if (!save) {
-            return res.redirect('/login');
-        }
+        const save = await ensureSaveForUser(req.userId);
+        const progress = normalizedProgress(save);
 
-        if (config.numero > save.saveProgress) {
+        if (config.numero > progress) {
      
             const slugValido = Object.keys(fasesConfig).find(
-                key => fasesConfig[key].numero === save.saveProgress
+                key => fasesConfig[key].numero === progress
             );
             return res.redirect(`/${slugValido}`);
         }
@@ -319,17 +358,18 @@ app.get('/:slug', verificarTokenPagina, async (req, res, next) => {
 });
 
 
-app.get('/api/save', verificarToken, async (req, res) => {
+app.get('/api/save', verificarToken, requireDatabase, async (req, res) => {
     try {
-        const save = await SaveData.findOne({ userId: new mongoose.Types.ObjectId(req.userId) });
-        if (!save) {
-            return res.status(404).json({ mensagem: 'Save não encontrado' });
-        }
-
         const user = await User.findById(req.userId);
 
+        if (!user) return res.status(404).json({ mensagem: 'Conta não encontrada.' });
+        const save = await ensureSaveForUser(req.userId);
+
         return res.status(200).json({
-            saveProgress: save.saveProgress,
+            userId: String(req.userId),
+            saveProgress: normalizedProgress(save),
+            phase4Completed: Boolean(save.phase4Completed || normalizedProgress(save) >= 5),
+            bonusHighScore: save.bonusHighScore || 0,
             avatar: normalizeSavedAvatar(user && user.avatar)
         });
     } catch (error) {
@@ -339,7 +379,7 @@ app.get('/api/save', verificarToken, async (req, res) => {
 
 
 // A escolha acontece após o cadastro; persistir na conta autenticada.
-app.put('/api/avatar', verificarToken, async (req, res) => {
+app.put('/api/avatar', verificarToken, requireDatabase, async (req, res) => {
     const avatar = req.body && req.body.avatar;
     if (!VALID_AVATARS.includes(avatar)) {
         return res.status(400).json({ mensagem: 'Escolha um dos personagens disponíveis.' });
@@ -353,23 +393,98 @@ app.put('/api/avatar', verificarToken, async (req, res) => {
     }
 });
 
-app.put('/api/save/avancar', verificarToken, async (req, res) => {
+app.post('/api/game/start', verificarToken, requireDatabase, async (req, res) => {
+    const phase = req.body && req.body.fase;
+    if (!Number.isInteger(phase) || phase < 1 || phase > 4) {
+        return res.status(400).json({ mensagem: 'Escolha uma fase de 1 a 4.' });
+    }
     try {
-        const faseCompletada = Number(req.body.faseCompletada);
-
-        const save = await SaveData.findOne({ userId: new mongoose.Types.ObjectId(req.userId) });
-        if (!save) {
-            return res.status(404).json({ mensagem: 'Save não encontrado' });
-        }
-
-        if (faseCompletada === save.saveProgress) {
-            save.saveProgress += 1;
-            await save.save();
-        }
-
-        return res.status(200).json({ saveProgress: save.saveProgress });
+        const save = await ensureSaveForUser(req.userId);
+        if (phase > normalizedProgress(save)) return res.status(403).json({ mensagem: 'Conclua a fase anterior primeiro.' });
+        return res.json(createPhaseChallenge(req.userId, phase, process.env.JWT_SECRET));
     } catch (error) {
-        return res.status(400).json({ mensagem: 'Erro ao atualizar progresso', erro: error.message });
+        return res.status(503).json({ mensagem: 'Não foi possível iniciar a fase. Tente novamente.' });
+    }
+});
+
+app.put('/api/save/avancar', verificarToken, requireDatabase, async (req, res) => {
+    const { faseCompletada, challengeToken, answers } = req.body || {};
+    try {
+        const challenge = verifyChallenge(challengeToken, req.userId, 'phase', process.env.JWT_SECRET);
+        if (!Number.isInteger(faseCompletada) || faseCompletada < 1 || faseCompletada > 4 ||
+            challenge.phase !== faseCompletada || !Array.isArray(answers) || answers.length !== 4 ||
+            !answers.every((answer, index) => Number.isInteger(answer) && answer === challenge.answers[index])) {
+            return res.status(400).json({ mensagem: 'Responda às quatro perguntas desta fase antes de avançar.' });
+        }
+    } catch (error) {
+        return res.status(400).json({ mensagem: 'O desafio expirou ou é inválido. Reabra a fase para tentar novamente.' });
+    }
+    try {
+        const selectedSave = await ensureSaveForUser(req.userId);
+        const update = { $max: { saveProgress: Math.min(4, faseCompletada + 1) } };
+        if (faseCompletada === 4) update.$set = { phase4Completed: true };
+        const save = await SaveData.findOneAndUpdate(
+            { _id: selectedSave._id, userId: req.userId, saveProgress: { $gte: faseCompletada } },
+            update, { new: true, runValidators: true }
+        );
+        if (!save) return res.status(403).json({ mensagem: 'Conclua a fase anterior primeiro.' });
+        return res.status(200).json({ saveProgress: normalizedProgress(save), phase4Completed: Boolean(save.phase4Completed) });
+    } catch (error) {
+        return res.status(503).json({ mensagem: 'Não foi possível salvar o progresso. Tente novamente.' });
+    }
+});
+
+app.post('/api/game/bonus', verificarToken, requireDatabase, async (req, res) => {
+    try {
+        const save = await ensureSaveForUser(req.userId);
+        if (!save.phase4Completed && normalizedProgress(save) < 5) {
+            return res.status(403).json({ mensagem: 'Conclua a Fase 4 antes do desafio bônus.' });
+        }
+        return res.json(createBonusChallenge(req.userId, process.env.JWT_SECRET));
+    } catch (error) {
+        return res.status(503).json({ mensagem: 'Não foi possível carregar o desafio. Tente novamente.' });
+    }
+});
+
+app.put('/api/save/bonus-unlock', verificarToken, requireDatabase, async (req, res) => {
+    const { challengeToken, answer } = req.body || {};
+    try {
+        const challenge = verifyChallenge(challengeToken, req.userId, 'bonus', process.env.JWT_SECRET);
+        if (!Number.isInteger(answer) || answer !== challenge.answer) {
+            return res.status(400).json({ mensagem: 'Tente responder ao desafio mais uma vez.' });
+        }
+    } catch (error) {
+        return res.status(400).json({ mensagem: 'O desafio expirou ou é inválido. Carregue outro desafio.' });
+    }
+    try {
+        const selectedSave = await ensureSaveForUser(req.userId);
+        const save = await SaveData.findOneAndUpdate(
+            { _id: selectedSave._id, userId: req.userId, $or: [{ phase4Completed: true }, { saveProgress: { $gte: 5 } }] },
+            { $max: { saveProgress: 5 }, $set: { phase4Completed: true } },
+            { new: true, runValidators: true }
+        );
+        if (!save) return res.status(403).json({ mensagem: 'Conclua a Fase 4 primeiro.' });
+        return res.json({ saveProgress: normalizedProgress(save), phase4Completed: true });
+    } catch (error) {
+        return res.status(503).json({ mensagem: 'Não foi possível salvar o acesso ao bônus. Tente novamente.' });
+    }
+});
+
+app.put('/api/save/bonus-record', verificarToken, requireDatabase, async (req, res) => {
+    const score = req.body && req.body.score;
+    if (!Number.isInteger(score) || score < 0 || score > 1000000) {
+        return res.status(400).json({ mensagem: 'Pontuação inválida.' });
+    }
+    try {
+        const selectedSave = await ensureSaveForUser(req.userId);
+        const save = await SaveData.findOneAndUpdate(
+            { _id: selectedSave._id, userId: req.userId, saveProgress: { $gte: 5 } },
+            { $max: { bonusHighScore: score } }, { new: true, runValidators: true }
+        );
+        if (!save) return res.status(403).json({ mensagem: 'O desafio bônus ainda está bloqueado.' });
+        return res.json({ bonusHighScore: save.bonusHighScore });
+    } catch (error) {
+        return res.status(503).json({ mensagem: 'Não foi possível salvar o recorde. Tente novamente.' });
     }
 });
 

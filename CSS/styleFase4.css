@@ -41,14 +41,14 @@ body.feedback-reforcado .wrong {
 
 /* Título */
 h1 {
-    font-size: 38px;
+    font-size: 2.375rem;
     margin-bottom: 10px;
 }
 
 /* Subtítulo */
 .subtitle {
     margin-bottom: 18px;
-    font-size: 16px;
+    font-size: 1rem;
 }
 
 /* Informações */
@@ -197,7 +197,7 @@ h1 {
 
 /* Pergunta */
 #question {
-    font-size: 40px;
+    font-size: 2.5rem;
     margin-bottom: 28px;
 }
 
@@ -215,7 +215,7 @@ h1 {
     border-radius: 16px;
     background: #ec7f36;
     color: #000000;
-    font-size: 22px;
+    font-size: 1.375rem;
     font-weight: bold;
     cursor: pointer;
     transition: 0.2s;
@@ -229,14 +229,16 @@ h1 {
 
 /* Feedback de resposta correta */
 .answer-btn.correct {
-    background-color: #4CAF50;
+    color: #fff;
+    background-color: #1b6a32;
     transform: scale(1.08);
     box-shadow: 0 0 15px rgba(76, 175, 80, 0.8);
 }
 
 /* Feedback de resposta errada */
 .answer-btn.wrong {
-    background-color: #F44336;
+    color: #fff;
+    background-color: #b42318;
     animation: shake 0.4s;
     box-shadow: 0 0 15px rgba(244, 67, 54, 0.8);
 }
@@ -273,7 +275,7 @@ h1 {
     border-radius: 14px;
     background: #65a9cf;
     color: white;
-    font-size: 18px;
+    font-size: 1.125rem;
     font-weight: bold;
     cursor: pointer;
 }
@@ -301,11 +303,11 @@ h1 {
 
 .hint-content h3 {
     margin-bottom: 12px;
-    font-size: 26px;
+    font-size: 1.625rem;
 }
 
 .hint-content p {
-    font-size: 18px;
+    font-size: 1.125rem;
     line-height: 1.5;
     margin-bottom: 20px;
 }
@@ -314,7 +316,7 @@ h1 {
     border: none;
     padding: 10px 25px;
     border-radius: 10px;
-    font-size: 16px;
+    font-size: 1rem;
     cursor: pointer;
 }
 
@@ -398,17 +400,17 @@ h1 {
 #feedback {
     min-height: 35px;
     margin-top: 10px;
-    font-size: 20px;
+    font-size: 1.25rem;
     font-weight: bold;
     text-align: center;
 }
 
 .feedback-correct {
-    color: #4CAF50;
+    color: #1b6a32;
 }
 
 .feedback-wrong {
-    color: #F44336;
+    color: #b42318;
 }
 
 /* ========================================
@@ -449,25 +451,25 @@ h1 {
 }
 
 .bonus-icon {
-    font-size: 60px;
+    font-size: 3.75rem;
     margin-bottom: 5px;
 }
 
 .bonus-modal h2 {
-    font-size: 34px;
+    font-size: 2.125rem;
     color: #512da8;
     margin-bottom: 12px;
 }
 
 .bonus-description {
-    font-size: 17px;
+    font-size: 1.0625rem;
     line-height: 1.5;
     margin-bottom: 25px;
     color: #333;
 }
 
 #bonusQuestion {
-    font-size: 30px;
+    font-size: 1.875rem;
     margin-bottom: 25px;
     color: #111;
 }
@@ -484,7 +486,7 @@ h1 {
     border-radius: 14px;
     background: #7c4dff;
     color: white;
-    font-size: 21px;
+    font-size: 1.3125rem;
     font-weight: bold;
     cursor: pointer;
     transition: 0.2s;
@@ -496,19 +498,19 @@ h1 {
 }
 
 .bonus-answer.correct {
-    background: #4CAF50;
+    background: #1b6a32;
     border-color: #388E3C;
 }
 
 .bonus-answer.wrong {
-    background: #F44336;
+    background: #b42318;
     border-color: #c62828;
 }
 
 #bonusFeedback {
     min-height: 30px;
     margin-top: 18px;
-    font-size: 18px;
+    font-size: 1.125rem;
     font-weight: bold;
 }
 
@@ -528,7 +530,7 @@ h1 {
     padding: 12px 20px;
     border: none;
     border-radius: 12px;
-    font-size: 16px;
+    font-size: 1rem;
     font-weight: bold;
     cursor: pointer;
 }
@@ -571,7 +573,7 @@ h1 {
     }
 
     #bonusQuestion {
-        font-size: 25px;
+        font-size: 1.5625rem;
     }
 }
 /* ========================================
@@ -592,7 +594,7 @@ h1 {
     border: none;
     border-radius: 50%;
 
-    font-size: 26px;
+    font-size: 1.625rem;
 
     background: rgba(0, 0, 0, 0.65);
     color: white;
@@ -732,7 +734,7 @@ body {
     height: clamp(32px, 3.5vw, 42px);
     min-width: clamp(78px, 10vw, 120px);
     padding: 6px clamp(8px, 1.6vw, 20px);
-    font-size: clamp(11px, 1.35vw, 16px);
+    font-size: clamp(0.6875rem, 1.35vw, 1rem);
 }
 
 .character {
@@ -748,7 +750,7 @@ body {
 }
 
 #question {
-    font-size: clamp(24px, 3.3vw, 40px);
+    font-size: clamp(1.5rem, 3.3vw, 2.5rem);
     overflow-wrap: anywhere;
 }
 
@@ -759,12 +761,12 @@ body {
 .answer-btn {
     min-width: 0;
     padding: clamp(12px, 1.7vw, 20px);
-    font-size: clamp(17px, 1.85vw, 22px);
+    font-size: clamp(1.0625rem, 1.85vw, 1.375rem);
     overflow-wrap: anywhere;
 }
 
 h1 {
-    font-size: clamp(27px, 3.2vw, 38px);
+    font-size: clamp(1.6875rem, 3.2vw, 2.375rem);
 }
 
 @media (max-width: 700px) {
@@ -807,7 +809,7 @@ h1 {
     .platform {
         min-width: 64px;
         padding: 5px 7px;
-        font-size: 10px;
+        font-size: 0.625rem;
     }
 
     .character {

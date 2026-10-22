@@ -24,13 +24,13 @@ body {
 }
 
 .avatar-container h1 {
-    font-size: 36px;
+    font-size: 2.25rem;
     margin-bottom: 10px;
 }
 
 .avatar-container > p {
     margin-bottom: 30px;
-    font-size: 18px;
+    font-size: 1.125rem;
 }
 
 .avatares {
@@ -71,7 +71,7 @@ body {
 /* Texto abaixo dos avatares */
 #mensagem {
     margin: 25px 0 15px;
-    font-size: 16px;
+    font-size: 1rem;
 }
 
 /* Botão continuar */
@@ -84,7 +84,7 @@ body {
     background: #28a745;
     color: white;
 
-    font-size: 18px;
+    font-size: 1.125rem;
 
     cursor: pointer;
 }
@@ -93,4 +93,23 @@ body {
 #continuar:disabled {
     background: #aaa;
     cursor: not-allowed;
+}
+/* Match the player journey palette. */
+body { background: #292943; color: #f7f7ff; line-height: 1.6; }
+.tutorial-card, .avatar-container { background: #222237; border: 1px solid #ffffff26; color: #f7f7ff; }
+.tutorial-header p, .tutorial-step h2, .bonus-info strong { color: #67eeee; }
+#stepCounter { color: #b9b9d3; }
+.example-question, .bonus-info div { background: #292943; border-color: #67eeee; }
+.avatar { background: #353552; border-color: #b9b9d3; }
+.avatar.selecionado { border-color: #67eeee; box-shadow: 0 0 0 3px #67eeee; }
+#continuar, #nextBtn, #startBtn, #audioBtn { background: #67eeee; color: #1c2638; min-height: 44px; font-weight: bold; }
+#continuar:disabled { background: #76768d; color: #fff; }
+@media (max-width: 480px) {
+    .avatar-container { padding: 1.25rem; margin-block: 1rem; }
+    .avatares { gap: 1rem; }
+    .avatar { width: 120px; height: 170px; }
+    .tutorial-navigation { gap: .5rem; }
+    .tutorial-navigation button, #startBtn { padding: .75rem; overflow-wrap: anywhere; }
+    .platform-example { transform: none; margin-inline: 0; gap: 4px; }
+    .mini-platform { min-width: 0; width: 22%; }
 }

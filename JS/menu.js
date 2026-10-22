@@ -1,13 +1,12 @@
 async function carregarProgresso() {
   try {
-    const resp = await fetch(`${API_URL}/api/save`, { credentials: 'include' });
+    const { response: resp, data } = await JumpSkyRequest(`${API_URL}/api/save`, { credentials: 'include' });
 
     if (!resp.ok) {
       aplicarEstadoFases(1);
       return;
     }
 
-    const data = await resp.json();
     aplicarEstadoFases(data.saveProgress);
   } catch (error) {
     console.error('Erro ao carregar progresso:', error);
@@ -17,7 +16,7 @@ async function carregarProgresso() {
 
 function aplicarEstadoFases(saveProgress) {
   // A fase 1 sempre fica disponível (visitante ou erro no BE)
-  const progresso = Math.max(1, Number(saveProgress) || 1);
+  const progresso = Math.min(5, Math.max(1, Number(saveProgress) || 1));
 
   document.querySelectorAll('.card-floor').forEach(card => {
     const faseNum = Number(card.dataset.fase);
@@ -79,3 +78,18 @@ configDialog?.addEventListener('click', (e) => {
 });
 
 carregarProgresso();
+// Only leave the menu after the server has cleared the session cookie.
+document.getElementById('sairBtn')?.addEventListener('click', async (event) => {
+  const button = event.currentTarget;
+  const status = document.getElementById('contaStatus');
+  button.disabled = true;
+  status.textContent = 'Saindo da conta...';
+  try {
+    const { response } = await JumpSkyRequest(`${API_URL}/logout`, { method: 'POST', credentials: 'include' });
+    if (!response.ok) throw new Error('Logout failed');
+    window.location.assign('/login');
+  } catch (error) {
+    status.textContent = 'Não foi possível sair. Tente novamente.';
+    button.disabled = false;
+  }
+});

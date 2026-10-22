@@ -22,7 +22,7 @@
 <div class="game-settings">
 
     <button
-        id="settingsBtn"
+        id="settingsBtn" aria-expanded="false" aria-controls="settingsPanel"
         class="settings-btn"
         aria-label="Abrir configurações"
         title="Configurações"
@@ -44,6 +44,25 @@
 
 
         <div data-audio-settings></div>
+        <section class="phase-accessibility" aria-labelledby="phaseAccessibilityTitle">
+            <h3 id="phaseAccessibilityTitle">Acessibilidade</h3>
+            <div class="phase-font-option">
+                <span>Tamanho da fonte</span>
+                <div class="phase-font-controls" role="group" aria-label="Tamanho da fonte">
+                    <button type="button" id="diminuirFonte" aria-label="Diminuir fonte">A-</button>
+                    <output id="fontePercentual" aria-live="polite">100%</output>
+                    <button type="button" id="aumentarFonte" aria-label="Aumentar fonte">A+</button>
+                </div>
+            </div>
+            <label class="phase-accessibility-toggle" for="altoContraste">
+                <input type="checkbox" id="altoContraste">
+                <span>Alto contraste</span>
+            </label>
+            <label class="phase-accessibility-toggle" for="feedbackVisualReforcado">
+                <input type="checkbox" id="feedbackVisualReforcado">
+                <span>Feedback visual refor&#231;ado</span>
+            </label>
+        </section>
     </div>
 
 </div>
@@ -139,7 +158,7 @@
         <!-- Área da pergunta -->
         <section class="question-panel">
 
-            <h2 id="question">Leia a situação e escolha uma resposta.</h2>
+            <h2 id="question" tabindex="-1" aria-live="polite" aria-atomic="true">Leia a situação e escolha uma resposta.</h2>
 
 
             <!-- Respostas -->
@@ -158,13 +177,13 @@
                 </button>
 
             </div>
-            <div id="feedback"></div>
+            <div id="feedback" role="status" aria-live="polite" aria-atomic="true"></div>
 
-            <div id="hintPopup" class="hint-popup" role="dialog" aria-modal="true" aria-labelledby="hintTitle">
+            <div id="hintPopup" class="hint-popup" role="dialog" aria-modal="true" aria-labelledby="hintTitle" aria-describedby="hintText" tabindex="-1" data-game-dialog>
                 <div class="hint-content">
                     <h3 id="hintTitle">💡 Dica!</h3>
                     <p id="hintText"></p>
-                    <button id="closeHint" type="button">Entendi!</button>
+                    <button id="closeHint" data-dialog-close data-dialog-initial-focus type="button">Entendi!</button>
                 </div>
             </div>
 
@@ -175,9 +194,7 @@
                     Ir para Fase 4 <!-- texto varia por fase, já existente -->
                 </button>
 
-                <button id="menuBtn">
-                        Voltar ao Menu
-                </button>
+                <a class="back-menu" href="/menu">Voltar ao Menu</a>
             </div>
 
         </section>
@@ -189,6 +206,8 @@
     <script src="/JS/audio.js"></script>
     <script src="/JS/instruction-audio.js"></script>
     <script src="/JS/problems.js"></script>
+    <script src="/JS/game-session.js"></script>
+    <script src="/JS/dialog-accessibility.js"></script>
     <script src="/JS/brightness.js"></script>
     <script src="/JS/acessibilidade.js"></script>
     <script src="/JS/scriptFase3.js"></script>

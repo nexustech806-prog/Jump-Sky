@@ -72,8 +72,8 @@ const TOTAL_PLATAFORMAS = 10;
 const cenarios = [
     "/images/bonus1.jpeg",
     "/images/bonus2.jpeg",
-    "/images/bonus3.jpeg",
-    "/images/bonus4.jpeg"
+    "/images/bonus1.jpeg",
+    "/images/bonus2.jpeg"
 ];
 
 const nomesCenarios = [
@@ -92,10 +92,15 @@ let vidas = 3;
 let pontos = 0;
 let numeroQuestao = 1;
 
-let recorde =
-    Number(
-        localStorage.getItem("bonusHighScore")
-    ) || 0;
+let recorde = 0;
+let recordeConfirmado = 0;
+let bonusUserId = null;
+let recordSavePending = false;
+let bonusReady = false;
+let bonusLoadPending = false;
+const recordSaveStatus = document.getElementById("recordSaveStatus");
+const retryRecordSave = document.getElementById("retryRecordSave");
+const retryQuestionLabel = retryQuestionBtn.textContent;
 
 let avisoRecordeMostrado = false;
 
@@ -348,28 +353,9 @@ function carregarQuestao() {
 
 function iniciarTimer() {
     pararTimer();
-
-    tempoRestante =
-        TEMPO_POR_QUESTAO;
-
-    timerElement.textContent =
-        tempoRestante;
-
-    intervaloTimer =
-        setInterval(
-            () => {
-                tempoRestante--;
-
-                timerElement.textContent =
-                    tempoRestante;
-
-                if (tempoRestante <= 0) {
-                    pararTimer();
-                    tempoEsgotado();
-                }
-            },
-            1000
-        );
+    tempoRestante = TEMPO_POR_QUESTAO;
+    timerElement.textContent = tempoRestante;
+    resumeTimerWithoutReset();
 }
 
 function pararTimer() {
@@ -382,10 +368,10 @@ function pararTimer() {
     }
 }
 
-let timerPausedForInstructions = false;
+let instructionsActive = false;
 
 function resumeTimerWithoutReset() {
-    if (intervaloTimer || jogoFinalizado || bloqueado) return;
+    if (intervaloTimer || jogoFinalizado || bloqueado || instructionsActive || !bonusReady) return;
     intervaloTimer = setInterval(() => {
         tempoRestante--;
         timerElement.textContent = tempoRestante;
@@ -397,17 +383,13 @@ function resumeTimerWithoutReset() {
 }
 
 document.addEventListener("instructionaudio:start", () => {
-    if (!jogoFinalizado && !bloqueado && intervaloTimer) {
-        pararTimer();
-        timerPausedForInstructions = true;
-    }
+    instructionsActive = true;
+    pararTimer();
 });
 
 document.addEventListener("instructionaudio:end", () => {
-    if (timerPausedForInstructions && !jogoFinalizado && !bloqueado) {
-        timerPausedForInstructions = false;
-        resumeTimerWithoutReset();
-    }
+    instructionsActive = false;
+    resumeTimerWithoutReset();
 });
 
 
@@ -475,6 +457,11 @@ function tempoEsgotado() {
 // ========================================
 
 function tentarQuestaoNovamente() {
+    if (!bonusReady) {
+        void initializeBonus();
+        return;
+    }
+
     if (
         jogoFinalizado ||
         vidas <= 0
@@ -752,6 +739,85 @@ function atualizarPersonagem(fazerPulo = false) {
 // SISTEMA DE RECORDE
 // ========================================
 
+async function initializeBonus() {
+    if (bonusLoadPending) return;
+    bonusLoadPending = true;
+    answerButtons.forEach(button => { button.disabled = true; });
+    questionElement.textContent = "Carregando seu recorde...";
+    timeoutActions.classList.remove("show");
+    try {
+        const data = await window.JumpSkyGameSession.request("/api/save");
+        if (!data.userId || !Number.isInteger(data.bonusHighScore) || data.bonusHighScore < 0) {
+            throw new Error("Não foi possível carregar seu recorde. Tente novamente.");
+        }
+        bonusUserId = data.userId;
+        let cachedRecord = 0;
+        try {
+            const cached = Number(localStorage.getItem("bonusHighScore:" + bonusUserId));
+            if (Number.isInteger(cached) && cached >= 0 && cached <= 1000000) cachedRecord = cached;
+        } catch (error) {
+            // The server record remains available when browser storage is disabled.
+        }
+        recordeConfirmado = Math.max(recordeConfirmado, data.bonusHighScore);
+        recorde = Math.max(recorde, recordeConfirmado, cachedRecord);
+        cacheRecord();
+        bonusReady = true;
+        void salvarRecorde();
+        nextQuestionBtn.hidden = false;
+        retryQuestionBtn.textContent = retryQuestionLabel;
+        carregarQuestao();
+    } catch (error) {
+        questionElement.textContent = "Vamos tentar conectar novamente?";
+        feedback.textContent = error.message;
+        feedback.className = "feedback-wrong";
+        retryQuestionBtn.textContent = "Tentar conectar novamente";
+        nextQuestionBtn.hidden = true;
+        timeoutActions.classList.add("show");
+        retryQuestionBtn.focus();
+    } finally {
+        bonusLoadPending = false;
+    }
+}
+
+function cacheRecord() {
+    if (!bonusUserId) return;
+    try {
+        localStorage.setItem("bonusHighScore:" + bonusUserId, String(recorde));
+    } catch (error) {
+        // Saving to the authenticated account still works without local storage.
+    }
+}
+
+async function salvarRecorde() {
+    if (recordSavePending || recorde <= recordeConfirmado || !bonusReady) return;
+    recordSavePending = true;
+    retryRecordSave.hidden = true;
+    recordSaveStatus.textContent = "Salvando seu recorde...";
+    try {
+        while (recorde > recordeConfirmado) {
+            const score = recorde;
+            const data = await window.JumpSkyGameSession.request("/api/save/bonus-record", {
+                method: "PUT", keepalive: true, body: JSON.stringify({ score })
+            });
+            if (!Number.isInteger(data.bonusHighScore) || data.bonusHighScore < score) {
+                throw new Error("O recorde ainda não foi confirmado.");
+            }
+            recordeConfirmado = Math.max(recordeConfirmado, data.bonusHighScore);
+            recorde = Math.max(recorde, recordeConfirmado);
+            cacheRecord();
+            highScoreElement.textContent = recorde;
+        }
+        recordSaveStatus.textContent = "Recorde salvo na sua conta.";
+    } catch (error) {
+        recordSaveStatus.textContent = "Não foi possível salvar seu recorde. Tente novamente antes de sair.";
+        retryRecordSave.hidden = false;
+    } finally {
+        recordSavePending = false;
+    }
+}
+
+retryRecordSave.addEventListener("click", () => { void salvarRecorde(); });
+
 function verificarRecorde() {
     if (pontos <= recorde) {
         return;
@@ -759,10 +825,8 @@ function verificarRecorde() {
 
     recorde = pontos;
 
-    localStorage.setItem(
-        "bonusHighScore",
-        recorde
-    );
+    cacheRecord();
+    void salvarRecorde();
 
     highScoreElement.textContent =
         recorde;
@@ -844,6 +908,7 @@ function finalizarJogo() {
 
     finalScore.textContent =
         pontos;
+    void salvarRecorde();
 
     gameOver.style.display =
         "block";
@@ -936,7 +1001,7 @@ menuBtn.addEventListener(
 
 atualizarCenario();
 atualizarPersonagem(false);
-carregarQuestao();
+void initializeBonus();
 
 // Mantém o personagem alinhado à plataforma após resize/zoom.
 window.addEventListener("resize", () => atualizarPersonagem(false));

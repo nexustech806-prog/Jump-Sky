@@ -52,7 +52,7 @@ body {
 .tutorial-header h1 {
     color: white;
 
-    font-size: 52px;
+    font-size: 3.25rem;
 
     text-shadow:
         0 3px 6px rgba(0, 0, 0, 0.25);
@@ -61,7 +61,7 @@ body {
 .tutorial-header p {
     color: #17324d;
 
-    font-size: 25px;
+    font-size: 1.5625rem;
     font-weight: bold;
 
     margin-top: 5px;
@@ -106,7 +106,7 @@ body {
 }
 
 .step-icon {
-    font-size: 70px;
+    font-size: 4.375rem;
 
     margin-bottom: 15px;
 }
@@ -114,7 +114,7 @@ body {
 .tutorial-step h2 {
     color: #1769aa;
 
-    font-size: 36px;
+    font-size: 2.25rem;
 
     margin-bottom: 18px;
 }
@@ -126,7 +126,7 @@ body {
         0 auto
         25px;
 
-    font-size: 22px;
+    font-size: 1.375rem;
 
     line-height: 1.7;
 }
@@ -151,7 +151,7 @@ body {
         25px auto
         0;
 
-    font-size: 19px;
+    font-size: 1.1875rem;
     font-weight: bold;
 
     line-height: 1.5;
@@ -198,7 +198,7 @@ body {
 }
 
 .example-question h3 {
-    font-size: 29px;
+    font-size: 1.8125rem;
 
     margin-bottom: 22px;
 }
@@ -219,7 +219,7 @@ body {
 
     padding: 16px;
 
-    font-size: 23px;
+    font-size: 1.4375rem;
     font-weight: bold;
 
     background: white;
@@ -231,10 +231,24 @@ body {
 }
 
 .example-answers .correct-example {
-    background: #55cf75;
+    background: #1b6a32;
 
     color: white;
 }
+
+.example-answers .correct-example small {
+    display: block;
+    font-size: .8rem;
+}
+
+body.alto-contraste .example-answers .correct-example:disabled {
+    background: #ffff00 !important;
+    color: #000 !important;
+    border: 3px solid #fff !important;
+    opacity: 1;
+}
+
+body.alto-contraste .correct-example small { color: #000 !important; }
 
 
 /* ========================================
@@ -265,7 +279,7 @@ body {
 
     color: white;
 
-    font-size: 24px;
+    font-size: 1.5rem;
     font-weight: bold;
 
     display: flex;
@@ -326,7 +340,7 @@ body {
 
     color: #805000;
 
-    font-size: 21px;
+    font-size: 1.3125rem;
     font-weight: bold;
 
     line-height: 1.5;
@@ -362,7 +376,7 @@ body {
 .phase span {
     display: block;
 
-    font-size: 42px;
+    font-size: 2.625rem;
 
     margin-bottom: 10px;
 }
@@ -370,13 +384,13 @@ body {
 .phase strong {
     display: block;
 
-    font-size: 21px;
+    font-size: 1.3125rem;
 }
 
 .phase p {
     margin-top: 7px;
 
-    font-size: 17px;
+    font-size: 1.0625rem;
 }
 
 .phase1 {
@@ -420,7 +434,7 @@ body {
 
     padding: 20px 8px;
 
-    font-size: 34px;
+    font-size: 2.125rem;
 }
 
 .bonus-info strong {
@@ -428,7 +442,7 @@ body {
 
     margin-top: 8px;
 
-    font-size: 19px;
+    font-size: 1.1875rem;
 
     color: #1769aa;
 }
@@ -438,7 +452,7 @@ body {
 
     margin-top: 5px;
 
-    font-size: 16px;
+    font-size: 1rem;
 }
 
 
@@ -501,7 +515,7 @@ body {
 
     padding: 15px 24px;
 
-    font-size: 19px;
+    font-size: 1.1875rem;
     font-weight: bold;
 
     cursor: pointer;
@@ -548,7 +562,7 @@ body {
 }
 
 #stepCounter {
-    font-size: 18px;
+    font-size: 1.125rem;
     font-weight: bold;
 
     color: #63798b;
@@ -576,7 +590,7 @@ body {
 
     color: #17324d;
 
-    font-size: 18px;
+    font-size: 1.125rem;
     font-weight: bold;
 
     text-decoration: none;
@@ -643,43 +657,43 @@ body {
     }
 
     .tutorial-header h1 {
-        font-size: 38px;
+        font-size: 2.375rem;
     }
 
     .tutorial-header p {
-        font-size: 21px;
+        font-size: 1.3125rem;
     }
 
     .step-icon {
-        font-size: 58px;
+        font-size: 3.625rem;
     }
 
     .tutorial-step h2 {
-        font-size: 30px;
+        font-size: 1.875rem;
     }
 
     .tutorial-step > p {
-        font-size: 20px;
+        font-size: 1.25rem;
 
         line-height: 1.6;
     }
 
     .tip {
-        font-size: 18px;
+        font-size: 1.125rem;
     }
 
     .example-question h3 {
-        font-size: 24px;
+        font-size: 1.5rem;
     }
 
     .example-answers button {
-        font-size: 20px;
+        font-size: 1.25rem;
 
         padding: 13px 8px;
     }
 
     .feedback-example {
-        font-size: 19px;
+        font-size: 1.1875rem;
     }
 
     .phases,
@@ -689,19 +703,19 @@ body {
     }
 
     .phase strong {
-        font-size: 19px;
+        font-size: 1.1875rem;
     }
 
     .phase p {
-        font-size: 16px;
+        font-size: 1rem;
     }
 
     .bonus-info strong {
-        font-size: 18px;
+        font-size: 1.125rem;
     }
 
     .bonus-info span {
-        font-size: 15px;
+        font-size: 0.9375rem;
     }
 
     .platform-example {
@@ -728,7 +742,7 @@ body {
 
         margin-bottom: 5px;
 
-        font-size: 17px;
+        font-size: 1.0625rem;
     }
 
     #previousBtn {
@@ -742,13 +756,32 @@ body {
 
     .tutorial-navigation button,
     #startBtn {
-        font-size: 17px;
+        font-size: 1.0625rem;
 
         padding: 14px 16px;
     }
 
     .back-menu {
-        font-size: 17px;
+        font-size: 1.0625rem;
     }
 
+}
+/* Match the player journey palette. */
+body { background: #292943; color: #f7f7ff; line-height: 1.6; }
+.tutorial-card, .avatar-container { background: #222237; border: 1px solid #ffffff26; color: #f7f7ff; }
+.tutorial-header p, .tutorial-step h2, .bonus-info strong { color: #67eeee; }
+#stepCounter { color: #b9b9d3; }
+.example-question, .bonus-info div { background: #292943; border-color: #67eeee; }
+.avatar { background: #353552; border-color: #b9b9d3; }
+.avatar.selecionado { border-color: #67eeee; box-shadow: 0 0 0 3px #67eeee; }
+#continuar, #nextBtn, #startBtn, #audioBtn { background: #67eeee; color: #1c2638; min-height: 44px; font-weight: bold; }
+#continuar:disabled { background: #76768d; color: #fff; }
+@media (max-width: 480px) {
+    .avatar-container { padding: 1.25rem; margin-block: 1rem; }
+    .avatares { gap: 1rem; }
+    .avatar { width: 120px; height: 170px; }
+    .tutorial-navigation { gap: .5rem; }
+    .tutorial-navigation button, #startBtn { padding: .75rem; overflow-wrap: anywhere; }
+    .platform-example { transform: none; margin-inline: 0; gap: 4px; }
+    .mini-platform { min-width: 0; width: 22%; }
 }

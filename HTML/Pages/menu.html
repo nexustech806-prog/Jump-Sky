@@ -24,7 +24,7 @@
 <body class="public-page journey-page">
     <a class="skip-link" href="#conteudo">Pular para o conte&#250;do</a>
     <nav class="site-nav" aria-label="Navega&#231;&#227;o principal">
-        <a class="brand" href="/" aria-label="Jump Sky - in&#237;cio">Jump<span>Sky</span></a>
+        <a class="brand" href="/menu" aria-label="Jump Sky - menu">Jump<span>Sky</span></a>
         <div class="nav-links">
             <a href="/menu" aria-current="page">Fases</a>
             <a href="/aprendendo-a-jogar">Como jogar</a>
@@ -73,6 +73,7 @@
                 <a class="card-floor fase-5" href="/pulando-no-espaco" data-fase="5" data-slug="Bonus">
                     <span class="fase-info"><h3>Fase bônus</h3><p>?</p></span>
                 </a>
+                <a class="menu-action menu-avatar-action" href="/selecionar-avatar">Trocar avatar</a>
             </section>
 
             <!-- Painel de configurações -->
@@ -85,9 +86,7 @@
                 <section class="options" aria-label="Opções">
                     <h3>Opções</h3>
                     <div data-audio-settings></div>
-                    <div class="option-item">
-                        <button id="sairBtn">Sair da conta</button>
-                    </div>
+
                 </section>
 
                 <section class="accessibility" aria-label="Acessibilidade">
@@ -108,19 +107,25 @@
                     </div>
 
                     <div class="option-item">
-                        <label for="feedbackVisualReforcado">Feedback visual reforçado</label>
+                        <label for="feedbackVisualReforcado">Feedback visual refor&#231;ado</label>
                         <input type="checkbox" id="feedbackVisualReforcado">
                     </div>
+                </section>
+                <section class="account-settings" aria-label="Conta">
+                    <h3>Minha conta</h3>
+                    <a class="menu-action" href="/selecionar-avatar">Trocar avatar</a>
+                    <button type="button" id="sairBtn">Sair da conta</button>
+                    <p id="contaStatus" role="status" aria-live="polite"></p>
                 </section>
             </dialog>
 
         </div>
     </main>
 
-    <footer class="site-footer"><a class="footer-brand" href="/">Jump Sky</a><p>Aprender pode ser uma grande aventura.</p></footer>
+    <footer class="site-footer"><a class="footer-brand" href="/menu">Jump Sky</a><p>Aprender pode ser uma grande aventura.</p></footer>
 
     <script src="/JS/brightness.js"></script>
-    <script src="/JS/config.js"></script>
+    <script src="/JS/request.js"></script><script src="/JS/config.js"></script>
     <script src="/JS/audio.js"></script>
     <script src="/JS/acessibilidade.js"></script>
     <script src="/JS/menu.js"></script>

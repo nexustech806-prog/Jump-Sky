@@ -219,3 +219,78 @@ body.feedback-reforcado .feedback-wrong {
         animation: none;
     }
 }
+/* Shared navigation and controls remain readable at every font setting. */
+.back-menu {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 44px;
+    padding: .75rem 1.25rem;
+    border: 2px solid #67eeee;
+    border-radius: 12px;
+    background: #222237;
+    color: #f7f7ff;
+    font: 700 1rem/1.5 Arial, sans-serif;
+    text-decoration: none;
+    cursor: pointer;
+    box-sizing: border-box;
+    margin-block: 1rem;
+}
+.back-menu:hover { background: #353552; }
+a:focus-visible, button:focus-visible { outline: 3px solid #67eeee; outline-offset: 4px; }
+body[data-game-phase] .botoes-navegacao { display: flex; flex-direction: column; flex-wrap: wrap; align-items: center; justify-content: center; gap: 1rem; margin-top: 1rem; }
+body[data-game-phase] #feedback { height: auto; min-height: 1.5em; margin-block: 1rem; }
+body[data-game-phase] .stat { font-size: 1rem; }
+body[data-game-phase] .answer-btn { font-size: 1.375rem; min-height: 44px; }
+body[data-game-phase] #question { font-size: 2rem; overflow-wrap: anywhere; }
+body[data-game-phase] .stats { flex-wrap: wrap; }
+body[data-game-phase] .settings-btn { min-width: 44px; min-height: 44px; }
+body[data-game-phase] .settings-panel { max-height: calc(100dvh - 100px); overflow-y: auto; }
+@media (max-width: 700px) {
+    body[data-game-phase] .game-container { padding-top: 64px; }
+    body[data-game-phase] .game-settings { top: 10px; right: 10px; }
+    body[data-game-phase] .answers { grid-template-columns: 1fr; }
+    body[data-game-phase] h1 { overflow-wrap: anywhere; }
+}
+
+/* Accessibility preferences inside the phase settings panels. */
+.phase-accessibility { margin-top: 1.5rem; padding-top: 1rem; border-top: 1px solid currentColor; text-align: left; }
+.phase-accessibility h3 { margin: 0 0 1rem; font-size: 1.125rem; }
+.phase-font-option { display: flex; flex-direction: column; gap: .5rem; }
+.phase-font-controls { display: flex; flex-wrap: wrap; align-items: center; gap: .5rem; }
+.phase-font-controls button { min-width: 44px; min-height: 44px; padding: .5rem; border: 2px solid #007d80; border-radius: 8px; background: #fff; color: #17333e; font: 700 1rem/1.5 Arial, sans-serif; cursor: pointer; }
+.phase-font-controls output { min-width: 4ch; font-size: 1rem; text-align: center; }
+.phase-accessibility-toggle { display: flex; align-items: center; gap: .75rem; min-height: 44px; margin-top: .75rem; font-size: 1rem; cursor: pointer; }
+.phase-accessibility-toggle input { flex-shrink: 0; width: 24px; height: 24px; accent-color: #007d80; }
+body.alto-contraste .settings-panel { background: #000 !important; color: #ffff00 !important; border: 2px solid #ffff00; }
+
+/* Hints use the same scrollable modal layout in every regular phase. */
+body[data-game-phase] .hint-popup {
+    position: fixed;
+    inset: 0;
+    width: 100%;
+    max-width: none;
+    height: 100%;
+    box-sizing: border-box;
+    transform: none;
+    padding: 1rem;
+    overflow-y: auto;
+    background: rgba(5, 14, 45, .65);
+    border-radius: 0;
+    box-shadow: none;
+    animation: none;
+    z-index: 10000;
+}
+body[data-game-phase] .hint-popup.show { display: grid; place-items: center; }
+body[data-game-phase] .hint-content {
+    width: min(500px, 100%);
+    max-height: calc(100dvh - 2rem);
+    overflow-y: auto;
+    box-sizing: border-box;
+    background: #fff;
+    color: #111;
+    padding: 1.5rem;
+    border-radius: 20px;
+}
+body[data-game-phase] #closeHint,
+body[data-game-phase] #retryRecordSave { min-height: 44px; font: inherit; cursor: pointer; }

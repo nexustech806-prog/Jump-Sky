@@ -35,7 +35,7 @@ test('rejects old English nicknames and arbitrary input', () => {
 
 function serverWith(User) {
   const routes = new Map();
-  const app = { use() {}, get() {}, post(route, handler) { routes.set(route, handler); }, put() {}, listen() {} };
+  const app = { use() {}, get() {}, post(route, ...handlers) { routes.set(route, handlers.at(-1)); }, put() {}, listen() {} };
   const express = Object.assign(() => app, { json() {}, static() {} });
   const mocks = {
     express, './Schema/User': User, './Schema/Save': { create: async () => {} },
@@ -46,7 +46,7 @@ function serverWith(User) {
   const localRequire = name => Object.hasOwn(mocks, name) ? mocks[name]
     : name.startsWith('.') ? require(path.resolve(__dirname, '..', name)) : require(name);
   vm.runInNewContext(fs.readFileSync(path.resolve(__dirname, '../server.js'), 'utf8'), {
-    require: localRequire, __dirname: path.resolve(__dirname, '..'), process: { env: {} }, console
+    require: localRequire, __dirname: path.resolve(__dirname, '..'), process: { env: {} }, Buffer, console
   });
   return routes;
 }
@@ -151,10 +151,11 @@ function registrationScreen(fetch, timers = { setTimeout, clearTimeout }) {
   }
   const ids = Object.fromEntries(['bttn_reg', 'login_reg', 'nomesSugeridos', 'apelidoEscolhido', 'Dice_Name', 'password_reg', 'confirm_password_reg', 'statusCadastro'].map(id => [id, element()]));
   const context = vm.createContext({
-    JumpSkyNomes: nomes, API_URL: '', fetch, console, alert() {}, AbortController,
+    JumpSkyNomes: nomes, API_URL: '', fetch, console, alert() {}, AbortController, TextEncoder,
     setTimeout: timers.setTimeout, clearTimeout: timers.clearTimeout,
     document: { getElementById: id => ids[id], createElement: element, addEventListener() {} }
   });
+  vm.runInContext(fs.readFileSync(path.resolve(__dirname, '../JS/request.js'), 'utf8'), context);
   vm.runInContext(fs.readFileSync(path.resolve(__dirname, '../JS/register.js'), 'utf8'), context);
   return { ids, context };
 }
@@ -232,4 +233,16 @@ test('a response with a pending JSON body also times out', async () => {
   expire();
   await pending;
   assert.equal(ids.bttn_reg.disabled, false);
+});
+
+test('registration rejects passwords exceeding bcrypt UTF-8 byte limit before sending', async () => {
+  let requests = 0;
+  const { ids, context } = registrationScreen(async () => { requests++; throw new Error('must not send'); });
+  ids.login_reg.value = 'PandaPipoca07';
+  ids.password_reg.value = ids.confirm_password_reg.value = '\u00e1'.repeat(37);
+  await vm.runInContext('createUser({preventDefault(){}})', context);
+  assert.equal(requests, 0);
+  assert.equal(ids.password_reg.value.length, 37);
+  assert.match(ids.statusCadastro.textContent, /senha mais curta/);
+  assert.equal(ids.Dice_Name.disabled, false);
 });

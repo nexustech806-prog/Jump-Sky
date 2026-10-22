@@ -48,7 +48,7 @@ body {
 /* Título */
 h1 {
 
-    font-size: 38px;
+    font-size: 2.375rem;
 
     margin-bottom: 10px;
 
@@ -60,7 +60,7 @@ h1 {
 
     margin-bottom: 18px;
 
-    font-size: 16px;
+    font-size: 1rem;
 
 }
 
@@ -293,7 +293,7 @@ h1 {
 /* Pergunta */
 #question {
 
-    font-size: 40px;
+    font-size: 2.5rem;
 
     margin-bottom: 28px;
 
@@ -325,7 +325,7 @@ h1 {
 
     color: #070707;
 
-    font-size: 22px;
+    font-size: 1.375rem;
 
     font-weight: bold;
 
@@ -348,7 +348,8 @@ h1 {
 
 /* Feedback de resposta correta */
 .answer-btn.correct {
-    background-color: #4CAF50;
+    color: #fff;
+    background-color: #1b6a32;
     transform: scale(1.08);
     box-shadow: 0 0 15px rgba(76, 175, 80, 0.8);
 }
@@ -356,7 +357,8 @@ h1 {
 
 /* Feedback de resposta errada */
 .answer-btn.wrong {
-    background-color: #F44336;
+    color: #fff;
+    background-color: #b42318;
     animation: shake 0.4s;
     box-shadow: 0 0 15px rgba(244, 67, 54, 0.8);
 }
@@ -405,7 +407,7 @@ h1 {
 
     color: white;
 
-    font-size: 18px;
+    font-size: 1.125rem;
 
     font-weight: bold;
 
@@ -446,11 +448,11 @@ h1 {
 
 .hint-content h3 {
     margin-bottom: 12px;
-    font-size: 26px;
+    font-size: 1.625rem;
 }
 
 .hint-content p {
-    font-size: 18px;
+    font-size: 1.125rem;
     line-height: 1.5;
     margin-bottom: 20px;
 }
@@ -462,7 +464,7 @@ h1 {
 
     border-radius: 10px;
 
-    font-size: 16px;
+    font-size: 1rem;
 
     cursor: pointer;
 }
@@ -559,17 +561,17 @@ h1 {
 #feedback {
     min-height: 35px;
     margin-top: 10px;
-    font-size: 20px;
+    font-size: 1.25rem;
     font-weight: bold;
     text-align: center;
 }
 
 .feedback-correct {
-    color: #4CAF50;
+    color: #1b6a32;
 }
 
 .feedback-wrong {
-    color: #F44336;
+    color: #b42318;
 }
 /* ========================================
    CONFIGURAÇÕES DO JOGO
@@ -589,7 +591,7 @@ h1 {
     border: none;
     border-radius: 50%;
 
-    font-size: 26px;
+    font-size: 1.625rem;
 
     background: rgba(0, 0, 0, 0.65);
     color: white;
@@ -705,15 +707,15 @@ h1 {
 }
 
 h1 {
-    font-size: clamp(24px, 3vw, 38px);
+    font-size: clamp(1.5rem, 3vw, 2.375rem);
 }
 
 .subtitle {
-    font-size: clamp(14px, 1.5vw, 16px);
+    font-size: clamp(0.875rem, 1.5vw, 1rem);
 }
 
 #question {
-    font-size: clamp(24px, 3.5vw, 40px);
+    font-size: clamp(1.5rem, 3.5vw, 2.5rem);
     overflow-wrap: anywhere;
 }
 
@@ -722,7 +724,7 @@ h1 {
 }
 
 .answer-btn {
-    font-size: clamp(18px, 2vw, 22px);
+    font-size: clamp(1.125rem, 2vw, 1.375rem);
 }
 
 @media (max-width: 800px) {
@@ -739,7 +741,7 @@ h1 {
         min-width: 90px;
         height: 38px;
         padding: 6px 12px;
-        font-size: 14px;
+        font-size: 0.875rem;
     }
 
     .character {
@@ -766,7 +768,7 @@ h1 {
 
     .stat {
         padding: 8px 12px;
-        font-size: 14px;
+        font-size: 0.875rem;
     }
 }
 
@@ -780,7 +782,7 @@ h1 {
         min-width: 70px;
         height: 34px;
         padding: 5px 8px;
-        font-size: 12px;
+        font-size: 0.75rem;
     }
 
     .character {
@@ -816,15 +818,15 @@ body {
 
 /* Tamanhos fluidos */
 h1 {
-    font-size: clamp(22px, 3vw, 38px);
+    font-size: clamp(1.375rem, 3vw, 2.375rem);
 }
 
 .subtitle {
-    font-size: clamp(13px, 1.5vw, 16px);
+    font-size: clamp(0.8125rem, 1.5vw, 1rem);
 }
 
 #question {
-    font-size: clamp(22px, 3vw, 40px);
+    font-size: clamp(1.375rem, 3vw, 2.5rem);
 }
 
 /* ==================================================
@@ -838,13 +840,13 @@ h1 {
     }
 
     h1 {
-        font-size: 26px;
+        font-size: 1.625rem;
         margin-bottom: 4px;
     }
 
     .subtitle {
         margin-bottom: 8px;
-        font-size: 14px;
+        font-size: 0.875rem;
     }
 
     .stats {
@@ -854,7 +856,7 @@ h1 {
 
     .stat {
         padding: 6px 12px;
-        font-size: 13px;
+        font-size: 0.8125rem;
     }
 
     .scene {
@@ -870,7 +872,7 @@ h1 {
         min-width: 90px;
         height: 34px;
         padding: 5px 12px;
-        font-size: 13px;
+        font-size: 0.8125rem;
     }
 
     .question-panel {
@@ -879,7 +881,7 @@ h1 {
     }
 
     #question {
-        font-size: 25px;
+        font-size: 1.5625rem;
         margin-bottom: 10px;
     }
 
@@ -889,13 +891,13 @@ h1 {
 
     .answer-btn {
         padding: 10px;
-        font-size: 18px;
+        font-size: 1.125rem;
     }
 
     #feedback {
         min-height: 24px;
         margin-top: 5px;
-        font-size: 16px;
+        font-size: 1rem;
     }
 }
 
@@ -910,13 +912,13 @@ h1 {
     }
 
     h1 {
-        font-size: 21px;
+        font-size: 1.3125rem;
         margin-bottom: 2px;
     }
 
     .subtitle {
         margin-bottom: 5px;
-        font-size: 12px;
+        font-size: 0.75rem;
     }
 
     .stats {
@@ -926,7 +928,7 @@ h1 {
 
     .stat {
         padding: 4px 9px;
-        font-size: 11px;
+        font-size: 0.6875rem;
     }
 
     .scene {
@@ -942,7 +944,7 @@ h1 {
         min-width: 75px;
         height: 30px;
         padding: 4px 8px;
-        font-size: 11px;
+        font-size: 0.6875rem;
     }
 
     .question-panel {
@@ -952,7 +954,7 @@ h1 {
     }
 
     #question {
-        font-size: 20px;
+        font-size: 1.25rem;
         margin-bottom: 7px;
     }
 
@@ -962,14 +964,14 @@ h1 {
 
     .answer-btn {
         padding: 7px;
-        font-size: 16px;
+        font-size: 1rem;
         border-width: 2px;
     }
 
     #feedback {
         min-height: 20px;
         margin-top: 3px;
-        font-size: 14px;
+        font-size: 0.875rem;
     }
 }
 .brightness-option 

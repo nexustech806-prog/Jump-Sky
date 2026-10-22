@@ -1,6 +1,4 @@
-const API_URL = window.location.hostname === 'localhost'
-    ? 'http://localhost:3000'
-    : window.location.origin;
+const API_URL = window.location.origin;
 
 const slugsPorFase = {
     1: 'somando-nas-nuvens',
@@ -11,10 +9,9 @@ const slugsPorFase = {
 };
 
 (function () {
-    const tamanhoSalvo = localStorage.getItem('tamanhoFonte');
-    if (tamanhoSalvo) {
-        document.documentElement.style.fontSize = `${tamanhoSalvo}%`;
-    }
+    const tamanhoSalvo = Number(localStorage.getItem('tamanhoFonte') ?? 100);
+    const tamanho = Number.isFinite(tamanhoSalvo) ? Math.max(80, Math.min(150, tamanhoSalvo)) : 100;
+    document.documentElement.style.fontSize = `${tamanho}%`;
 
     const altoContrasteSalvo = localStorage.getItem('altoContraste') === 'true';
     if (altoContrasteSalvo) {

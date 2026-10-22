@@ -52,7 +52,7 @@
             await instructionAudio.play();
         } catch (error) {
             if (currentPlaybackId !== playbackId) return;
-            status.textContent = "Não foi possível carregar o áudio. Confira se o MP3 foi adicionado à pasta /audio.";
+            status.textContent = "Não foi possível ouvir as instruções. Tente novamente em instantes.";
             finishPlayback(currentPlaybackId);
         }
     });
@@ -63,7 +63,7 @@
     });
 
     instructionAudio.addEventListener("error", () => {
-        status.textContent = "Não foi possível carregar o áudio. Confira se o MP3 foi adicionado à pasta /audio.";
+        status.textContent = "Não foi possível ouvir as instruções. Tente novamente em instantes.";
         finishPlayback(playbackId);
     });
 

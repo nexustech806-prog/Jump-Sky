@@ -7,6 +7,10 @@ const MAX_FONTE = 150;
 const PASSO_FONTE = 10;
 
 function aplicarTamanhoFonte(percentual) {
+    const valor = Number(percentual);
+    percentual = Number.isFinite(valor)
+        ? Math.max(MIN_FONTE, Math.min(MAX_FONTE, valor))
+        : 100;
     document.documentElement.style.fontSize = `${percentual}%`;
 
     const label = document.getElementById('fontePercentual');
@@ -16,7 +20,7 @@ function aplicarTamanhoFonte(percentual) {
 }
 
 function carregarTamanhoFonte() {
-    const salvo = Number(localStorage.getItem('tamanhoFonte')) || 100;
+    const salvo = localStorage.getItem('tamanhoFonte') ?? 100;
     aplicarTamanhoFonte(salvo);
 }
 
@@ -25,14 +29,16 @@ const btnDiminuir = document.getElementById('diminuirFonte');
 
 if (btnAumentar) {
     btnAumentar.addEventListener('click', () => {
-        const atual = Number(localStorage.getItem('tamanhoFonte')) || 100;
+        carregarTamanhoFonte();
+        const atual = Number(localStorage.getItem('tamanhoFonte'));
         aplicarTamanhoFonte(Math.min(atual + PASSO_FONTE, MAX_FONTE));
     });
 }
 
 if (btnDiminuir) {
     btnDiminuir.addEventListener('click', () => {
-        const atual = Number(localStorage.getItem('tamanhoFonte')) || 100;
+        carregarTamanhoFonte();
+        const atual = Number(localStorage.getItem('tamanhoFonte'));
         aplicarTamanhoFonte(Math.max(atual - PASSO_FONTE, MIN_FONTE));
     });
 }

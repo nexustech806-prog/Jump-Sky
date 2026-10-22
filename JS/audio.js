@@ -137,6 +137,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const settingsPanel = document.getElementById('settingsPanel');
     if (settingsBtn && settingsPanel) {
         settingsBtn.setAttribute('aria-expanded', 'false');
+        settingsBtn.setAttribute('aria-controls', settingsPanel.id);
         settingsBtn.addEventListener('click', event => {
             event.stopPropagation();
             settingsPanel.classList.toggle('show');
@@ -145,7 +146,11 @@ document.addEventListener('DOMContentLoaded', () => {
         settingsPanel.addEventListener('click', event => event.stopPropagation());
         document.addEventListener('click', () => { settingsPanel.classList.remove('show'); settingsBtn.setAttribute('aria-expanded', 'false'); });
         document.addEventListener('keydown', event => {
-            if (event.key === 'Escape') { settingsPanel.classList.remove('show'); settingsBtn.setAttribute('aria-expanded', 'false'); }
+            if (event.key === 'Escape' && settingsPanel.classList.contains('show')) {
+                settingsPanel.classList.remove('show');
+                settingsBtn.setAttribute('aria-expanded', 'false');
+                settingsBtn.focus();
+            }
         });
     }
     applyAudioSettings();

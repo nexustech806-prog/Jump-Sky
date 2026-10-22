@@ -184,3 +184,22 @@
 @media (prefers-reduced-motion: reduce) {
     .public-page *, .public-page *::before, .public-page *::after { transition: none !important; animation: none !important; scroll-behavior: auto !important; }
 }
+
+.nav-links a, .text-link { display: inline-flex; align-items: center; min-height: 44px; }
+.account-settings { margin-top: 1.5rem; padding-top: 1rem; border-top: 1px solid #ffffff40; display: flex; flex-wrap: wrap; align-items: center; gap: 1rem; }
+.account-settings h3, #contaStatus { flex-basis: 100%; }
+#sairBtn { min-height: 44px; padding: .75rem 1rem; border: 1px solid #f0a9b8; border-radius: 8px; background: #222237; color: #ffe3e9; cursor: pointer; }
+@media (max-width: 480px) { .nav-links { flex-wrap: wrap; gap: .75rem; } }
+
+.journey-page .menu-avatar-action {
+    position: absolute;
+    left: 50%;
+    bottom: 16px;
+    transform: translateX(-50%);
+    z-index: 2;
+}
+.journey-page .menu-avatar-action:hover { transform: translate(-50%, -2px); }
+.journey-page .menu-avatar-action:active { transform: translate(-50%, 2px); }
+@media (max-width: 760px) {
+    .journey-page .menu-avatar-action { bottom: 12px; }
+}

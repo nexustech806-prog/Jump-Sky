@@ -10,10 +10,12 @@ avatares.forEach((avatar) => {
         // Remove a seleção de todos
         avatares.forEach((item) => {
             item.classList.remove("selecionado");
+            item.setAttribute("aria-pressed", "false");
         });
 
         // Seleciona apenas o clicado
         avatar.classList.add("selecionado");
+        avatar.setAttribute("aria-pressed", "true");
 
         avatarSelecionado = avatar.dataset.avatar;
 
@@ -28,7 +30,7 @@ continuarBtn.addEventListener("click", async () => {
     avatares.forEach(avatar => { avatar.disabled = true; });
     mensagem.textContent = "Salvando seu personagem...";
     try {
-        const response = await fetch(`${API_URL}/api/avatar`, {
+        const { response } = await JumpSkyRequest(`${API_URL}/api/avatar`, {
             method: 'PUT',
             credentials: 'include',
             headers: { 'Content-Type': 'application/json' },
@@ -36,6 +38,7 @@ continuarBtn.addEventListener("click", async () => {
         });
         if (response.status === 401) {
             mensagem.textContent = 'Entre na sua conta para salvar o personagem.';
+            window.location.assign('/login');
             return;
         }
         if (!response.ok) throw new Error('Falha ao salvar');

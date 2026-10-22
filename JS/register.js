@@ -3,25 +3,8 @@ let gerandoNomes = false;
 let cadastrando = false;
 
 async function solicitarJSON(url, options) {
-  const controller = new AbortController();
-  let timer;
-  try {
-    return await Promise.race([
-      (async () => {
-        const resposta = await fetch(url, { ...options, signal: controller.signal });
-        const dados = await resposta.json();
-        return { resposta, dados };
-      })(),
-      new Promise((resolve, reject) => {
-        timer = setTimeout(() => {
-          controller.abort();
-          reject(Object.assign(new Error('Tempo de resposta excedido'), { name: 'TimeoutError' }));
-        }, 15000);
-      })
-    ]);
-  } finally {
-    clearTimeout(timer);
-  }
+  const { response: resposta, data: dados } = await JumpSkyRequest(url, options);
+  return { resposta, dados };
 }
 
 function atualizarBotaoContinuar() {
@@ -109,6 +92,11 @@ async function createUser(event) {
 
   if (!passwordValue || !confirmValue) {
     alert("Por favor, preencha todos os campos!");
+    return;
+  }
+
+  if (new TextEncoder().encode(passwordValue).length > 72) {
+    document.getElementById('statusCadastro').textContent = 'Escolha uma senha mais curta para continuar.';
     return;
   }
 

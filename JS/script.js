@@ -38,20 +38,8 @@ const faseAtual = 1;
 
 
 
-async function completarFase(fase) {
-    try {
-        const resp = await fetch(`${API_URL}/api/save/avancar`, {
-            method: 'PUT',
-            credentials: 'include', // <- essencial: manda o cookie do token junto
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ faseCompletada: fase })
-        });
-
-        const data = await resp.json();
-        console.log('Progresso atualizado:', data.saveProgress);
-    } catch (error) {
-        console.error('Erro ao atualizar progresso:', error);
-    }
+function completarFase() {
+    return phaseSession.complete();
 }
 
 
@@ -83,141 +71,39 @@ let errors = 0;
 let gameFinished = false;
 
 let busy = false;
+const phaseSession = window.JumpSkyGameSession.createPhase(faseAtual, "+");
+let phaseRetryAction = null;
+let phaseSaved = false;
+let phaseSaving = false;
 
 
 // ========================================
-// GERA 3 RESPOSTAS
+// CARREGA AS PERGUNTAS DA FASE
 // ========================================
 
-function generateAnswers(correct) {
-
-    // A resposta correta entra primeiro
-    const answers = [correct];
-
-
-    // Possíveis respostas erradas
-    const possibleAnswers = [
-        correct + 1,
-        correct - 1,
-        correct + 2,
-        correct - 2,
-        correct + 3,
-        correct - 3,
-        correct + 4,
-        correct - 4,
-        correct + 5,
-        correct - 5,
-        correct + 6,
-        correct - 6,
-        correct + 7,
-        correct - 7
-    ];
-
-
-    // Remove números menores que 0
-    // e números iguais à resposta correta
-    const validAnswers =
-        possibleAnswers.filter(
-            answer =>
-                answer >= 0 &&
-                answer !== correct
-        );
-
-
-    // Embaralha as respostas erradas
-    validAnswers.sort(
-        () => Math.random() - 0.5
-    );
-
-
-    // Adiciona somente 2 respostas erradas
-    for (
-        let i = 0;
-        i < validAnswers.length &&
-        answers.length < 3;
-        i++
-    ) {
-
-        if (!answers.includes(validAnswers[i])) {
-
-            answers.push(
-                validAnswers[i]
-            );
-        }
-    }
-
-
-    // Segurança para garantir 3 respostas
-    let number = 0;
-
-    while (answers.length < 3) {
-
-        if (!answers.includes(number)) {
-
-            answers.push(number);
-        }
-
-        number++;
-    }
-
-
-    // Embaralha as 3 respostas
-    answers.sort(
-        () => Math.random() - 0.5
-    );
-
-
-    return answers;
-}
-
-
-// ========================================
-// GERA UMA QUESTÃO DE ADIÇÃO
-// ========================================
-
-function generateQuestion(questionNumber) {
-    const level = Math.max(0, Math.min(3, questionNumber));
-    const random = (min, max) => Math.floor(Math.random() * (max - min + 1)) + min;
-    let number1, number2, correct;
-    const operation = '+';
-    if (operation === '+' || operation === '-') {
-        number1 = random(6, [15, 20, 30, 40][level]);
-        number2 = random(2, operation === '-' ? number1 : [5, 10, 15, 20][level]);
-        correct = operation === '+' ? number1 + number2 : number1 - number2;
-    } else if (operation === '×') {
-        number1 = random(2, [4, 5, 8, 10][level]);
-        number2 = random(2, [5, 6, 8, 10][level]);
-        correct = number1 * number2;
-    } else {
-        number2 = random(2, [4, 5, 8, 10][level]);
-        correct = random(2, [5, 6, 8, 10][level]);
-        number1 = number2 * correct;
-    }
-    return { number1, number2, correct, answers: generateAnswers(correct),
-        questionText: createEverydayProblem(operation, number1, number2, questionNumber) };
-}
-
-function createQuestions() {
-
-    questions = [];
-
-
-    for (
-        let i = 0;
-        i < 4;
-        i++
-    ) {
-
-        questions.push(
-            generateQuestion(i)
-        );
+async function createQuestions() {
+    busy = true;
+    phaseSaved = false;
+    phaseRetryAction = null;
+    answerButtons.forEach(button => { button.disabled = true; });
+    restartBtn.style.display = "none";
+    feedback.textContent = "";
+    questionElement.textContent = "Preparando suas perguntas...";
+    try {
+        questions = await phaseSession.start();
+        busy = false;
+        loadQuestion();
+    } catch (error) {
+        questionElement.textContent = "Não foi possível carregar as perguntas.";
+        feedback.textContent = error.message;
+        feedback.className = "feedback-wrong";
+        phaseRetryAction = createQuestions;
+        restartBtn.textContent = "Tentar carregar novamente";
+        restartBtn.style.display = "block";
+        restartBtn.disabled = false;
+        restartBtn.focus();
     }
 }
-
-
-// ========================================
-// POSICIONA O PERSONAGEM
-// ========================================
 
 function setCharacterPosition() {
 
@@ -437,6 +323,7 @@ function checkAnswer(button) {
     question.correct
 ) {
 
+    phaseSession.recordAnswer(answer);
     playSound("correct");
 
     busy = true;
@@ -607,64 +494,48 @@ if (closeHint) {
 // FINALIZA A FASE
 // ========================================
 
-function finishGame() {
-    stopBackgroundMusic();
-
-    playSound("complete");
-
+async function finishGame() {
+    if (phaseSaving) return;
     gameFinished = true;
-
-
-    questionElement.textContent =
-        "🎉 Parabéns! Você completou a fase!";
-
-
-    // Desativa os botões
-    answerButtons.forEach(
-        button => {
-
-            button.disabled = true;
-
-        }
-    );
-
-
-    // Mostra o botão de jogar novamente
-    if (restartBtn) {
-
-        restartBtn.style.display =
-            "block";
+    busy = true;
+    phaseSaving = true;
+    phaseRetryAction = null;
+    answerButtons.forEach(button => { button.disabled = true; });
+    restartBtn.style.display = "none";
+    questionElement.textContent = "Você acertou todas! Salvando seu progresso...";
+    feedback.textContent = "Aguarde um instante.";
+    feedback.className = "";
+    try {
+        await completarFase();
+        phaseSaved = true;
+    } catch (error) {
+        questionElement.textContent = "Suas respostas estão aqui. Vamos tentar salvar outra vez?";
+        feedback.textContent = error.message;
+        feedback.className = "feedback-wrong";
+        phaseRetryAction = finishGame;
+        restartBtn.textContent = "Tentar salvar novamente";
+        restartBtn.style.display = "block";
+        restartBtn.disabled = false;
+        restartBtn.focus();
+        return;
+    } finally {
+        phaseSaving = false;
     }
-
-    // Plataforma final
+    stopBackgroundMusic();
+    playSound("complete");
+    questionElement.textContent = "Parabéns! Você completou a fase!";
+    feedback.textContent = "Progresso salvo!";
+    feedback.className = "feedback-correct";
+    character.classList.add("jumping");
+    setTimeout(() => character.classList.remove("jumping"), 700);
     currentPlatform = 4;
-
-
     updateStats();
-
     updatePlatforms();
-
     setCharacterPosition();
-
-
-    // Faz o personagem pular
-    character.classList.add(
-        "jumping"
-    );
-
-
-    setTimeout(
-        () => {
-
-            character.classList.remove(
-                "jumping"
-            );
-
-        },
-        700
-    );
-
-    completarFase(faseAtual);
+    restartBtn.textContent = "Ir para a próxima fase";
+    restartBtn.style.display = "block";
+    restartBtn.disabled = false;
+    restartBtn.focus();
 }
 
 
@@ -674,48 +545,14 @@ function finishGame() {
 
 function restartGame() {
     startBackgroundMusic();
-
     currentQuestion = 0;
-
     currentPlatform = 0;
-
     hits = 0;
-
     errors = 0;
-
     gameFinished = false;
-
-    busy = false;
-
-
-    // Esconde o botão
-    if (restartBtn) {
-
-        restartBtn.style.display =
-            "none";
-    }
-
-
-    // Fecha a dica
-    if (hintPopup) {
-
-        hintPopup.classList.remove(
-            "show"
-        );
-    }
-
-
-    // Cria novas perguntas
-    createQuestions();
-
-
-    updateStats();
-
-    updatePlatforms();
-
-    setCharacterPosition();
-
-    loadQuestion();
+    busy = true;
+    hintPopup?.classList.remove("show");
+    void createQuestions();
 }
 
 
@@ -743,15 +580,17 @@ answerButtons.forEach(
 // ========================================
 
 if (restartBtn) {
+    restartBtn.type = "button";
     restartBtn.addEventListener("click", () => {
-        const proximaFase = faseAtual + 1;
-
-        if (slugsPorFase[proximaFase]) {
-            window.location.href = `/${slugsPorFase[proximaFase]}`;
-        } else {
-            // não existe próxima fase, volta pro menu (ou tela de "zerou o jogo")
-            window.location.href = '/menu';
+        if (phaseSaving) return;
+        if (phaseRetryAction) {
+            void phaseRetryAction();
+            return;
         }
+        if (!phaseSaved) return;
+        const proximaFase = faseAtual + 1;
+        window.location.href = slugsPorFase[proximaFase]
+            ? "/" + slugsPorFase[proximaFase] : "/menu";
     });
 }
 
@@ -784,15 +623,13 @@ if (restartBtn) {
 // INICIA O JOGO
 // ========================================
 
-createQuestions();
+void createQuestions();
 
 updateStats();
 
 updatePlatforms();
 
 setCharacterPosition();
-
-loadQuestion();
 
 window.addEventListener(
     "resize",
