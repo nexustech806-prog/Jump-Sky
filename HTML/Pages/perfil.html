@@ -1,0 +1,72 @@
+﻿<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Meu perfil - Jump Sky</title>
+    <link rel="stylesheet" href="/CSS/perfil.css">
+    <link rel="stylesheet" href="/CSS/acessibilidade.css">
+</head>
+<body>
+    <a class="skip-link" href="#conteudo">Pular para o conteúdo</a>
+    <header class="profile-nav">
+        <a class="brand" href="/menu" aria-label="Jump Sky - menu">Jump<span>Sky</span></a>
+        <a class="back-link" href="/menu"><span aria-hidden="true">←</span> Voltar às fases</a>
+    </header>
+    <main id="conteudo" class="profile-layout">
+        <header class="page-heading">
+            <p class="eyebrow">SEU CANTINHO NA AVENTURA</p>
+            <h1>Meu perfil<span aria-hidden="true">.</span></h1>
+            <p>Um aventureiro com a sua cara. Escolha seus favoritos e prepare-se para o próximo salto!</p>
+        </header>
+        <aside class="profile-sidebar" aria-label="Seu aventureiro e conquistas">
+            <section class="player-card" aria-label="Seu perfil salvo" id="perfilAtual" hidden>
+                <p class="eyebrow">MEU AVENTUREIRO</p>
+                <div class="avatar-stage"><img id="avatarAtual" alt="Seu avatar atual" width="150" height="190"></div>
+                <h2 id="apelidoAtual"></h2>
+                <p class="player-caption">Pronto para alcançar novas alturas</p>
+                <span class="player-badge"><span aria-hidden="true">✦</span> Turma Jump Sky</span>
+            </section>
+            <section id="recordeBonus" class="recorde-bonus" aria-labelledby="tituloRecordeBonus" hidden>
+                <div class="record-heading">
+                    <svg class="trophy" width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 3h8v5a4 4 0 0 1-8 0V3ZM8 5H4v2a4 4 0 0 0 4 4M16 5h4v2a4 4 0 0 1-4 4M12 12v6M8 21h8M9 18h6v3"/></svg>
+                    <div><p class="eyebrow">MINHA MELHOR MARCA</p><h2 id="tituloRecordeBonus">Recorde da fase bônus</h2></div>
+                </div>
+                <p class="recorde-bonus__valor"><strong id="pontosRecordeBonus">0</strong> <span>pontos</span></p>
+                <p id="mensagemRecordeBonus"></p>
+            </section>
+        </aside>
+        <div class="customization-card">
+            <form id="formPerfil">
+                <fieldset id="opcoesPerfil" disabled>
+                    <legend>Personalizar meu perfil</legend>
+                    <section class="choice-section" aria-labelledby="tituloAvatares">
+                        <div class="choice-heading"><span class="step-number" aria-hidden="true">01</span><div><h2 id="tituloAvatares">Escolha seu avatar</h2><p>Quem vai acompanhar você nessa aventura?</p></div></div>
+                        <div class="avatares" role="group" aria-label="Avatares disponíveis">
+                            <button type="button" class="avatar" aria-pressed="false" data-avatar="Personagem.png"><img src="/images/Personagem.png" alt="Avatar 1"><span aria-hidden="true">Avatar 1</span></button>
+                            <button type="button" class="avatar" aria-pressed="false" data-avatar="personagem2.png"><img src="/images/personagem2.png" alt="Avatar 2"><span aria-hidden="true">Avatar 2</span></button>
+                            <button type="button" class="avatar" aria-pressed="false" data-avatar="personagem3.png"><img src="/images/personagem3.png" alt="Avatar 3"><span aria-hidden="true">Avatar 3</span></button>
+                            <button type="button" class="avatar" aria-pressed="false" data-avatar="personagem4.png"><img src="/images/personagem4.png" alt="Avatar 4"><span aria-hidden="true">Avatar 4</span></button>
+                        </div>
+                    </section>
+                    <section class="choice-section nickname-section" aria-labelledby="tituloApelidos">
+                        <div class="choice-heading"><span class="step-number" aria-hidden="true">02</span><div><h2 id="tituloApelidos">Escolha seu apelido</h2><p>Um nome divertido para uma grande aventura.</p></div></div>
+                        <div id="apelidosPerfil" role="group" aria-label="Apelidos disponíveis"></div>
+                        <button type="button" id="gerarApelidos"><span aria-hidden="true">↻</span> Ver outras sugestões</button>
+                        <p class="nickname-note">Seu apelido também é usado para entrar no jogo. Escolha uma sugestão ou mantenha o atual.</p>
+                    </section>
+                    <div class="save-bar"><p><span aria-hidden="true">✦</span> Tudo do seu jeito, sem dados pessoais.</p><button type="submit" id="salvarPerfil">Salvar meu perfil <span aria-hidden="true">→</span></button></div>
+                </fieldset>
+            </form>
+            <div class="profile-feedback"><p id="statusPerfil" role="status" aria-live="polite">Carregando seu perfil...</p><button type="button" id="recarregarPerfil" hidden>Tentar carregar novamente</button></div>
+        </div>
+    </main>
+    <footer class="profile-footer">Cada salto, uma nova conquista.</footer>
+    <script src="/JS/config.js"></script>
+    <script src="/JS/request.js"></script>
+    <script src="/JS/nicknames.js"></script>
+    <script src="/JS/acessibilidade.js"></script>
+    <script src="/JS/brightness.js"></script>
+    <script src="/JS/perfil.js"></script>
+</body>
+</html>

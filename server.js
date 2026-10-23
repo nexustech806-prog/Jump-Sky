@@ -169,6 +169,55 @@ app.get('/selecionar-avatar', verificarTokenPagina, (req, res) => {
     res.sendFile(path.join(__dirname, 'HTML/Pages/SelecionarAvatar.html'));
 });
 
+app.get('/perfil', verificarTokenPagina, (req, res) => {
+    res.sendFile(path.join(__dirname, 'HTML/Pages/perfil.html'));
+});
+
+app.get('/api/profile', verificarToken, requireDatabase, async (req, res) => {
+    res.set('Cache-Control', 'no-store');
+    try {
+        const user = await User.findById(req.userId);
+        if (!user) return res.status(404).json({ mensagem: 'Conta não encontrada.' });
+        const save = await SaveData.findOne({ userId: req.userId });
+        return res.json({
+            nickname: user.nickname,
+            avatar: normalizeSavedAvatar(user.avatar),
+            bonusHighScore: save?.bonusHighScore || 0
+        });
+    } catch (error) {
+        return res.status(503).json({ mensagem: 'Não foi possível carregar seu perfil. Tente novamente.' });
+    }
+});
+
+app.put('/api/profile', verificarToken, requireDatabase, async (req, res) => {
+    const { nickname, avatar } = req.body || {};
+    if (!VALID_AVATARS.includes(avatar) || typeof nickname !== 'string') {
+        return res.status(400).json({ mensagem: 'Escolha um avatar e um apelido das opções disponíveis.' });
+    }
+    try {
+        const current = await User.findById(req.userId);
+        if (!current) return res.status(404).json({ mensagem: 'Conta não encontrada.' });
+        const update = { avatar };
+        // Existing accounts may retain their nickname while changing only the avatar.
+        if (nickname !== current.nickname) {
+            if (!nicknames.valido(nickname)) {
+                return res.status(400).json({ mensagem: 'Escolha um dos apelidos sugeridos.' });
+            }
+            const taken = await User.findOne({ nickname, _id: { $ne: req.userId } });
+            if (taken) return res.status(409).json({ mensagem: 'Esse apelido já foi escolhido. Escolha outro.' });
+            await ensureNicknameIndex();
+            update.nickname = nickname;
+            update.registrationNickname = nickname;
+        }
+        const user = await User.findByIdAndUpdate(req.userId, { $set: update }, { new: true, runValidators: true });
+        if (!user) return res.status(404).json({ mensagem: 'Conta não encontrada.' });
+        return res.json({ nickname: user.nickname, avatar: normalizeSavedAvatar(user.avatar) });
+    } catch (error) {
+        if (error.code === 11000) return res.status(409).json({ mensagem: 'Esse apelido acabou de ser escolhido. Escolha outro.' });
+        return res.status(503).json({ mensagem: 'Não foi possível salvar seu perfil. Tente novamente.' });
+    }
+});
+
 app.post('/api/nicknames/available', requireDatabase, async (req, res) => {
     const candidates = req.body && req.body.candidates;
     if (!Array.isArray(candidates) || candidates.length > 12 || !candidates.length || !candidates.every(nicknames.valido)) {
