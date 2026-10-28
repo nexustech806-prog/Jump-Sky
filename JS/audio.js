@@ -2,6 +2,18 @@
 const audioChannels = ['music', 'effects'];
 const channelLabels = { music: 'Música', effects: 'Efeitos sonoros' };
 const audioMemory = new Map();
+const musicTracks = [
+    { id: 'clouds', name: 'Fase 1 · Brisa nas Nuvens', src: '/audio/music-clouds.mp3' },
+    { id: 'underground', name: 'Fase 2 · Ecos da Caverna', src: '/audio/music-underground.mp3' },
+    { id: 'beach', name: 'Fase 3 · Maré de Verão', src: '/audio/music-beach.mp3' },
+    { id: 'lava', name: 'Fase 4 · Coração do Vulcão', src: '/audio/music-lava.mp3' },
+    { id: 'space', name: 'Bônus · Além das Estrelas', src: '/audio/music-space.mp3' }
+];
+const phaseMusicTracks = { '1': 'clouds', '2': 'underground', '3': 'beach', '4': 'lava', bonus: 'space' };
+function validMusicTrack(id) { return musicTracks.some(track => track.id === id); }
+function defaultMusicTrack() { return phaseMusicTracks[document.body.dataset.phase] || 'clouds'; }
+const savedMusicTrack = readAudioSetting('musicTrack');
+let selectedMusicTrack = validMusicTrack(savedMusicTrack) ? savedMusicTrack : defaultMusicTrack();
 function readAudioSetting(key) {
     try { return localStorage.getItem(key); } catch { return audioMemory.get(key) ?? null; }
 }
@@ -35,9 +47,10 @@ function getSoundVolume() { return getChannelVolume('effects'); }
 function setSoundVolume(volume) { setChannelVolume('effects', volume); }
 
 const gameSounds = Object.fromEntries(['correct', 'wrong', 'complete', 'timeout', 'record'].map(name => [name, new Audio('/audio/' + name + '.mp3')]));
-const backgroundMusic = new Audio('/audio/background.wav');
+const backgroundMusic = new Audio(musicTracks.find(track => track.id === selectedMusicTrack).src);
 backgroundMusic.loop = true;
 backgroundMusic.preload = 'auto';
+let musicTrackVersion = 0;
 const activeEffects = new Set();
 const narrationSounds = new Set();
 let musicRequested = false;
@@ -51,13 +64,31 @@ function syncBackgroundMusic() {
     if (!musicRequested || !canPlayChannel('music')) { backgroundMusic.pause(); return; }
     if (!backgroundMusic.paused || musicPlayPending) return;
     musicPlayPending = true;
+    const playVersion = musicTrackVersion;
     backgroundMusic.play().then(() => {
         if (!musicRequested || !canPlayChannel('music')) backgroundMusic.pause();
     }).catch(() => { /* Tentar novamente no próximo clique ou tecla. */ })
-        .finally(() => { musicPlayPending = false; });
+        .finally(() => {
+            musicPlayPending = false;
+            if (playVersion !== musicTrackVersion) syncBackgroundMusic();
+        });
 }
 function startBackgroundMusic() { musicRequested = true; syncBackgroundMusic(); }
 function stopBackgroundMusic() { musicRequested = false; backgroundMusic.pause(); backgroundMusic.currentTime = 0; }
+function setMusicTrack(trackId, persist = true) {
+    const track = musicTracks.find(option => option.id === trackId);
+    if (!track) return;
+    if (persist) saveAudioSetting('musicTrack', track.id);
+    if (selectedMusicTrack !== track.id) {
+        selectedMusicTrack = track.id;
+        musicTrackVersion++;
+        backgroundMusic.pause();
+        backgroundMusic.src = track.src;
+        backgroundMusic.load();
+    }
+    syncBackgroundMusic();
+    updateAudioControls();
+}
 function playSound(name) {
     const sound = gameSounds[name];
     if (!sound || !canPlayChannel('effects')) return;
@@ -105,6 +136,7 @@ function updateAudioControls() {
         button.textContent = isSoundEnabled() ? 'Silenciar tudo' : 'Ativar som geral';
         button.setAttribute('aria-pressed', String(!isSoundEnabled()));
     });
+    document.querySelectorAll('[data-audio-track]').forEach(select => { select.value = selectedMusicTrack; });
     for (const channel of audioChannels) {
         document.querySelectorAll('[data-audio-toggle="' + channel + '"]').forEach(button => {
             button.textContent = getChannelEnabled(channel) ? 'Ligado' : 'Desligado';
@@ -120,7 +152,11 @@ function updateAudioControls() {
 function updateAccessibilityCheckbox() { updateAudioControls(); }
 document.addEventListener('DOMContentLoaded', () => {
     document.querySelectorAll('[data-audio-settings]').forEach((host, index) => {
-        host.innerHTML = '<h3>Som</h3><button type="button" data-audio-master></button><p data-audio-status role="status"></p>' + audioChannels.map(channel => {
+        const trackId = 'audio-' + index + '-track';
+        const trackOptions = musicTracks.map(track => '<option value="' + track.id + '">' + track.name + '</option>').join('');
+        host.innerHTML = '<h3>Som</h3><button type="button" data-audio-master></button><p data-audio-status role="status"></p>' +
+            '<div class="audio-track"><label for="' + trackId + '">Música da partida</label><select id="' + trackId + '" data-audio-track aria-label="Escolher música da partida">' + trackOptions + '</select></div>' +
+            audioChannels.map(channel => {
             const id = 'audio-' + index + '-' + channel;
             return '<div class="audio-channel"><label for="' + id + '">' + channelLabels[channel] + '</label>' +
                 '<button type="button" data-audio-toggle="' + channel + '" aria-label="Ligar ou desligar ' + channelLabels[channel] + '"></button>' +
@@ -128,6 +164,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 '<output for="' + id + '" data-audio-value="' + channel + '"></output></div>';
         }).join('');
         host.querySelector('[data-audio-master]').addEventListener('click', toggleSound);
+        host.querySelector('[data-audio-track]').addEventListener('change', event => setMusicTrack(event.target.value));
         host.querySelectorAll('[data-audio-toggle]').forEach(button => button.addEventListener('click', () => {
             const channel = button.dataset.audioToggle; setChannelEnabled(channel, !getChannelEnabled(channel));
         }));
@@ -161,4 +198,7 @@ document.addEventListener('keydown', syncBackgroundMusic);
 document.addEventListener('visibilitychange', () => { if (document.hidden) stopAllSounds(); else applyAudioSettings(); });
 window.addEventListener('pagehide', stopAllSounds);
 window.addEventListener('pageshow', applyAudioSettings);
-window.addEventListener('storage', applyAudioSettings);
+window.addEventListener('storage', event => {
+    if (event.key === 'musicTrack') setMusicTrack(event.newValue, false);
+    applyAudioSettings();
+});
