@@ -30,8 +30,8 @@ test('each phase starts its own track despite a previously saved selection',()=>
 test('intro uses the effects channel and honors mute',async()=>{
  const enabled=audio('1');
  assert.equal(await vm.runInContext("playSound('intro')",enabled.context),true);
- assert.equal(enabled.sounds.find(s=>s.src==='/audio/intro.wav').plays,1);
+ assert.equal(enabled.sounds.find(s=>s.src==='/audio/intro.mp3').plays,1);
  const muted=audio('1',true);
  assert.equal(await vm.runInContext("playSound('intro')",muted.context),false);
- assert.equal(muted.sounds.find(s=>s.src==='/audio/intro.wav').plays,0);
+ assert.equal(muted.sounds.find(s=>s.src==='/audio/intro.mp3').plays,0);
 });
