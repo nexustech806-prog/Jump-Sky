@@ -70,17 +70,14 @@ const TEMPO_POR_QUESTAO = 45; // Tempo para ler a situação-problema.
 const TOTAL_PLATAFORMAS = 10;
 
 const cenarios = [
-    "/images/bonus1.jpeg",
-    "/images/bonus2.jpeg",
-    "/images/bonus1.jpeg",
-    "/images/bonus2.jpeg"
+    "/images/bonus1.jpeg", "/images/bonus2.jpeg", "/images/martebonus.jpg",
+    "/images/jupiterbonus.jpg", "/images/saturnobonus.jpg", "/images/uranus.jpg",
+    "/images/netuno.jpg", "/images/sistemasolarbonus.jpg"
 ];
 
 const nomesCenarios = [
-    "🌍 Órbita da Terra",
-    "🌙 Viagem pela Lua",
-    "🪐 Planetas Distantes",
-    "🌌 Espaço Profundo"
+    "🌍 Órbita da Terra", "🌙 Viagem pela Lua", "🔴 Marte", "🪐 Júpiter",
+    "🪐 Saturno", "🔵 Urano", "🔵 Netuno", "🌌 Sistema Solar"
 ];
 
 
@@ -662,13 +659,16 @@ function avancarPersonagem() {
 // ========================================
 
 function atualizarCenario() {
-    scene.style.backgroundImage =
-        `url("${cenarios[indiceCenario]}")`;
-
-    if (sceneName) {
-        sceneName.textContent =
-            nomesCenarios[indiceCenario];
-    }
+    const index = indiceCenario;
+    const apply = () => {
+        if (index !== indiceCenario) return;
+        scene.style.backgroundImage = 'url("' + cenarios[index] + '")';
+        if (sceneName) sceneName.textContent = nomesCenarios[index];
+    };
+    if (window.JumpSkyAssets) {
+        window.JumpSkyAssets.load(cenarios[index]).then(ready => { if (ready) apply(); });
+        window.JumpSkyAssets.load(cenarios[(index + 1) % cenarios.length]);
+    } else apply();
 }
 
 
@@ -761,6 +761,7 @@ async function initializeBonus() {
         recordeConfirmado = Math.max(recordeConfirmado, data.bonusHighScore);
         recorde = Math.max(recorde, recordeConfirmado, cachedRecord);
         cacheRecord();
+        await (window.jumpSkyBonusIntroReady || Promise.resolve());
         bonusReady = true;
         void salvarRecorde();
         nextQuestionBtn.hidden = false;

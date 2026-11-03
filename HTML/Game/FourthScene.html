@@ -10,6 +10,10 @@
     <link rel="stylesheet" href="/CSS/audio-settings.css">
     <link rel="stylesheet" href="/CSS/instruction-audio.css">
     <link rel="stylesheet" href="/CSS/game-layout.css">
+    <link rel="stylesheet" href="/CSS/game-theme.css">
+<link rel="preload" as="image" href="/images/cenariofase4.jpeg" fetchpriority="high">
+    <link rel="preload" as="image" href="/images/introfase4.png">
+    <script src="/JS/game-assets.js"></script>
 </head>
 
 <body data-game-phase data-phase="4">
@@ -200,6 +204,7 @@
 
     <script src="/JS/config.js"></script>
     <script src="/JS/avatar.js"></script>
+    <script src="/JS/game-intro.js"></script>
 <script src="/JS/audio.js"></script>
     <script src="/JS/instruction-audio.js"></script>
     <script src="/JS/problems.js"></script>
@@ -209,5 +214,6 @@
     <script src="/JS/brightness.js"></script>
     <script src="/JS/acessibilidade.js"></script>
     <script src="/JS/game-layout.js"></script>
+<script>window.addEventListener("load", () => { JumpSkyAssets.load("/images/bonus1.jpeg"); JumpSkyAssets.load("/images/introbonus.png"); });</script>
 </body>
 </html>

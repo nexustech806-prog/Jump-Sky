@@ -612,20 +612,7 @@ if (restartBtn) {
 
 
 // ========================================
-// INTRO
-// ========================================
-
-// Some com a intro
-setTimeout(() => {
-    intro.style.opacity = "0";
-
-    setTimeout(() => {
-        intro.style.display = "none";
-    }, 800);
-}, 2500);
-
-
-// ========================================
+// Intro controlada por game-intro.js.
 // ESCONDE O BOTÃO NO INÍCIO
 // ========================================
 

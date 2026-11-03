@@ -60,6 +60,7 @@ async function carregarPerfil() {
     try {
         const { response, data } = await consultarPerfil('/api/profile');
         if (!response.ok) throw new Error();
+        try { sessionStorage.setItem('jumpSkyAvatar', data.avatar); } catch (_) {}
         mostrarPerfil(data);
         const recorde = data.bonusHighScore || 0;
         document.getElementById('pontosRecordeBonus').textContent = recorde.toLocaleString('pt-BR');

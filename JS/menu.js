@@ -87,6 +87,7 @@ document.getElementById('sairBtn')?.addEventListener('click', async (event) => {
   try {
     const { response } = await JumpSkyRequest(`${API_URL}/logout`, { method: 'POST', credentials: 'include' });
     if (!response.ok) throw new Error('Logout failed');
+    try { sessionStorage.removeItem('jumpSkyAvatar'); } catch (_) {}
     window.location.assign('/login');
   } catch (error) {
     status.textContent = 'Não foi possível sair. Tente novamente.';

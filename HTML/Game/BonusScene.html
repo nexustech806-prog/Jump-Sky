@@ -12,6 +12,10 @@
     <link rel="stylesheet" href="/CSS/audio-settings.css">
     <link rel="stylesheet" href="/CSS/instruction-audio.css">
     <link rel="stylesheet" href="/CSS/game-layout.css">
+    <link rel="stylesheet" href="/CSS/game-theme.css">
+<link rel="preload" as="image" href="/images/bonus1.jpeg" fetchpriority="high">
+    <link rel="preload" as="image" href="/images/introbonus.png">
+    <script src="/JS/game-assets.js"></script>
 </head>
 
 <body data-game-phase data-phase="bonus">
@@ -63,6 +67,7 @@
     </div>
 
 </div>
+    <div id="bonusIntro" role="status" aria-label="Desafio infinito, fase bônus"><img src="/images/introbonus.png" alt="Desafio infinito — fase bônus"></div>
     <main class="game-container">
 
         <h1>🚀 Fase Bônus – Desafio Infinito</h1>
@@ -71,7 +76,7 @@
             Resolva as operações antes que o tempo acabe e tente chegar o mais longe possível!
         </p>
 
-        
+
         <div class="instruction-audio">
             <button id="playInstructions" class="instruction-audio__button" type="button" aria-describedby="instructionAudioStatus">🔊 Ouvir instruções</button>
             <span id="instructionAudioStatus" class="instruction-audio__status" role="status" aria-live="polite"></span>
@@ -162,6 +167,7 @@
 
     <script src="/JS/config.js"></script>
     <script src="/JS/avatar.js"></script>
+    <script src="/JS/game-intro.js"></script>
     <script src="/JS/audio.js"></script>
     <script src="/JS/instruction-audio.js"></script>
     <script src="/JS/problems.js"></script>
@@ -169,6 +175,7 @@
     <script src="/JS/dialog-accessibility.js"></script>
     <script src="/JS/acessibilidade.js"></script>
     <script src="/JS/brightness.js"></script>
+
     <script src="/JS/scriptBonus.js"></script>
     <script src="/JS/game-layout.js"></script>
 </body>

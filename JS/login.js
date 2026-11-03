@@ -24,6 +24,7 @@ if (formLogin) {
         body: JSON.stringify({ nickname, password })
       });
       if (response.ok) {
+        try { sessionStorage.removeItem('jumpSkyAvatar'); } catch (_) {}
         window.location.assign('/menu');
       } else {
         alert(data.mensagem || 'Não foi possível entrar. Tente novamente.');

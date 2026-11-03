@@ -13,7 +13,8 @@ const phaseMusicTracks = { '1': 'clouds', '2': 'underground', '3': 'beach', '4':
 function validMusicTrack(id) { return musicTracks.some(track => track.id === id); }
 function defaultMusicTrack() { return phaseMusicTracks[document.body.dataset.phase] || 'clouds'; }
 const savedMusicTrack = readAudioSetting('musicTrack');
-let selectedMusicTrack = validMusicTrack(savedMusicTrack) ? savedMusicTrack : defaultMusicTrack();
+let selectedMusicTrack = phaseMusicTracks[document.body.dataset.phase] ||
+    (validMusicTrack(savedMusicTrack) ? savedMusicTrack : defaultMusicTrack());
 function readAudioSetting(key) {
     try { return localStorage.getItem(key); } catch { return audioMemory.get(key) ?? null; }
 }
@@ -47,6 +48,7 @@ function getSoundVolume() { return getChannelVolume('effects'); }
 function setSoundVolume(volume) { setChannelVolume('effects', volume); }
 
 const gameSounds = Object.fromEntries(['correct', 'wrong', 'complete', 'timeout', 'record'].map(name => [name, new Audio('/audio/' + name + '.mp3')]));
+gameSounds.intro = new Audio('/audio/intro.wav');
 const backgroundMusic = new Audio(musicTracks.find(track => track.id === selectedMusicTrack).src);
 backgroundMusic.loop = true;
 backgroundMusic.preload = 'auto';
@@ -75,7 +77,7 @@ function syncBackgroundMusic() {
 }
 function startBackgroundMusic() { musicRequested = true; syncBackgroundMusic(); }
 function stopBackgroundMusic() { musicRequested = false; backgroundMusic.pause(); backgroundMusic.currentTime = 0; }
-function setMusicTrack(trackId, persist = true) {
+function setMusicTrack(trackId, persist = !document.body.hasAttribute('data-game-phase')) {
     const track = musicTracks.find(option => option.id === trackId);
     if (!track) return;
     if (persist) saveAudioSetting('musicTrack', track.id);
@@ -91,13 +93,17 @@ function setMusicTrack(trackId, persist = true) {
 }
 function playSound(name) {
     const sound = gameSounds[name];
-    if (!sound || !canPlayChannel('effects')) return;
+    if (!sound || !canPlayChannel('effects')) return Promise.resolve(false);
     sound.volume = getChannelVolume('effects');
     sound.currentTime = 0;
     activeEffects.add(sound);
     updateMusicVolume();
-    sound.play().then(() => { if (!canPlayChannel('effects')) sound.pause(); }).catch(() => {
+    return sound.play().then(() => {
+        if (!canPlayChannel('effects')) sound.pause();
+        return true;
+    }).catch(() => {
         activeEffects.delete(sound); updateMusicVolume();
+        return false;
     });
 }
 Object.values(gameSounds).forEach(sound => {
@@ -199,6 +205,6 @@ document.addEventListener('visibilitychange', () => { if (document.hidden) stopA
 window.addEventListener('pagehide', stopAllSounds);
 window.addEventListener('pageshow', applyAudioSettings);
 window.addEventListener('storage', event => {
-    if (event.key === 'musicTrack') setMusicTrack(event.newValue, false);
+    if (event.key === 'musicTrack' && !document.body.hasAttribute('data-game-phase')) setMusicTrack(event.newValue, false);
     applyAudioSettings();
 });
