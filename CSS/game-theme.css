@@ -181,3 +181,20 @@ body[data-game-phase] .intro-leaving:is(#intro, #bonusIntro) { opacity: 0; point
 @media (prefers-reduced-motion: reduce) {
  body[data-game-phase] :is(#intro, #bonusIntro) img { transform: none; }
 }
+
+/* Travel and arc share a duration: no pause at takeoff or at the apex. */
+body[data-game-phase] .character {
+    --jump-duration: 700ms;
+    --jump-height: clamp(32px, calc(var(--scene-height, 350px) * .18), 75px);
+    transition: left var(--jump-duration) linear, bottom var(--jump-duration) linear;
+}
+body[data-phase="bonus"] .character { --jump-duration: 650ms; }
+body[data-game-phase] .character.jumping {
+    animation: smooth-platform-jump var(--jump-duration) linear;
+    will-change: transform;
+}
+@keyframes smooth-platform-jump {
+    0% { transform: translate3d(0, 0, 0); animation-timing-function: cubic-bezier(.33,.67,.67,1); }
+    50% { transform: translate3d(0, calc(-1 * var(--jump-height)), 0); animation-timing-function: cubic-bezier(.33,0,.67,.33); }
+    100% { transform: translate3d(0, 0, 0); }
+}

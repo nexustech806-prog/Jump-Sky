@@ -296,3 +296,22 @@ test('bonus later scenes reference existing local images', async () => {
     await settle();
     for (const filename of screen.value('cenarios')) assert.ok(fs.existsSync(path.join(__dirname, '..', filename)));
 });
+
+for (const filename of phaseFiles) {
+    test(filename + ' travels to the next platform during the jump', async () => {
+        const questions = Array.from({ length: 4 }, () => ({ number1: 2, number2: 2, correct: 4, answers: [4, 5, 6] }));
+        const screen = game(filename, url => Promise.resolve(response(url.endsWith('/api/game/start')
+            ? { challengeToken: 'jump-test', questions }
+            : { saveProgress: 4, phase4Completed: false })));
+        await settle();
+        screen.element('platform1').getBoundingClientRect = () => ({ left: 200, top: 100, bottom: 130, width: 100 });
+        screen.click(screen.answers.find(button => Number(button.textContent) === 4));
+        const character = screen.element('character');
+        assert.equal(character.classList.contains('jumping'), true);
+        assert.equal(character.style.left, '220px');
+        assert.equal(character.style.bottom, '200px');
+        screen.runTimers(700);
+        assert.equal(character.classList.contains('jumping'), false);
+        assert.equal(character.style.left, '220px');
+    });
+}

@@ -428,6 +428,9 @@ function checkAnswer(button) {
         character.classList.add(
             "jumping"
         );
+        // Move toward the target during the jump, not after landing.
+        setCharacterPosition();
+
 
         setTimeout(
             () => {
@@ -435,8 +438,6 @@ function checkAnswer(button) {
                 character.classList.remove(
                     "jumping"
                 );
-
-                setCharacterPosition();
 
             },
             700

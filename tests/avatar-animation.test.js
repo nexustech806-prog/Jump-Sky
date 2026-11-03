@@ -2,7 +2,7 @@ const test = require('node:test');
 const assert = require('node:assert/strict');
 const fs = require('node:fs');
 const vm = require('node:vm');
-for (const [avatar, pose] of [['Personagem.png','per1pulo.png'],['personagem2.png','per2pulo.png'],['personagem3.png','per3pulo.png'],['personagem4.png','per4pulo.png']]) {
+for (const [avatar, pose] of [['Personagem.png','per1pulo.png'],['personagem2.png','per4pulo.png'],['personagem3.png','per3pulo.png'],['personagem4.png','per2pulo.png']]) {
     test(avatar + ' uses its jump pose and returns to idle', async () => {
         let observer, jumping = false;
         const requested = [];

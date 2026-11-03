@@ -13,7 +13,8 @@ async function loadPlayerAvatar() {
     const image = document.querySelector('#character img');
     if (!image) return;
     const character = image.parentElement;
-    const poses = { 'Personagem.png': 'per1pulo.png', 'personagem2.png': 'per2pulo.png', 'personagem3.png': 'per3pulo.png', 'personagem4.png': 'per4pulo.png' };
+    // Os arquivos enviados usam 4 para a camisa rosa e 2 para a verde.
+    const poses = { 'Personagem.png': 'per1pulo.png', 'personagem2.png': 'per4pulo.png', 'personagem3.png': 'per3pulo.png', 'personagem4.png': 'per2pulo.png' };
     let avatar = 'Personagem.png';
     let cached = false;
     try { const saved = sessionStorage.getItem('jumpSkyAvatar'); cached = !!saved; avatar = normalizeAvatar(saved); } catch (_) {}
