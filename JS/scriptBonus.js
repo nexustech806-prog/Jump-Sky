@@ -723,8 +723,12 @@ function atualizarPersonagem(fazerPulo = false) {
         sceneRect.bottom -
         platformRect.top;
 
-    character.style.left = `${left}px`;
-    character.style.bottom = `${bottom}px`;
+    if (window.moveGameCharacter) {
+        window.moveGameCharacter(character, left, bottom);
+    } else {
+        character.style.left = left + 'px';
+        character.style.bottom = bottom + 'px';
+    }
 
     setTimeout(
         () => {
