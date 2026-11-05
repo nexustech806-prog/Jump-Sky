@@ -66,7 +66,7 @@ const characterPositions = [
 // CONFIGURAÇÕES
 // ========================================
 
-const TEMPO_POR_QUESTAO = 45; // Tempo para ler a situação-problema.
+const TEMPO_POR_QUESTAO = 30; // Tempo para ler a situação-problema.
 const TOTAL_PLATAFORMAS = 10;
 
 const cenarios = [
@@ -356,6 +356,7 @@ function iniciarTimer() {
 }
 
 function pararTimer() {
+    timerElement.classList.remove("timer-warning");
     if (intervaloTimer) {
         clearInterval(
             intervaloTimer
@@ -369,9 +370,14 @@ let instructionsActive = false;
 
 function resumeTimerWithoutReset() {
     if (intervaloTimer || jogoFinalizado || bloqueado || instructionsActive || !bonusReady) return;
+    if (tempoRestante <= 5 && tempoRestante > 0) timerElement.classList.add("timer-warning");
     intervaloTimer = setInterval(() => {
         tempoRestante--;
         timerElement.textContent = tempoRestante;
+        if (tempoRestante > 0 && tempoRestante <= 5) {
+            timerElement.classList.add("timer-warning");
+            playSound("tick");
+        }
         if (tempoRestante <= 0) {
             pararTimer();
             tempoEsgotado();
@@ -403,7 +409,8 @@ function tempoEsgotado() {
         return;
     }
 
-    playSound("timeout");
+    pararTimer();
+    playSound("lifeLost");
 
     bloqueado = true;
     atualizarPoder();
@@ -439,7 +446,7 @@ function tempoEsgotado() {
         - seguir para uma nova questão.
     */
 
-    if (vidas <= 0) { finalizarJogo(); return; }
+    if (vidas <= 0) { finalizarJogo(false); return; }
     timeoutActions.classList.add("show");
 }
 
@@ -466,7 +473,7 @@ function tentarQuestaoNovamente() {
         não altera o número da questão
         e não movimenta o personagem.
 
-        O timer volta a 15 segundos.
+        O timer volta a 30 segundos.
     */
 
     exibirQuestaoAtual();
@@ -878,7 +885,7 @@ function atualizarInterface() {
 // FINALIZA O JOGO
 // ========================================
 
-function finalizarJogo() {
+function finalizarJogo(playEndSound = true) {
     stopBackgroundMusic();
     jogoFinalizado = true;
     atualizarPoder();
@@ -892,7 +899,7 @@ function finalizarJogo() {
             button.disabled = true;
         }
     );
-    playSound("timeout");
+    if (playEndSound) playSound("timeout");
 
     questionElement.textContent =
         "🚀 Fim do desafio!";

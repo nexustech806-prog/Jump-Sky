@@ -35,3 +35,10 @@ test('intro uses the effects channel and honors mute',async()=>{
  assert.equal(await vm.runInContext("playSound('intro')",muted.context),false);
  assert.equal(muted.sounds.find(s=>s.src==='/audio/intro.mp3').plays,0);
 });
+
+test('countdown and life-loss sounds honor effect mute', async()=>{
+ const muted=audio('bonus',true);
+ for(const name of ['tick','lifeLost']) assert.equal(await vm.runInContext('playSound("'+name+'")',muted.context),false);
+ assert.equal(muted.sounds.find(s=>s.src==='/audio/tick.wav').plays,0);
+ assert.equal(muted.sounds.find(s=>s.src==='/audio/life-lost.wav').plays,0);
+});

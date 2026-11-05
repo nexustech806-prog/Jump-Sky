@@ -49,6 +49,8 @@ function setSoundVolume(volume) { setChannelVolume('effects', volume); }
 
 const gameSounds = Object.fromEntries(['correct', 'wrong', 'complete', 'timeout', 'record'].map(name => [name, new Audio('/audio/' + name + '.mp3')]));
 gameSounds.intro = new Audio('/audio/intro.mp3');
+gameSounds.tick = new Audio('/audio/tick.wav');
+gameSounds.lifeLost = new Audio('/audio/life-lost.wav');
 const backgroundMusic = new Audio(musicTracks.find(track => track.id === selectedMusicTrack).src);
 backgroundMusic.loop = true;
 backgroundMusic.preload = 'auto';

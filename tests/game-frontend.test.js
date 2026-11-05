@@ -364,3 +364,32 @@ test('pickups are limited, consumed once, and skipping never grants score or tra
  assert.equal(screen.value('pulosDisponiveis'),0);
  assert.equal(screen.value('indiceCenario'),0);
 });
+
+test('bonus countdown warns at 5 through 1 and plays one loss sound at zero', async () => {
+ const screen=await readyBonus();
+ const sounds=[];
+ screen.context.playSound=name=>sounds.push(name);
+ assert.equal(screen.value('tempoRestante'),30);
+ const tick=()=>{for(const callback of [...screen.intervals.values()])callback();};
+ for(let i=0;i<24;i++)tick();
+ assert.equal(screen.element('timer').classList.contains('timer-warning'),false);
+ assert.equal(sounds.length,0);
+ tick();
+ assert.equal(screen.element('timer').classList.contains('timer-warning'),true);
+ screen.event('instructionaudio:start');
+ assert.equal(screen.intervals.size,0);
+ assert.equal(screen.element('timer').classList.contains('timer-warning'),false);
+ screen.event('instructionaudio:end');
+ for(let i=0;i<5;i++)tick();
+ assert.equal(sounds.filter(x=>x==='tick').length,5);
+ assert.equal(sounds.filter(x=>x==='lifeLost').length,1);
+ assert.equal(screen.value('vidas'),2);
+ assert.equal(screen.intervals.size,0);
+ assert.equal(screen.element('timer').classList.contains('timer-warning'),false);
+ screen.value('tentarQuestaoNovamente()');
+ assert.equal(screen.value('tempoRestante'),30);
+ screen.value('vidas=1; tempoRestante=1;');tick();
+ assert.equal(screen.value('jogoFinalizado'),true);
+ assert.equal(sounds.filter(x=>x==='lifeLost').length,2);
+ assert.equal(sounds.filter(x=>x==='timeout').length,0);
+});

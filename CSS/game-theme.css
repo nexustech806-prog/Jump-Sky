@@ -223,3 +223,20 @@ body[data-phase="bonus"] .platform:is(.pickup-heal, .pickup-skip)::before {
 }
 body[data-phase="bonus"] .platform.pickup-heal::before { background-image: url('/images/pickup-heart.svg'); }
 body[data-phase="bonus"] .platform.pickup-skip::before { background-image: url('/images/pickup-skip.svg'); }
+
+/* A localized, once-per-second pulse keeps the countdown readable. */
+body[data-phase="bonus"] .stat.timer:has(.timer-warning) {
+    background: #fff0ed;
+    color: #a52227;
+    border-color: #b62e38;
+    outline: 2px solid #f17779;
+    animation: countdown-warning 1s ease-in-out infinite;
+}
+body[data-phase="bonus"] #timer.timer-warning { color: #a52227; font-weight: 900; }
+@keyframes countdown-warning {
+    0%, 100% { box-shadow: 0 3px 0 #8d2730, 0 0 0 0 #d7464d00; }
+    50% { box-shadow: 0 3px 0 #8d2730, 0 0 0 5px #d7464d66; background-color: #ffc8c8; }
+}
+@media (prefers-reduced-motion: reduce) {
+    body[data-phase="bonus"] .stat.timer:has(.timer-warning) { animation: none; outline: 3px solid #b62e38; }
+}
