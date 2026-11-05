@@ -24,10 +24,16 @@
         const previous = movements.get(character);
         if (previous && previous.left === left && previous.bottom === bottom) return;
         const style = getComputedStyle(character);
-        const fromLeft = parseFloat(style.left);
-        const fromBottom = parseFloat(style.bottom);
+        let fromLeft = parseFloat(style.left);
+        let fromBottom = parseFloat(style.bottom);
+        if (style.transform && style.transform !== 'none' && window.DOMMatrixReadOnly) {
+            const matrix = new window.DOMMatrixReadOnly(style.transform);
+            fromLeft += matrix.m41;
+            fromBottom -= matrix.m42;
+        }
         if (previous && previous.animation) previous.animation.cancel();
         character.style.transition = 'none';
+        character.style.animation = 'none';
         character.style.left = left + 'px';
         character.style.bottom = bottom + 'px';
         const state = { left, bottom, animation: null };
@@ -36,10 +42,13 @@
         if (!previous || !Number.isFinite(fromLeft) || !Number.isFinite(fromBottom) || !character.animate) return;
         const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
         const duration = reduced ? 250 : (document.body.dataset.phase === 'bonus' ? 650 : 700);
-        state.animation = character.animate([
-            { left: fromLeft + 'px', bottom: fromBottom + 'px' },
-            { left: left + 'px', bottom: bottom + 'px' }
-        ], { duration, easing: 'cubic-bezier(.25,.1,.25,1)' });
+        const dx = fromLeft - left, dy = bottom - fromBottom;
+        const height = !reduced && character.classList.contains('jumping') ? 55 : 0;
+        const frames = Array.from({ length: 21 }, (_, i) => {
+            const t = i / 20;
+            return { transform: 'translate3d(' + (dx * (1-t)) + 'px,' + (dy * (1-t) - 4 * height * t * (1-t)) + 'px,0)' };
+        });
+        state.animation = character.animate(frames, { duration, easing: 'linear' });
         state.animation.onfinish = () => { state.animation = null; };
     };
 })();

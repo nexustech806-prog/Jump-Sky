@@ -92,12 +92,12 @@ body.alto-contraste .bonus-answer.wrong {
 
 body.alto-contraste .answer-btn.correct::after,
 body.alto-contraste .bonus-answer.correct::after {
-    content: " ✔";
+    content: ''; display: inline-block; width: 1em; height: 1em; vertical-align: middle; background: url('/images/icons/check.svg') center / contain no-repeat; image-rendering: pixelated;
 }
 
 body.alto-contraste .answer-btn.wrong::after,
 body.alto-contraste .bonus-answer.wrong::after {
-    content: " ✖";
+    content: ''; display: inline-block; width: 1em; height: 1em; vertical-align: middle; background: url('/images/icons/cross.svg') center / contain no-repeat; image-rendering: pixelated;
 }
 
 /* Mensagens de feedback */
@@ -174,12 +174,12 @@ body.feedback-reforcado .bonus-answer.wrong {
 
 body.feedback-reforcado .answer-btn.correct::after,
 body.feedback-reforcado .bonus-answer.correct::after {
-    content: " ✔";
+    content: ''; display: inline-block; width: 1em; height: 1em; vertical-align: middle; background: url('/images/icons/check.svg') center / contain no-repeat; image-rendering: pixelated;
 }
 
 body.feedback-reforcado .answer-btn.wrong::after,
 body.feedback-reforcado .bonus-answer.wrong::after {
-    content: " ✖";
+    content: ''; display: inline-block; width: 1em; height: 1em; vertical-align: middle; background: url('/images/icons/cross.svg') center / contain no-repeat; image-rendering: pixelated;
 }
 
 body.feedback-reforcado #feedback,

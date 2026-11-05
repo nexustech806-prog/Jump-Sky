@@ -94,8 +94,8 @@ body[data-game-phase] :is(.answer-btn, .bonus-answer) {
 body[data-game-phase] :is(.answer-btn, .bonus-answer):active:not(:disabled) { transform: translateY(3px); box-shadow: 0 1px 0 var(--accent-dark); }
 body[data-game-phase] :is(.answer-btn, .bonus-answer).correct { background: #21643b; border-color: #124427; color: #fff; transform: none; box-shadow: 0 4px 0 #124427; }
 body[data-game-phase] :is(.answer-btn, .bonus-answer).wrong { background: #a72d2a; border-color: #721b1b; color: #fff; box-shadow: 0 4px 0 #721b1b; }
-body[data-game-phase] :is(.answer-btn, .bonus-answer).correct::after { content: ' ✓'; }
-body[data-game-phase] :is(.answer-btn, .bonus-answer).wrong::after { content: ' ✕'; }
+body[data-game-phase] :is(.answer-btn, .bonus-answer).correct::after { content: ''; display: inline-block; width: 1em; height: 1em; vertical-align: middle; background: url('/images/icons/check.svg') center / contain no-repeat; image-rendering: pixelated; }
+body[data-game-phase] :is(.answer-btn, .bonus-answer).wrong::after { content: ''; display: inline-block; width: 1em; height: 1em; vertical-align: middle; background: url('/images/icons/cross.svg') center / contain no-repeat; image-rendering: pixelated; }
 body[data-game-phase] button:disabled { cursor: default; }
 body[data-game-phase] button:disabled:not(.correct):not(.wrong) { opacity: .65; box-shadow: none; transform: none; }
 body[data-game-phase] :is(.back-menu, .instruction-audio__button) {
@@ -198,3 +198,28 @@ body[data-game-phase] .character.jumping {
     50% { transform: translate3d(0, calc(-1 * var(--jump-height)), 0); animation-timing-function: cubic-bezier(.33,0,.67,.33); }
     100% { transform: translate3d(0, 0, 0); }
 }
+
+@font-face { font-family: 'Redaction 50'; src: url('/CSS/fonts/Redaction50-Regular.woff2') format('woff2'); font-weight: 400; font-display: swap; }
+@font-face { font-family: 'Redaction 50'; src: url('/CSS/fonts/Redaction50-Bold.woff2') format('woff2'); font-weight: 700; font-display: swap; }
+body[data-game-phase] :is(.game-container > h1, #question, .answer-btn, .bonus-answer, #bonusQuestion) { font-family: 'Redaction 50', Georgia, serif; letter-spacing: .015em; font-weight: 700; }
+body[data-game-phase] #skipQuestionBtn { margin: 8px 0; padding: 8px 16px; background: var(--accent); color: white; border: 2px solid var(--accent-dark); box-shadow: 0 3px 0 var(--accent-dark); }
+.pickup-help { font-size: .875rem; line-height: 1.5; margin: 6px 0; }
+body[data-phase="bonus"] .platform { overflow: visible; font-size: clamp(.875rem, 1.8vw, 1.25rem); }
+
+/* Local pixel-art pickups: consistent across desktop and mobile emoji fonts. */
+.pixel-icon, body[data-game-phase] #skipQuestionBtn::before {
+    display: inline-block; width: 24px; height: 24px; flex-shrink: 0;
+    background: center / contain no-repeat;
+    image-rendering: pixelated; vertical-align: middle;
+}
+.pixel-icon--heart { background-image: url('/images/pickup-heart.svg'); }
+.pixel-icon--skip, body[data-game-phase] #skipQuestionBtn::before { background-image: url('/images/pickup-skip.svg'); }
+body[data-game-phase] #skipQuestionBtn::before { content: ''; margin-right: 8px; }
+body[data-phase="bonus"] .platform:is(.pickup-heal, .pickup-skip)::before {
+    content: ''; position: absolute; width: 28px; height: 28px;
+    bottom: calc(100% + 5px); left: 50%; transform: translateX(-50%);
+    background: center / contain no-repeat; image-rendering: pixelated;
+    filter: drop-shadow(0 2px 0 #13233d); pointer-events: none;
+}
+body[data-phase="bonus"] .platform.pickup-heal::before { background-image: url('/images/pickup-heart.svg'); }
+body[data-phase="bonus"] .platform.pickup-skip::before { background-image: url('/images/pickup-skip.svg'); }

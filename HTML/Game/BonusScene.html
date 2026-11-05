@@ -16,6 +16,8 @@
 <link rel="preload" as="image" href="/images/bonus1.jpeg" fetchpriority="high">
     <link rel="preload" as="image" href="/images/introbonus.png">
     <script src="/JS/game-assets.js"></script>
+    <link rel="stylesheet" href="/CSS/pixel-icons.css">
+    <script src="/JS/pixel-icons.js" defer></script>
 </head>
 
 <body data-game-phase data-phase="bonus">
@@ -83,7 +85,7 @@
         </div>
 
         <div class="stats">
-            <div class="stat">❤️ Vidas: <span id="lives">3</span></div>
+            <div class="stat"><span class="pixel-icon pixel-icon--heart" aria-hidden="true"></span> Vidas: <span id="lives">3</span></div>
             <div class="stat">⭐ Pontos: <span id="score">0</span></div>
             <div class="stat">🏆 Recorde: <span id="highScore">0</span></div>
             <div class="stat">🧠 Questão: <span id="questionNumber">1</span></div>
@@ -125,6 +127,8 @@
 
             <div id="feedback" role="status" aria-live="polite" aria-atomic="true"></div>
             <div id="recordMessage"></div>
+            <button id="skipQuestionBtn" type="button" disabled>Pular questão (0/1)</button>
+            <p class="pickup-help"><span class="pixel-icon pixel-icon--heart" aria-hidden="true"></span> Recupera 1 vida, até 3. <span class="pixel-icon pixel-icon--skip" aria-hidden="true"></span> Guarda 1 pulo de questão. O tempo esgotado custa 1 vida.</p>
             <div class="botoes-navegacao">
                 <a class="back-menu" href="/menu">Voltar ao Menu</a>
             </div>

@@ -406,6 +406,7 @@ function tempoEsgotado() {
     playSound("timeout");
 
     bloqueado = true;
+    atualizarPoder();
 
     answerButtons.forEach(
         button => {
@@ -420,17 +421,10 @@ function tempoEsgotado() {
         }
     );
 
-    /*
-        O TEMPO ESGOTADO NÃO GERA PUNIÇÃO.
-
-        - Não perde vida
-        - Não perde pontos
-        - Não perde progresso
-        - Não altera a plataforma atual
-    */
+    vidas = Math.max(0, vidas - 1);
 
     feedback.textContent =
-        `⏰ O tempo acabou! A resposta correta era ${questaoAtual.correta}. Você pode tentar esta operação novamente ou seguir para a próxima.`;
+        `⏰ O tempo acabou e você perdeu 1 vida. A resposta correta era ${questaoAtual.correta}. Você pode tentar esta operação novamente ou seguir para a próxima.`;
 
     feedback.className =
         "feedback-wrong";
@@ -445,6 +439,7 @@ function tempoEsgotado() {
         - seguir para uma nova questão.
     */
 
+    if (vidas <= 0) { finalizarJogo(); return; }
     timeoutActions.classList.add("show");
 }
 
@@ -509,6 +504,7 @@ function verificarResposta(button) {
     }
 
     bloqueado = true;
+    atualizarPoder();
 
     pararTimer();
 
@@ -544,9 +540,8 @@ function verificarResposta(button) {
         feedback.className =
             "feedback-correct";
 
-        atualizarInterface();
-
         avancarPersonagem();
+        atualizarInterface();
 
         setTimeout(
             proximaQuestao,
@@ -633,19 +628,14 @@ function avancarPersonagem() {
     ) {
         posicaoPersonagem++;
 
+        coletarItem();
         atualizarPersonagem(true);
 
         return;
     }
 
-    indiceCenario++;
-
-    if (
-        indiceCenario >=
-        cenarios.length
-    ) {
-        indiceCenario = 0;
-    }
+    indiceCenario = Math.min(indiceCenario + 1, cenarios.length - 1);
+    sortearItens();
 
     posicaoPersonagem = 0;
 
@@ -667,7 +657,7 @@ function atualizarCenario() {
     };
     if (window.JumpSkyAssets) {
         window.JumpSkyAssets.load(cenarios[index]).then(ready => { if (ready) apply(); });
-        window.JumpSkyAssets.load(cenarios[(index + 1) % cenarios.length]);
+        window.JumpSkyAssets.load(cenarios[Math.min(index + 1, cenarios.length - 1)]);
     } else apply();
 }
 
@@ -869,6 +859,7 @@ function verificarRecorde() {
 // ========================================
 
 function atualizarInterface() {
+    atualizarPoder();
     livesElement.textContent =
         vidas;
 
@@ -890,6 +881,7 @@ function atualizarInterface() {
 function finalizarJogo() {
     stopBackgroundMusic();
     jogoFinalizado = true;
+    atualizarPoder();
 
     pararTimer();
 
@@ -938,6 +930,8 @@ function reiniciarJogo() {
 
     posicaoPersonagem = 0;
     indiceCenario = 0;
+    pulosDisponiveis = 0;
+    sortearItens();
 
     tempoRestante =
         TEMPO_POR_QUESTAO;
@@ -1003,6 +997,56 @@ menuBtn.addEventListener(
 // ========================================
 // INICIA A FASE BÔNUS
 // ========================================
+
+
+let pulosDisponiveis = 0;
+let itensPlataformas = new Map();
+const skipQuestionBtn = document.getElementById('skipQuestionBtn');
+function atualizarPoder() {
+    skipQuestionBtn.textContent = 'Pular questão (' + pulosDisponiveis + '/1)';
+    skipQuestionBtn.disabled = !bonusReady || bloqueado || jogoFinalizado || pulosDisponiveis === 0;
+}
+function sortearItens() {
+    itensPlataformas = new Map();
+    // One pickup in each half, never on the spawn platform; no farming on retries.
+    const first = numeroAleatorio(2, 4);
+    const second = numeroAleatorio(6, 9);
+    const healFirst = Math.random() < .5;
+    itensPlataformas.set(first, healFirst ? 'heal' : 'skip');
+    itensPlataformas.set(second, healFirst ? 'skip' : 'heal');
+    platforms.forEach((platform, index) => {
+        const item = itensPlataformas.get(index);
+        platform.textContent = '';
+        platform.classList.remove('pickup-heal', 'pickup-skip');
+        if (item) platform.classList.add(item === 'heal' ? 'pickup-heal' : 'pickup-skip');
+        platform.title = item === 'heal' ? 'Recupera 1 vida (máximo 3)' : item === 'skip' ? 'Ganhe um pulo de questão (máximo 1)' : '';
+    });
+}
+function coletarItem() {
+    const item = itensPlataformas.get(posicaoPersonagem);
+    if (!item) return;
+    itensPlataformas.delete(posicaoPersonagem);
+    platforms[posicaoPersonagem].textContent = '';
+    platforms[posicaoPersonagem].classList.remove('pickup-heal', 'pickup-skip');
+    platforms[posicaoPersonagem].title = '';
+    if (item === 'heal') {
+        const healed = vidas < 3;
+        vidas = Math.min(3, vidas + 1);
+        feedback.textContent += healed ? ' Você recuperou 1 vida!' : ' Suas vidas já estão completas!';
+    } else {
+        const gained = pulosDisponiveis === 0;
+        pulosDisponiveis = 1;
+        feedback.textContent += gained ? ' Você ganhou um pulo de questão!' : ' Você já tem um pulo guardado!';
+    }
+}
+skipQuestionBtn.addEventListener('click', () => {
+    if (!bonusReady || bloqueado || jogoFinalizado || pulosDisponiveis < 1) return;
+    pulosDisponiveis--;
+    pararTimer();
+    proximaQuestao();
+    feedback.textContent = 'Questão pulada! Sem perder vida e sem ganhar pontos.';
+});
+sortearItens();
 
 atualizarCenario();
 atualizarPersonagem(false);

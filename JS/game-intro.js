@@ -19,6 +19,16 @@
  const ready = (async () => {
    await window.JumpSkyAssets.load(image.getAttribute('src'));
    intro.classList.add('intro-visible');
+   // Web Animations avoids OS/CSS overrides silently swallowing the entire reveal.
+   if (image.animate) {
+     const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+     image.style.animation = 'none';
+     image.animate(reduced ? [{ opacity: 0 }, { opacity: 1 }] : [
+       { opacity: 0, transform: 'scale(.35) translateY(24px)' },
+       { opacity: 1, transform: 'scale(1.04) translateY(-3px)', offset: .75 },
+       { opacity: 1, transform: 'scale(1) translateY(0)' }
+     ], { duration: reduced ? 300 : 1300, easing: 'cubic-bezier(.2,.75,.25,1)' });
+   }
    introVisible = true;
    void playIntro();
    await Promise.all([wait(2500), window.jumpSkyAvatarReady,

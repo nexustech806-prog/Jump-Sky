@@ -51,12 +51,12 @@ legend { padding: 0; margin-bottom: 28px; font-size: 1.2rem; font-weight: 700; l
 .avatar img { display: block; height: 125px; width: 100%; object-fit: contain; margin-bottom: 12px; pointer-events: none; }
 .avatar > span { font-size: .7rem; font-weight: 600; }
 .avatar[aria-pressed="true"] { border-color: var(--sky); background: #67eeee0d; color: var(--sky); }
-.avatar[aria-pressed="true"]::after { content: '✓'; position: absolute; top: 6px; right: 6px; display: grid; place-items: center; width: 20px; height: 20px; border-radius: 50%; background: var(--sky); color: #182e39; font-size: .8rem; font-weight: 800; }
+.avatar[aria-pressed="true"]::after { content: ''; display: inline-block; width: 1em; height: 1em; vertical-align: middle; background: url('/images/icons/check.svg') center / contain no-repeat; image-rendering: pixelated; position: absolute; top: 6px; right: 6px; display: grid; place-items: center; width: 20px; height: 20px; border-radius: 50%; background: var(--sky); color: #182e39; font-size: .8rem; font-weight: 800; }
 .nickname-section { margin-top: 28px; padding-top: 28px; border-top: 1px solid var(--line); }
 #apelidosPerfil { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 14px; }
 #apelidosPerfil button, #gerarApelidos, #recarregarPerfil { min-height: 44px; padding: 10px 14px; border: 1px solid #ffffff30; border-radius: 10px; background: #2c2c46; color: #f7f7ff; font-size: .85rem; max-width: 100%; overflow-wrap: anywhere; }
 #apelidosPerfil button[aria-pressed="true"] { border-color: var(--sky); background: #67eeee12; color: var(--sky); }
-#apelidosPerfil button[aria-pressed="true"]::before { content: '✓ '; font-weight: bold; }
+#apelidosPerfil button[aria-pressed="true"]::before { content: ''; display: inline-block; width: 1em; height: 1em; vertical-align: middle; background: url('/images/icons/check.svg') center / contain no-repeat; image-rendering: pixelated; font-weight: bold; }
 #gerarApelidos { background: transparent; color: var(--sky); border-color: transparent; padding-left: 0; }
 #gerarApelidos span { font-size: 1.2rem; margin-right: 5px; }
 .nickname-note { color: var(--muted); font-size: .78rem; margin: 8px 0 24px; max-width: 470px; }

@@ -315,3 +315,52 @@ for (const filename of phaseFiles) {
         assert.equal(character.style.left, '220px');
     });
 }
+
+async function readyBonus() {
+ const screen = game('scriptBonus.js', () => Promise.resolve(response({ userId: 'bonus-test', bonusHighScore: 0 })));
+ await settle();
+ return screen;
+}
+test('bonus timeout costs one life once and ends the game on the last life', async () => {
+ const screen = await readyBonus();
+ screen.value('tempoEsgotado(); tempoEsgotado();');
+ assert.equal(screen.value('vidas'), 2);
+ screen.value('tentarQuestaoNovamente(); tempoEsgotado();');
+ assert.equal(screen.value('vidas'), 1);
+ screen.value('tentarQuestaoNovamente(); tempoEsgotado();');
+ assert.equal(screen.value('vidas'), 0);
+ assert.equal(screen.value('jogoFinalizado'), true);
+ assert.equal(screen.element('gameOver').style.display, 'block');
+});
+test('bonus final background remains the solar system over repeated traversals', async () => {
+ const screen = await readyBonus();
+ for(let i=0;i<12;i++) screen.value('posicaoPersonagem = 9; avancarPersonagem();');
+ assert.equal(screen.value('indiceCenario'), screen.value('cenarios.length - 1'));
+ assert.match(screen.element('scene').style.backgroundImage, /sistemasolarbonus/);
+});
+test('pickups are limited, consumed once, and skipping never grants score or travel', async () => {
+ const screen = await readyBonus();
+ for(let i=0;i<30;i++) {
+   screen.value('sortearItens()');
+   assert.equal(screen.value('itensPlataformas.size'),2);
+   assert.equal(screen.value("[...itensPlataformas.values()].filter(x => x === 'heal').length"),1);
+   assert.equal(screen.value('itensPlataformas.has(0)'),false);
+ }
+ screen.value("vidas = 2; posicaoPersonagem = [...itensPlataformas].find(x => x[1] === 'heal')[0]; coletarItem(); coletarItem();");
+ assert.equal(screen.value('vidas'),3);
+ screen.value("posicaoPersonagem = [...itensPlataformas].find(x => x[1] === 'skip')[0]; coletarItem(); coletarItem();");
+ assert.equal(screen.value('pulosDisponiveis'),1);
+ const position=screen.value('posicaoPersonagem');
+ const question=screen.value('numeroQuestao');
+ screen.click(screen.element('skipQuestionBtn'));
+ assert.equal(screen.value('pulosDisponiveis'),0);
+ assert.equal(screen.value('pontos'),0);
+ assert.equal(screen.value('posicaoPersonagem'),position);
+ assert.equal(screen.value('numeroQuestao'),question+1);
+ screen.click(screen.element('skipQuestionBtn'));
+ assert.equal(screen.value('numeroQuestao'),question+1);
+ screen.value('reiniciarJogo()');
+ assert.equal(screen.value('vidas'),3);
+ assert.equal(screen.value('pulosDisponiveis'),0);
+ assert.equal(screen.value('indiceCenario'),0);
+});
