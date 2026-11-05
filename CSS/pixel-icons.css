@@ -1,4 +1,4 @@
-.pixel-emoji { display:inline-block; width:1.2em; height:1.2em; vertical-align:-.18em; background:center/contain no-repeat; image-rendering:pixelated; flex-shrink:0; }
+.pixel-emoji { display:inline-block; width:1.4em; height:1.4em; min-width:22px; min-height:22px; vertical-align:-.28em; background:center/contain no-repeat; image-rendering:auto; flex-shrink:0; }
 .pixel-emoji__text { position:absolute; width:1px; height:1px; padding:0; overflow:hidden; clip-path:inset(50%); white-space:nowrap; }
 .pixel-emoji--gear { background-image:url('/images/icons/gear.svg'); }
 .pixel-emoji--rocket { background-image:url('/images/icons/rocket.svg'); }
@@ -36,3 +36,6 @@
 .pixel-emoji--stop { background-image:url('/images/icons/stop.svg'); }
 .pixel-emoji--cross { background-image:url('/images/icons/cross.svg'); }
 .pixel-emoji--skip { background-image:url('/images/pickup-skip.svg'); }
+
+.step-icon .pixel-emoji, .bonus-icon .pixel-emoji { width:64px; height:64px; }
+.settings-btn .pixel-emoji { width:32px; height:32px; }
