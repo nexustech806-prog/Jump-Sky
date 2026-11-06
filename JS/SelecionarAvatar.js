@@ -42,6 +42,7 @@ continuarBtn.addEventListener("click", async () => {
             return;
         }
         if (!response.ok) throw new Error('Falha ao salvar');
+        try { sessionStorage.setItem('jumpSkyAvatar', avatarSelecionado); } catch (_) {}
         mensagem.textContent = 'Personagem salvo!';
         window.location.href = '/menu';
     } catch (error) {

@@ -7,9 +7,12 @@ const vm = require('node:vm');
 const read = name => fs.readFileSync(path.join(__dirname, '..', 'JS', name), 'utf8');
 const settle = () => new Promise(resolve => setImmediate(resolve));
 const response = (data, ok = true, status = ok ? 200 : 503) => ({ ok, status, json: async () => data });
-function bonusRun(challengeToken = 'run-token', startScore = 0, startLives = 3) {
+function bonusRun(challengeToken = 'run-token', startScore = 0, startLives = 3, startSkips = 0) {
+    const firstCycle = Math.floor(startScore / 10);
     return {
-        challengeToken, startScore, startLives,
+        challengeToken, startScore, startLives, startSkips,
+        pickupLayouts: Object.fromEntries(Array.from({ length: 3 }, (_, index) =>
+            [firstCycle + index, { 2: 'heal', 6: 'skip' }])),
         questions: Array.from({ length: 20 }, (_, index) => ({
             number1: index + 2, number2: 2, operation: '+', correct: index + 4,
             answers: [index + 4, index + 5, index + 6]
@@ -414,7 +417,7 @@ test('bonus ignores unsigned legacy record cache and starts only after a valid s
     assert.ok(screen.answers.every(button => !button.disabled));
 });
 
-test('bonus timeout retry preserves the signed question and skipping costs no lives or points', async () => {
+test('bonus timeout retries preserve the signed question and prove every lost life before advancing', async () => {
     const writes = [];
     const screen = game('scriptBonus.js', async (url, options) => {
         if (url.endsWith('/api/save')) return response({ userId: 'child', bonusHighScore: 0 });
@@ -426,17 +429,19 @@ test('bonus timeout retry preserves the signed question and skipping costs no li
     await settle();
     const original = screen.element('question').textContent;
     screen.value('pararTimer(); tempoEsgotado();');
-    assert.equal(screen.value('vidas'), 3);
+    assert.equal(screen.value('vidas'), 2);
     screen.click(screen.element('retryQuestionBtn'));
     assert.equal(screen.element('question').textContent, original);
     assert.equal(screen.value('bonusAnswers.length'), 0);
     screen.value('pararTimer(); tempoEsgotado();');
     screen.click(screen.element('nextQuestionBtn'));
-    assert.equal(screen.value('vidas'), 3);
+    assert.equal(screen.value('vidas'), 1);
     assert.equal(screen.value('pontos'), 0);
     answerCorrect(screen);
     await settle();
-    assert.deepEqual(writes[0], { challengeToken: 'run-token', answers: [null, 5], score: 1 });
+    assert.deepEqual(writes[0], {
+        challengeToken: 'run-token', answers: [{ answer: null, timeouts: 2 }, 5], score: 1
+    });
 });
 
 test('bonus continues signed batches and can retry loading without losing points or lives', async () => {
@@ -447,7 +452,7 @@ test('bonus continues signed batches and can retry loading without losing points
         starts.push(JSON.parse(options.body));
         if (starts.length === 1) return response(bonusRun());
         if (starts.length === 2) return response({ mensagem: 'Offline' }, false);
-        return response(bonusRun('next-token', 20, 3));
+        return response(bonusRun('next-token', 20, 3, 1));
     });
     await settle();
     for (let index = 0; index < 20; index++) answerCorrect(screen);
@@ -499,6 +504,7 @@ test('bonus frontend produces records accepted by real signed scoring across bat
     const userId = 'child-integration';
     let highScore = 0;
     let continued = false;
+    let continuedState;
     const screen = game('scriptBonus.js', async (url, options) => {
         if (url.endsWith('/api/save')) return response({ userId, bonusHighScore: highScore });
         const payload = JSON.parse(options.body);
@@ -507,7 +513,8 @@ test('bonus frontend produces records accepted by real signed scoring across bat
             const previous = verifyBonusRun(payload.challengeToken, userId, 2, payload.answers, secret);
             assert.equal(previous.complete, true);
             continued = true;
-            return response(createBonusRun(userId, 2, secret, previous.score, previous.lives));
+            continuedState = previous;
+            return response(createBonusRun(userId, 2, secret, previous.score, previous.lives, previous.skips, previous.runSeed));
         }
         assert.ok(url.endsWith('/api/save/bonus-record'));
         const verified = verifyBonusRun(payload.challengeToken, userId, 2, payload.answers, secret);
@@ -524,7 +531,8 @@ test('bonus frontend produces records accepted by real signed scoring across bat
     for (let index = 0; index < 18; index++) answerCorrect(screen);
     await settle();
     assert.equal(continued, true);
-    assert.equal(screen.value('vidas'), 1);
+    assert.equal(screen.value('vidas'), continuedState.lives);
+    assert.equal(screen.value('pulosDisponiveis'), continuedState.skips);
     assert.equal(screen.value('pontos'), 18);
     answerCorrect(screen);
     await settle();
@@ -532,9 +540,160 @@ test('bonus frontend produces records accepted by real signed scoring across bat
     assert.equal(screen.value('recordeConfirmado'), 19);
 });
 
+test('bonus signed scoring accepts timeout retry followed by a collected skip pickup', async () => {
+    const { createBonusRun, verifyBonusRun } = require('../lib/bonus-run');
+    const secret = 'isolated-pickup-integration-secret';
+    const userId = 'child-pickups';
+    let confirmed, lastProof;
+    const screen = game('scriptBonus.js', async (url, options) => {
+        if (url.endsWith('/api/save')) return response({ userId, bonusHighScore: 0 });
+        if (url.endsWith('/api/game/bonus-run')) {
+            return response(createBonusRun(userId, 0, secret, 0, 3, 0, 'a'.repeat(64)));
+        }
+        lastProof = JSON.parse(options.body);
+        confirmed = verifyBonusRun(lastProof.challengeToken, userId, 0, lastProof.answers, secret);
+        assert.equal(lastProof.score, confirmed.score);
+        return response({ bonusHighScore: confirmed.score, ...confirmed });
+    });
+    await settle();
+    for (let count = 0; count < 9 && screen.value('pulosDisponiveis') === 0; count++) {
+        answerCorrect(screen);
+        await settle();
+    }
+    assert.equal(screen.value('pulosDisponiveis'), 1);
+    const score = screen.value('pontos');
+    const position = screen.value('posicaoPersonagem');
+    screen.value('tempoEsgotado(); tentarQuestaoNovamente();');
+    screen.click(screen.element('skipQuestionBtn'));
+    assert.equal(screen.value('pulosDisponiveis'), 0);
+    assert.equal(screen.value('pontos'), score);
+    assert.equal(screen.value('posicaoPersonagem'), position);
+    answerCorrect(screen);
+    await settle();
+    assert.ok(lastProof.answers.some(entry => entry?.skip === true && entry.timeouts === 1));
+    assert.equal(confirmed.score, score + 1);
+    assert.equal(confirmed.lives, screen.value('vidas'));
+    assert.equal(confirmed.skips, screen.value('pulosDisponiveis'));
+    assert.equal(screen.value('recordeConfirmado'), score + 1);
+});
+
+test('bonus waits for its introduction before starting the first question and countdown', async () => {
+    const intro = deferred();
+    const screen = game('scriptBonus.js', async url => response(url.endsWith('/api/game/bonus-run')
+        ? bonusRun() : { userId: 'child', bonusHighScore: 0 }));
+    screen.context.window.jumpSkyBonusIntroReady = intro.promise;
+    await settle();
+    assert.equal(screen.value('bonusReady'), false);
+    assert.equal(screen.intervals.size, 0);
+    assert.ok(screen.answers.every(button => button.disabled));
+    intro.resolve();
+    await settle();
+    assert.equal(screen.value('bonusReady'), true);
+    assert.equal(screen.value('tempoRestante'), 30);
+    assert.equal(screen.intervals.size, 1);
+});
+
 test('bonus later scenes reference existing local images', async () => {
     const screen = game('scriptBonus.js', async url => response(url.endsWith('/api/game/bonus-run')
         ? bonusRun() : { userId: 'child', bonusHighScore: 0 }));
     await settle();
     for (const filename of screen.value('cenarios')) assert.ok(fs.existsSync(path.join(__dirname, '..', filename)));
+});
+
+for (const filename of phaseFiles) {
+    test(filename + ' travels to the next platform during the jump', async () => {
+        const questions = Array.from({ length: 4 }, () => ({ number1: 2, number2: 2, correct: 4, answers: [4, 5, 6] }));
+        const screen = game(filename, url => Promise.resolve(response(url.endsWith('/api/game/start')
+            ? { challengeToken: 'jump-test', questions }
+            : { saveProgress: 4, phase4Completed: false })));
+        await settle();
+        screen.element('platform1').getBoundingClientRect = () => ({ left: 200, top: 100, bottom: 130, width: 100 });
+        screen.click(screen.answers.find(button => Number(button.textContent) === 4));
+        const character = screen.element('character');
+        assert.equal(character.classList.contains('jumping'), true);
+        assert.equal(character.style.left, '220px');
+        assert.equal(character.style.bottom, '200px');
+        screen.runTimers(700);
+        assert.equal(character.classList.contains('jumping'), false);
+        assert.equal(character.style.left, '220px');
+    });
+}
+
+async function readyBonus() {
+ const screen = game('scriptBonus.js', url => Promise.resolve(response(url.endsWith('/api/game/bonus-run')
+    ? bonusRun() : { userId: 'bonus-test', bonusHighScore: 0 })));
+ await settle();
+ return screen;
+}
+test('bonus timeout costs one life once and ends the game on the last life', async () => {
+ const screen = await readyBonus();
+ screen.value('tempoEsgotado(); tempoEsgotado();');
+ assert.equal(screen.value('vidas'), 2);
+ screen.value('tentarQuestaoNovamente(); tempoEsgotado();');
+ assert.equal(screen.value('vidas'), 1);
+ screen.value('tentarQuestaoNovamente(); tempoEsgotado();');
+ assert.equal(screen.value('vidas'), 0);
+ assert.equal(screen.value('jogoFinalizado'), true);
+ assert.equal(screen.element('gameOver').style.display, 'block');
+});
+test('bonus final background remains the solar system over repeated traversals', async () => {
+ const screen = await readyBonus();
+ for(let i=0;i<12;i++) screen.value('posicaoPersonagem = 9; avancarPersonagem();');
+ assert.equal(screen.value('indiceCenario'), screen.value('cenarios.length - 1'));
+ assert.match(screen.element('scene').style.backgroundImage, /sistemasolarbonus/);
+});
+test('pickups are limited, consumed once, and skipping never grants score or travel', async () => {
+ const screen = await readyBonus();
+ for(let i=0;i<30;i++) {
+   screen.value('sortearItens()');
+   assert.equal(screen.value('itensPlataformas.size'),2);
+   assert.equal(screen.value("[...itensPlataformas.values()].filter(x => x === 'heal').length"),1);
+   assert.equal(screen.value('itensPlataformas.has(0)'),false);
+ }
+ screen.value("vidas = 2; posicaoPersonagem = [...itensPlataformas].find(x => x[1] === 'heal')[0]; coletarItem(); coletarItem();");
+ assert.equal(screen.value('vidas'),3);
+ screen.value("posicaoPersonagem = [...itensPlataformas].find(x => x[1] === 'skip')[0]; coletarItem(); coletarItem();");
+ assert.equal(screen.value('pulosDisponiveis'),1);
+ const position=screen.value('posicaoPersonagem');
+ const question=screen.value('numeroQuestao');
+ screen.click(screen.element('skipQuestionBtn'));
+ assert.equal(screen.value('pulosDisponiveis'),0);
+ assert.equal(screen.value('pontos'),0);
+ assert.equal(screen.value('posicaoPersonagem'),position);
+ assert.equal(screen.value('numeroQuestao'),question+1);
+ screen.click(screen.element('skipQuestionBtn'));
+ assert.equal(screen.value('numeroQuestao'),question+1);
+ screen.value('reiniciarJogo()');
+ assert.equal(screen.value('vidas'),3);
+ assert.equal(screen.value('pulosDisponiveis'),0);
+ assert.equal(screen.value('indiceCenario'),0);
+});
+
+test('bonus countdown warns at 5 through 1 and plays one loss sound at zero', async () => {
+ const screen=await readyBonus();
+ const sounds=[];
+ screen.context.playSound=name=>sounds.push(name);
+ assert.equal(screen.value('tempoRestante'),30);
+ const tick=()=>{for(const callback of [...screen.intervals.values()])callback();};
+ for(let i=0;i<24;i++)tick();
+ assert.equal(screen.element('timer').classList.contains('timer-warning'),false);
+ assert.equal(sounds.length,0);
+ tick();
+ assert.equal(screen.element('timer').classList.contains('timer-warning'),true);
+ screen.event('instructionaudio:start');
+ assert.equal(screen.intervals.size,0);
+ assert.equal(screen.element('timer').classList.contains('timer-warning'),false);
+ screen.event('instructionaudio:end');
+ for(let i=0;i<5;i++)tick();
+ assert.equal(sounds.filter(x=>x==='tick').length,5);
+ assert.equal(sounds.filter(x=>x==='lifeLost').length,1);
+ assert.equal(screen.value('vidas'),2);
+ assert.equal(screen.intervals.size,0);
+ assert.equal(screen.element('timer').classList.contains('timer-warning'),false);
+ screen.value('tentarQuestaoNovamente()');
+ assert.equal(screen.value('tempoRestante'),30);
+ screen.value('vidas=1; tempoRestante=1;');tick();
+ assert.equal(screen.value('jogoFinalizado'),true);
+ assert.equal(sounds.filter(x=>x==='lifeLost').length,2);
+ assert.equal(sounds.filter(x=>x==='timeout').length,0);
 });

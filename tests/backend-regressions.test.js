@@ -6,7 +6,7 @@ const vm = require('node:vm');
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcryptjs');
 const { createPhaseChallenge } = require('../lib/game-challenges');
-const { createBonusRun } = require('../lib/bonus-run');
+const { createBonusRun, verifyBonusRun, pickupLayout } = require('../lib/bonus-run');
 
 const SECRET = 'isolated-tests-secret-without-network';
 const USER_ID = '000000000000000000000001';
@@ -302,21 +302,71 @@ test('a reset racing a verified record write cannot restore the previous game sc
     assert.equal(context.saves.get(USER_ID).bonusHighScore, 0);
 });
 
-test('bonus proof skips keep lives, wrong answers cost lives, and continuation preserves verified progress', async () => {
+test('bonus timeout skips cost a life and continuation preserves verified progress and signed pickups', async () => {
     const context = setup({ progress: 5 });
     const run = (await context.request('post', '/api/game/bonus-run', {})).body;
     const answers = run.questions.map(question => question.correct);
-    answers[0] = null;
+    answers[0] = { answer: null, timeouts: 1 };
     answers[1] = run.questions[1].answers.find(answer => answer !== run.questions[1].correct);
     const response = await context.request('put', '/api/save/bonus-record', { score: 18, challengeToken: run.challengeToken, answers });
     assert.equal(response.body.score, 18);
-    assert.equal(response.body.lives, 2);
+    assert.ok(response.body.lives >= 2 && response.body.lives <= 3);
+    assert.equal(response.body.skips, 1);
     const next = await context.request('post', '/api/game/bonus-run', { challengeToken: run.challengeToken, answers });
     assert.equal(next.body.startScore, 18);
-    assert.equal(next.body.startLives, 2);
+    assert.equal(next.body.startLives, response.body.lives);
+    assert.equal(next.body.startSkips, response.body.skips);
+    const cycle = Math.floor(next.body.startScore / 10);
+    assert.deepEqual(next.body.pickupLayouts[cycle], run.pickupLayouts[cycle]);
     const exhausted = run.questions.slice(0, 4).map(question => question.answers.find(answer => answer !== question.correct));
     assert.equal((await context.request('put', '/api/save/bonus-record', { score: 0, challengeToken: run.challengeToken, answers: exhausted })).code, 400);
     assert.equal((await context.request('put', '/api/save/bonus-record', { score: 0, challengeToken: run.challengeToken, answers: exhausted.slice(0, 3) })).body.lives, 0);
+});
+
+test('bonus pickups are signed and deterministic, heal at most three lives, and provide at most one inventory skip', () => {
+    const seed = '0'.repeat(64);
+    const layout = pickupLayout(seed, 0);
+    assert.equal(Object.keys(layout).length, 2);
+    assert.deepEqual(Object.values(layout).sort(), ['heal', 'skip']);
+    const platforms = Object.keys(layout).map(Number).sort((a, b) => a - b);
+    assert.ok(platforms[0] >= 2 && platforms[0] <= 4);
+    assert.ok(platforms[1] >= 6 && platforms[1] <= 9);
+    const healPlatform = Number(Object.keys(layout).find(platform => layout[platform] === 'heal'));
+    const skipPlatform = Number(Object.keys(layout).find(platform => layout[platform] === 'skip'));
+    const run = createBonusRun(USER_ID, 0, SECRET, 0, 2, 0, seed);
+    const correct = run.questions.map(question => question.correct);
+    const healed = verifyBonusRun(run.challengeToken, USER_ID, 0, correct.slice(0, healPlatform), SECRET);
+    assert.equal(healed.lives, 3);
+    const fullLives = createBonusRun(USER_ID, 0, SECRET, 0, 3, 1, seed);
+    const full = verifyBonusRun(fullLives.challengeToken, USER_ID, 0, fullLives.questions.slice(0, 10).map(question => question.correct), SECRET);
+    assert.equal(full.lives, 3);
+    assert.equal(full.skips, 1);
+    const answers = correct.slice(0, skipPlatform);
+    const acquired = verifyBonusRun(run.challengeToken, USER_ID, 0, answers, SECRET);
+    assert.equal(acquired.skips, 1);
+    answers.push({ answer: null, timeouts: 0, skip: true });
+    const skipped = verifyBonusRun(run.challengeToken, USER_ID, 0, answers, SECRET);
+    assert.equal(skipped.skips, 0);
+    assert.equal(skipped.score, acquired.score);
+    assert.equal(skipped.lives, acquired.lives);
+    assert.throws(() => verifyBonusRun(run.challengeToken, USER_ID, 0, [...answers, { answer: null, skip: true }], SECRET), /pulo/);
+    assert.throws(() => verifyBonusRun(run.challengeToken, USER_ID, 0, [null], SECRET), /Pulo/);
+    assert.throws(() => verifyBonusRun(run.challengeToken, USER_ID, 0, [{ answer: null, skip: true }], SECRET), /pulo/);
+});
+
+test('bonus timeout retries lose one life each without consuming the signed question or allowing answers after death', () => {
+    const run = createBonusRun(USER_ID, 0, SECRET);
+    const answer = run.questions[0].correct;
+    const once = verifyBonusRun(run.challengeToken, USER_ID, 0, [{ answer, timeouts: 1 }], SECRET);
+    assert.equal(once.score, 1);
+    assert.equal(once.lives, 2);
+    const twice = verifyBonusRun(run.challengeToken, USER_ID, 0, [{ answer, timeouts: 2 }], SECRET);
+    assert.equal(twice.score, 1);
+    assert.equal(twice.lives, 1);
+    assert.throws(() => verifyBonusRun(run.challengeToken, USER_ID, 0, [{ answer, timeouts: 3 }], SECRET), /inválida/);
+    const skipped = verifyBonusRun(run.challengeToken, USER_ID, 0, [{ answer: null, timeouts: 1 }], SECRET);
+    assert.equal(skipped.score, 0);
+    assert.equal(skipped.lives, 2);
 });
 
 test('save schema bounds progress and score without connecting to MongoDB', async () => {

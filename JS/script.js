@@ -140,11 +140,12 @@ function setCharacterPosition() {
         sceneRect.bottom -
         platformRect.top;
 
-    character.style.left =
-        `${left}px`;
-
-    character.style.bottom =
-        `${bottom}px`;
+    if (window.moveGameCharacter) {
+        window.moveGameCharacter(character, left, bottom);
+    } else {
+        character.style.left = left + 'px';
+        character.style.bottom = bottom + 'px';
+    }
 }
 
 
@@ -357,6 +358,9 @@ function checkAnswer(button) {
         character.classList.add(
             "jumping"
         );
+        // Move toward the target during the jump, not after landing.
+        setCharacterPosition();
+
 
 
         setTimeout(
@@ -365,8 +369,6 @@ function checkAnswer(button) {
                 character.classList.remove(
                     "jumping"
                 );
-
-                setCharacterPosition();
 
             },
             700
@@ -595,20 +597,7 @@ if (restartBtn) {
 }
 
 // ========================================
-// INTRO
-// ========================================
-
-// Some com a intro
-setTimeout(() => {
-    intro.style.opacity = "0";
-
-    setTimeout(() => {
-        intro.style.display = "none";
-    }, 800);
-}, 2500);
-
-
-// ========================================
+// Intro controlada por game-intro.js.
 // ESCONDE O BOTÃO NO INÍCIO
 // ========================================
 

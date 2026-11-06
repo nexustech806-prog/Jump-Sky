@@ -66,21 +66,18 @@ const characterPositions = [
 // CONFIGURAÇÕES
 // ========================================
 
-const TEMPO_POR_QUESTAO = 45; // Tempo para ler a situação-problema.
+const TEMPO_POR_QUESTAO = 30; // Tempo para ler a situação-problema.
 const TOTAL_PLATAFORMAS = 10;
 
 const cenarios = [
-    "/images/bonus1.jpeg",
-    "/images/bonus2.jpeg",
-    "/images/bonus1.jpeg",
-    "/images/bonus2.jpeg"
+    "/images/bonus1.jpeg", "/images/bonus2.jpeg", "/images/martebonus.jpg",
+    "/images/jupiterbonus.jpg", "/images/saturnobonus.jpg", "/images/uranus.jpg",
+    "/images/netuno.jpg", "/images/sistemasolarbonus.jpg"
 ];
 
 const nomesCenarios = [
-    "🌍 Órbita da Terra",
-    "🌙 Viagem pela Lua",
-    "🪐 Planetas Distantes",
-    "🌌 Espaço Profundo"
+    "🌍 Órbita da Terra", "🌙 Viagem pela Lua", "🔴 Marte", "🪐 Júpiter",
+    "🪐 Saturno", "🔵 Urano", "🔵 Netuno", "🌌 Sistema Solar"
 ];
 
 
@@ -103,6 +100,8 @@ let bonusLoadPending = false;
 let bonusChallengeToken = null;
 let bonusQuestions = [];
 let bonusAnswers = [];
+let bonusQuestionTimeouts = 0;
+let bonusPickupLayouts = {};
 let pendingRecordProof = null;
 const recordSaveStatus = document.getElementById("recordSaveStatus");
 const retryRecordSave = document.getElementById("retryRecordSave");
@@ -174,6 +173,7 @@ function carregarQuestao() {
     }
 
     const question = bonusQuestions[bonusAnswers.length];
+    bonusQuestionTimeouts = 0;
     questaoAtual = {
         numero1: question.number1,
         numero2: question.number2,
@@ -199,6 +199,7 @@ function iniciarTimer() {
 }
 
 function pararTimer() {
+    timerElement.classList.remove("timer-warning");
     if (intervaloTimer) {
         clearInterval(
             intervaloTimer
@@ -212,9 +213,14 @@ let instructionsActive = false;
 
 function resumeTimerWithoutReset() {
     if (intervaloTimer || jogoFinalizado || bloqueado || instructionsActive || !bonusReady) return;
+    if (tempoRestante <= 5 && tempoRestante > 0) timerElement.classList.add("timer-warning");
     intervaloTimer = setInterval(() => {
         tempoRestante--;
         timerElement.textContent = tempoRestante;
+        if (tempoRestante > 0 && tempoRestante <= 5) {
+            timerElement.classList.add("timer-warning");
+            playSound("tick");
+        }
         if (tempoRestante <= 0) {
             pararTimer();
             tempoEsgotado();
@@ -240,15 +246,18 @@ document.addEventListener("instructionaudio:end", () => {
 function tempoEsgotado() {
 
     if (
+        !bonusReady ||
         bloqueado ||
         jogoFinalizado
     ) {
         return;
     }
 
-    playSound("timeout");
+    pararTimer();
+    playSound("lifeLost");
 
     bloqueado = true;
+    atualizarPoder();
 
     answerButtons.forEach(
         button => {
@@ -263,17 +272,11 @@ function tempoEsgotado() {
         }
     );
 
-    /*
-        O TEMPO ESGOTADO NÃO GERA PUNIÇÃO.
-
-        - Não perde vida
-        - Não perde pontos
-        - Não perde progresso
-        - Não altera a plataforma atual
-    */
+    vidas = Math.max(0, vidas - 1);
+    bonusQuestionTimeouts++;
 
     feedback.textContent =
-        `⏰ O tempo acabou! A resposta correta era ${questaoAtual.correta}. Você pode tentar esta operação novamente ou seguir para a próxima.`;
+        `⏰ O tempo acabou e você perdeu 1 vida. A resposta correta era ${questaoAtual.correta}. Você pode tentar esta operação novamente ou seguir para a próxima.`;
 
     feedback.className =
         "feedback-wrong";
@@ -288,6 +291,7 @@ function tempoEsgotado() {
         - seguir para uma nova questão.
     */
 
+    if (vidas <= 0) { finalizarJogo(false); return; }
     timeoutActions.classList.add("show");
 }
 
@@ -314,7 +318,7 @@ function tentarQuestaoNovamente() {
         não altera o número da questão
         e não movimenta o personagem.
 
-        O timer volta aos 45 segundos.
+        O timer volta a 30 segundos.
     */
 
     exibirQuestaoAtual();
@@ -336,7 +340,7 @@ function seguirParaProximaQuestao() {
     }
 
     timeoutActions.classList.remove("show");
-    bonusAnswers.push(null); // Pular após o tempo acabar não tira uma vida.
+    bonusAnswers.push({ answer: null, timeouts: bonusQuestionTimeouts });
     proximaQuestao();
 }
 
@@ -355,6 +359,7 @@ function verificarResposta(button) {
     }
 
     bloqueado = true;
+    atualizarPoder();
 
     pararTimer();
 
@@ -368,7 +373,9 @@ function verificarResposta(button) {
             btn.disabled = true;
         }
     );
-    bonusAnswers.push(respostaJogador);
+    bonusAnswers.push(bonusQuestionTimeouts > 0
+        ? { answer: respostaJogador, timeouts: bonusQuestionTimeouts }
+        : respostaJogador);
 
     if (
     respostaJogador ===
@@ -391,9 +398,8 @@ function verificarResposta(button) {
         feedback.className =
             "feedback-correct";
 
-        atualizarInterface();
-
         avancarPersonagem();
+        atualizarInterface();
 
         agendarTransicao(
             proximaQuestao,
@@ -487,19 +493,14 @@ function avancarPersonagem() {
     ) {
         posicaoPersonagem++;
 
+        coletarItem();
         atualizarPersonagem(true);
 
         return;
     }
 
-    indiceCenario++;
-
-    if (
-        indiceCenario >=
-        cenarios.length
-    ) {
-        indiceCenario = 0;
-    }
+    indiceCenario = Math.min(indiceCenario + 1, cenarios.length - 1);
+    sortearItens();
 
     posicaoPersonagem = 0;
 
@@ -513,13 +514,16 @@ function avancarPersonagem() {
 // ========================================
 
 function atualizarCenario() {
-    scene.style.backgroundImage =
-        `url("${cenarios[indiceCenario]}")`;
-
-    if (sceneName) {
-        sceneName.textContent =
-            nomesCenarios[indiceCenario];
-    }
+    const index = indiceCenario;
+    const apply = () => {
+        if (index !== indiceCenario) return;
+        scene.style.backgroundImage = 'url("' + cenarios[index] + '")';
+        if (sceneName) sceneName.textContent = nomesCenarios[index];
+    };
+    if (window.JumpSkyAssets) {
+        window.JumpSkyAssets.load(cenarios[index]).then(ready => { if (ready) apply(); });
+        window.JumpSkyAssets.load(cenarios[Math.min(index + 1, cenarios.length - 1)]);
+    } else apply();
 }
 
 
@@ -574,8 +578,12 @@ function atualizarPersonagem(fazerPulo = false) {
         sceneRect.bottom -
         platformRect.top;
 
-    character.style.left = `${left}px`;
-    character.style.bottom = `${bottom}px`;
+    if (window.moveGameCharacter) {
+        window.moveGameCharacter(character, left, bottom);
+    } else {
+        character.style.left = left + 'px';
+        character.style.bottom = bottom + 'px';
+    }
 
     setTimeout(
         () => {
@@ -593,7 +601,11 @@ function atualizarPersonagem(fazerPulo = false) {
 function validRecordProof(proof) {
     return proof && typeof proof.challengeToken === "string" && proof.challengeToken.length > 0 &&
         Array.isArray(proof.answers) && proof.answers.length > 0 && proof.answers.length <= 20 &&
-        proof.answers.every(answer => answer === null || Number.isInteger(answer)) &&
+        proof.answers.every(answer => Number.isInteger(answer) ||
+            (answer && typeof answer === "object" &&
+                (answer.answer === null || Number.isInteger(answer.answer)) &&
+                Number.isInteger(answer.timeouts) && answer.timeouts >= 0 && answer.timeouts <= 2 &&
+                (answer.skip === undefined || answer.skip === true))) &&
         Number.isInteger(proof.score) && proof.score > 0 && proof.score <= 1000000;
 }
 
@@ -601,6 +613,7 @@ async function initializeBonus() {
     if (bonusLoadPending) return;
     bonusLoadPending = true;
     bonusReady = false;
+    atualizarPoder();
     pararTimer();
     answerButtons.forEach(button => { button.disabled = true; });
     questionElement.textContent = "Preparando seu próximo desafio...";
@@ -636,7 +649,8 @@ async function initializeBonus() {
             method: "POST", body: JSON.stringify(continuation)
         });
         if (!data.challengeToken || !Array.isArray(data.questions) || data.questions.length !== 20 ||
-            data.startScore !== pontos || data.startLives !== vidas ||
+            data.startScore !== pontos || data.startLives !== vidas || data.startSkips !== pulosDisponiveis ||
+            !data.pickupLayouts || typeof data.pickupLayouts !== "object" ||
             !data.questions.every(question => Number.isInteger(question.number1) &&
                 Number.isInteger(question.number2) && Number.isInteger(question.correct) &&
                 ["+", "-", "×", "÷"].includes(question.operation) &&
@@ -648,6 +662,9 @@ async function initializeBonus() {
         bonusChallengeToken = data.challengeToken;
         bonusQuestions = data.questions;
         bonusAnswers = [];
+        bonusPickupLayouts = data.pickupLayouts;
+        sortearItens();
+        await (window.jumpSkyBonusIntroReady || Promise.resolve());
         bonusReady = true;
         nextQuestionBtn.hidden = false;
         retryQuestionBtn.textContent = retryQuestionLabel;
@@ -801,6 +818,7 @@ function verificarRecorde() {
 // ========================================
 
 function atualizarInterface() {
+    atualizarPoder();
     livesElement.textContent =
         vidas;
 
@@ -819,9 +837,10 @@ function atualizarInterface() {
 // FINALIZA O JOGO
 // ========================================
 
-function finalizarJogo() {
+function finalizarJogo(playEndSound = true) {
     stopBackgroundMusic();
     jogoFinalizado = true;
+    atualizarPoder();
 
     pararTimer();
 
@@ -832,7 +851,7 @@ function finalizarJogo() {
             button.disabled = true;
         }
     );
-    playSound("timeout");
+    if (playEndSound) playSound("timeout");
 
     questionElement.textContent =
         "🚀 Fim do desafio!";
@@ -871,6 +890,9 @@ function reiniciarJogo() {
 
     posicaoPersonagem = 0;
     indiceCenario = 0;
+    pulosDisponiveis = 0;
+    bonusPickupLayouts = {};
+    sortearItens();
 
     tempoRestante =
         TEMPO_POR_QUESTAO;
@@ -940,6 +962,57 @@ menuBtn.addEventListener(
 // ========================================
 // INICIA A FASE BÔNUS
 // ========================================
+
+
+let pulosDisponiveis = 0;
+let itensPlataformas = new Map();
+const skipQuestionBtn = document.getElementById('skipQuestionBtn');
+function atualizarPoder() {
+    skipQuestionBtn.textContent = 'Pular questão (' + pulosDisponiveis + '/1)';
+    skipQuestionBtn.disabled = !bonusReady || bloqueado || jogoFinalizado || pulosDisponiveis === 0;
+}
+function sortearItens() {
+    // O servidor assina a distribuição: um item em cada metade do caminho.
+    // Ao continuar um lote, os itens já alcançados não reaparecem.
+    const layout = bonusPickupLayouts[Math.floor(pontos / TOTAL_PLATAFORMAS)] || {};
+    const currentPlatform = pontos % TOTAL_PLATAFORMAS;
+    itensPlataformas = new Map(Object.entries(layout)
+        .map(([position, type]) => [Number(position), type])
+        .filter(([position]) => position > currentPlatform));
+    platforms.forEach((platform, index) => {
+        const item = itensPlataformas.get(index);
+        platform.textContent = '';
+        platform.classList.remove('pickup-heal', 'pickup-skip');
+        if (item) platform.classList.add(item === 'heal' ? 'pickup-heal' : 'pickup-skip');
+        platform.title = item === 'heal' ? 'Recupera 1 vida (máximo 3)' : item === 'skip' ? 'Ganhe um pulo de questão (máximo 1)' : '';
+    });
+}
+function coletarItem() {
+    const item = itensPlataformas.get(posicaoPersonagem);
+    if (!item) return;
+    itensPlataformas.delete(posicaoPersonagem);
+    platforms[posicaoPersonagem].textContent = '';
+    platforms[posicaoPersonagem].classList.remove('pickup-heal', 'pickup-skip');
+    platforms[posicaoPersonagem].title = '';
+    if (item === 'heal') {
+        const healed = vidas < 3;
+        vidas = Math.min(3, vidas + 1);
+        feedback.textContent += healed ? ' Você recuperou 1 vida!' : ' Suas vidas já estão completas!';
+    } else {
+        const gained = pulosDisponiveis === 0;
+        pulosDisponiveis = 1;
+        feedback.textContent += gained ? ' Você ganhou um pulo de questão!' : ' Você já tem um pulo guardado!';
+    }
+}
+skipQuestionBtn.addEventListener('click', () => {
+    if (!bonusReady || bloqueado || jogoFinalizado || pulosDisponiveis < 1) return;
+    pulosDisponiveis--;
+    bonusAnswers.push({ answer: null, timeouts: bonusQuestionTimeouts, skip: true });
+    pararTimer();
+    proximaQuestao();
+    feedback.textContent = 'Questão pulada! Sem perder vida e sem ganhar pontos.';
+});
+sortearItens();
 
 atualizarCenario();
 atualizarPersonagem(false);

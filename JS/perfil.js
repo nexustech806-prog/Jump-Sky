@@ -92,6 +92,7 @@ async function carregarPerfil() {
     try {
         const { response, data } = await consultarPerfil('/api/profile');
         if (!response.ok) throw new Error();
+        try { sessionStorage.setItem('jumpSkyAvatar', data.avatar); } catch (_) {}
         mostrarPerfil(data);
         mostrarRecordeBonus(data.bonusHighScore || 0);
         document.getElementById('recordeBonus').hidden = false;

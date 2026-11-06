@@ -577,18 +577,20 @@ app.post('/api/game/bonus-run', verificarToken, requireDatabase, async (req, res
             return res.status(403).json({ mensagem: 'O desafio bônus ainda está bloqueado.' });
         }
         const generation = scoreGeneration(save);
-        let startScore = 0, startLives = 3;
+        let startScore = 0, startLives = 3, startSkips = 0, runSeed;
         if (req.body?.challengeToken !== undefined || req.body?.answers !== undefined) {
             try {
                 const previous = verifyBonusRun(req.body.challengeToken, req.userId, generation, req.body.answers, process.env.JWT_SECRET);
                 if (!previous.complete || previous.lives <= 0) throw new Error('Rodada incompleta.');
                 startScore = previous.score;
                 startLives = previous.lives;
+                startSkips = previous.skips;
+                runSeed = previous.runSeed;
             } catch (error) {
                 return res.status(400).json({ mensagem: 'A rodada expirou ou é inválida. Comece uma nova partida.' });
             }
         }
-        return res.json(createBonusRun(req.userId, generation, process.env.JWT_SECRET, startScore, startLives));
+        return res.json(createBonusRun(req.userId, generation, process.env.JWT_SECRET, startScore, startLives, startSkips, runSeed));
     } catch (error) {
         return res.status(503).json({ mensagem: 'Não foi possível carregar a partida. Tente novamente.' });
     }
@@ -617,7 +619,7 @@ app.put('/api/save/bonus-record', verificarToken, requireDatabase, async (req, r
             { $max: { bonusHighScore: score } }, { new: true, runValidators: true }
         );
         if (!save) return res.status(403).json({ mensagem: 'O desafio bônus ainda está bloqueado.' });
-        return res.json({ bonusHighScore: save.bonusHighScore, score: verified.score, lives: verified.lives });
+        return res.json({ bonusHighScore: save.bonusHighScore, score: verified.score, lives: verified.lives, skips: verified.skips });
     } catch (error) {
         return res.status(503).json({ mensagem: 'Não foi possível salvar o recorde. Tente novamente.' });
     }

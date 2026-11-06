@@ -1,4 +1,8 @@
 [data-audio-settings] { text-align: left; }
+.audio-track { display: grid; gap: 8px; margin: 14px 0 18px; }
+.audio-track label { font-weight: bold; }
+.audio-track select { width: 100%; min-height: 44px; padding: 8px 10px; border: 2px solid #007d80; border-radius: 8px; background: #fff; color: #17333e; font: inherit; }
+.audio-track select:focus-visible { outline: 3px solid #007d80; outline-offset: 3px; }
 .audio-channel { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 8px; margin: 16px 0; align-items: center; }
 .audio-channel label { font-weight: bold; }
 .audio-channel input { min-width: 0; width: 100%; accent-color: #007d80; }
