@@ -203,3 +203,29 @@
 @media (max-width: 760px) {
     .journey-page .menu-avatar-action { bottom: 12px; }
 }
+
+/* The live bonus scoreboard fits long nicknames and enlarged text. */
+.ranking-live .ranking-header { flex-wrap: wrap; }
+.ranking-live .ranking-header h3 { font-size: 1.125rem; line-height: 1.4; }
+.ranking-live .ranking-header > span { font-size: .75rem; white-space: nowrap; }
+.ranking-live .ranking-note { font-size: .85rem; margin-block: 12px 18px; }
+.ranking-live [hidden] { display: none !important; }
+.ranking-status { padding-block: 14px; color: var(--muted); font-size: 1rem; }
+.ranking-players { list-style: none; padding: 0; margin: 0; }
+.ranking-player { display: grid; grid-template-columns: minmax(2ch, auto) minmax(0, 1fr) auto; align-items: center; column-gap: 14px; row-gap: 4px; padding-block: 14px; border-top: 1px solid var(--line); }
+.ranking-place { color: var(--muted); font-size: .9rem; font-weight: 750; font-variant-numeric: tabular-nums; }
+.ranking-place--first { color: #f7d183; }
+.ranking-player-identity { display: flex; align-items: center; min-width: 0; gap: 10px; font-size: 1rem; font-weight: 650; overflow-wrap: anywhere; }
+.ranking-player-identity img { object-fit: contain; flex-shrink: 0; }
+.ranking-player-score { display: grid; text-align: right; font-variant-numeric: tabular-nums; }
+.ranking-player-score strong { font-size: 1.1rem; color: var(--sky); }
+.ranking-player-score > span { color: var(--muted); font-size: .75rem; }
+.ranking-total { margin-top: 14px; color: var(--muted); font-size: .8rem; }
+.ranking-retry { min-height: 44px; padding: .6rem 1rem; border: 1px solid var(--sky); border-radius: 8px; background: #67eeee0a; color: var(--sky); cursor: pointer; }
+.ranking-retry:hover { background: #67eeee18; }
+@media (max-width: 480px) {
+    .ranking-player { column-gap: 10px; }
+    .ranking-player-identity { gap: 6px; }
+    .ranking-player-identity img { width: 28px; height: 36px; }
+    .ranking-player-score { grid-column: 2 / -1; text-align: left; display: flex; flex-wrap: wrap; align-items: baseline; gap: 5px; }
+}

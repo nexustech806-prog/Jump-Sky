@@ -53,6 +53,38 @@ function mostrarPerfil(data) {
     mostrarApelidos([]);
 }
 
+function mostrarRecordeBonus(recorde) {
+    document.getElementById('pontosRecordeBonus').textContent = recorde.toLocaleString('pt-BR');
+    document.getElementById('mensagemRecordeBonus').textContent = recorde > 0
+        ? 'Essa é sua melhor pontuação. Continue a aventura para superar seu recorde!'
+        : 'Você ainda não tem pontos na fase bônus. Jogue para conquistar seu primeiro recorde!';
+}
+
+async function carregarRankingPessoal() {
+    const status = document.getElementById('rankingPessoalStatus');
+    const detalhe = document.getElementById('rankingPessoalDetalhe');
+    const tentarNovamente = document.getElementById('recarregarRankingPessoal');
+    status.textContent = 'Buscando sua posição...';
+    detalhe.hidden = true;
+    tentarNovamente.hidden = true;
+    try {
+        const { response, data } = await consultarPerfil('/api/ranking/me');
+        if (!response.ok || !Number.isInteger(data.totalPlayers) || data.totalPlayers < 0 || !Number.isInteger(data.score) || data.score < 0 || (data.position !== null && (!Number.isInteger(data.position) || data.position < 1))) throw new Error();
+        mostrarRecordeBonus(data.score);
+        if (data.position === null) {
+            status.textContent = 'Seu lugar está esperando por você!';
+            detalhe.textContent = 'Conquiste seus primeiros pontos na fase bônus para entrar no ranking.';
+        } else {
+            status.textContent = `${data.position.toLocaleString('pt-BR')}ª posição`;
+            detalhe.textContent = `Entre ${data.totalPlayers.toLocaleString('pt-BR')} ${data.totalPlayers === 1 ? 'aventureiro' : 'aventureiros'}. Pontos iguais dividem a mesma posição.`;
+        }
+        detalhe.hidden = false;
+    } catch (error) {
+        status.textContent = 'Não foi possível ver sua posição agora.';
+        tentarNovamente.hidden = false;
+    }
+}
+
 async function carregarPerfil() {
     recarregarPerfil.hidden = true;
     opcoesPerfil.disabled = true;
@@ -61,14 +93,11 @@ async function carregarPerfil() {
         const { response, data } = await consultarPerfil('/api/profile');
         if (!response.ok) throw new Error();
         mostrarPerfil(data);
-        const recorde = data.bonusHighScore || 0;
-        document.getElementById('pontosRecordeBonus').textContent = recorde.toLocaleString('pt-BR');
-        document.getElementById('mensagemRecordeBonus').textContent = recorde > 0
-            ? 'Essa é sua melhor pontuação. Continue a aventura para superar seu recorde!'
-            : 'Você ainda não tem pontos na fase bônus. Jogue para conquistar seu primeiro recorde!';
+        mostrarRecordeBonus(data.bonusHighScore || 0);
         document.getElementById('recordeBonus').hidden = false;
         opcoesPerfil.disabled = false;
         statusPerfil.textContent = 'Escolha suas opções e toque em Salvar meu perfil.';
+        carregarRankingPessoal();
     } catch (error) {
         statusPerfil.textContent = 'Não foi possível carregar seu perfil. Tente novamente.';
         recarregarPerfil.hidden = false;
@@ -77,6 +106,7 @@ async function carregarPerfil() {
 
 avataresPerfil.forEach(button => button.addEventListener('click', () => selecionarAvatar(button.dataset.avatar)));
 recarregarPerfil.addEventListener('click', carregarPerfil);
+document.getElementById('recarregarRankingPessoal').addEventListener('click', carregarRankingPessoal);
 gerarApelidos.addEventListener('click', async () => {
     opcoesPerfil.disabled = true;
     statusPerfil.textContent = 'Buscando apelidos disponíveis...';

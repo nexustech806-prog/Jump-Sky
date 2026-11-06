@@ -6,6 +6,7 @@ const vm = require('node:vm');
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcryptjs');
 const { createPhaseChallenge } = require('../lib/game-challenges');
+const { createBonusRun } = require('../lib/bonus-run');
 
 const SECRET = 'isolated-tests-secret-without-network';
 const USER_ID = '000000000000000000000001';
@@ -17,6 +18,7 @@ function setup({ progress = 1, databaseOffline = false, failSaveCreate = false, 
     const users = new Map([[USER_ID, { _id: USER_ID, nickname: 'existing', password: bcrypt.hashSync('secret', 4), avatar: 'Personagem.png' }]]);
     const saves = new Map(missingSave ? [] : [[USER_ID, { _id: 'legacy-save-id', userId: USER_ID, saveProgress: progress, phase4Completed: false, bonusHighScore: 0 }]]);
     const saveUpdates = [];
+    let beforeSaveUpdate;
     const app = { use: (...args) => globalMiddleware.push(args), listen() {} };
     for (const method of ['get', 'put', 'post']) {
         app[method] = (url, ...handlers) => routes.set(`${method} ${url}`, handlers);
@@ -32,6 +34,10 @@ function setup({ progress = 1, databaseOffline = false, failSaveCreate = false, 
     const matches = (save, query) => {
         if (query._id && String(save._id) !== String(query._id)) return false;
         if (query.saveProgress && save.saveProgress < query.saveProgress.$gte) return false;
+        if (query.bonusScoreGeneration !== undefined) {
+            const expected = query.bonusScoreGeneration;
+            if (expected.$in ? !expected.$in.includes(save.bonusScoreGeneration ?? null) : expected !== save.bonusScoreGeneration) return false;
+        }
         if (query.$or && !query.$or.some(condition => condition.phase4Completed ? save.phase4Completed : save.saveProgress >= condition.saveProgress.$gte)) return false;
         return true;
     };
@@ -44,7 +50,16 @@ function setup({ progress = 1, databaseOffline = false, failSaveCreate = false, 
             return { ...save };
         },
         async deleteOne(query) { saves.delete(String(query.userId)); },
+        async updateMany(query, update) {
+            for (const save of saves.values()) {
+                if (String(save.userId) === String(query.userId)) {
+                    Object.assign(save, update.$set);
+                    for (const [key, value] of Object.entries(update.$inc || {})) save[key] = (save[key] || 0) + value;
+                }
+            }
+        },
         async findOneAndUpdate(query, update, options = {}) {
+            if (beforeSaveUpdate) beforeSaveUpdate();
             saveUpdates.push({ query, update, options });
             let save = saves.get(String(query.userId));
             if (!save && options.upsert) {
@@ -89,7 +104,7 @@ function setup({ progress = 1, databaseOffline = false, failSaveCreate = false, 
         await dispatch(0);
         return res;
     }
-    return { request, saves, users, saveUpdates, globalMiddleware, get connections() { return connections; } };
+    return { request, saves, users, saveUpdates, globalMiddleware, beforeSaveWrite(callback) { beforeSaveUpdate = callback; }, get connections() { return connections; } };
 }
 
 test('public pages and logout stay available when database is offline', async () => {
@@ -116,10 +131,13 @@ test('loading progress repairs a missing save and provides account identity and 
     assert.equal(response.body.userId, USER_ID);
     assert.equal(response.body.saveProgress, 1);
     assert.equal(response.body.bonusHighScore, 0);
+    assert.equal(response.body.bonusScoreGeneration, 0);
     assert.equal(context.saves.size, 1);
     assert.equal(context.saves.get(USER_ID)._id, USER_ID);
     await context.request('get', '/api/save');
     assert.equal(context.saves.size, 1);
+    context.saves.get(USER_ID).bonusScoreGeneration = 7;
+    assert.equal((await context.request('get', '/api/save')).body.bonusScoreGeneration, 7);
 });
 
 test('concurrent save repair uses the existing unique _id index without migrating legacy saves', async () => {
@@ -212,8 +230,17 @@ test('out-of-order completion is monotonic and phase 4 requires the bonus answer
 
 test('bonus record belongs to the account and never regresses', async () => {
     const context = setup({ progress: 5 });
-    assert.equal((await context.request('put', '/api/save/bonus-record', { score: 37 })).body.bonusHighScore, 37);
-    assert.equal((await context.request('put', '/api/save/bonus-record', { score: 9 })).body.bonusHighScore, 37);
+    async function proofFor(score, session) {
+        let run = (await context.request('post', '/api/game/bonus-run', {}, session)).body;
+        while (score > run.startScore + run.questions.length) {
+            run = (await context.request('post', '/api/game/bonus-run', {
+                challengeToken: run.challengeToken, answers: run.questions.map(question => question.correct)
+            }, session)).body;
+        }
+        return { score, challengeToken: run.challengeToken, answers: run.questions.slice(0, score - run.startScore).map(question => question.correct) };
+    }
+    assert.equal((await context.request('put', '/api/save/bonus-record', await proofFor(37))).body.bonusHighScore, 37);
+    assert.equal((await context.request('put', '/api/save/bonus-record', await proofFor(9))).body.bonusHighScore, 37);
     for (const score of [-1, 1.5, '37', 1000001]) {
         assert.equal((await context.request('put', '/api/save/bonus-record', { score })).code, 400);
     }
@@ -223,9 +250,73 @@ test('bonus record belongs to the account and never regresses', async () => {
     context.saves.set(secondUserId, { _id: 'second-save-id', userId: secondUserId, saveProgress: 5, phase4Completed: true, bonusHighScore: 0 });
     const secondSession = jwt.sign({ purpose: 'session', userId: secondUserId }, SECRET);
     assert.equal((await context.request('get', '/api/save', {}, secondSession)).body.bonusHighScore, 0);
-    assert.equal((await context.request('put', '/api/save/bonus-record', { score: 8 }, secondSession)).body.bonusHighScore, 8);
+    assert.equal((await context.request('put', '/api/save/bonus-record', await proofFor(8, secondSession), secondSession)).body.bonusHighScore, 8);
     assert.equal((await context.request('get', '/api/save')).body.bonusHighScore, 37);
-    assert.equal((await setup({ progress: 4 }).request('put', '/api/save/bonus-record', { score: 1 })).code, 403);
+    const lockedRun = createBonusRun(USER_ID, 0, SECRET);
+    assert.equal((await setup({ progress: 4 }).request('put', '/api/save/bonus-record', {
+        score: 1, challengeToken: lockedRun.challengeToken, answers: [lockedRun.questions[0].correct]
+    })).code, 403);
+});
+
+test('bonus score proofs reject fabricated scores, other accounts, finished games and stale reset generations', async () => {
+    const context = setup({ progress: 5 });
+    const run = (await context.request('post', '/api/game/bonus-run', {})).body;
+    const answers = [run.questions[0].correct];
+    const expired = jwt.sign({ ...jwt.decode(run.challengeToken), exp: Math.floor(Date.now() / 1000) - 1 }, SECRET);
+    for (const payload of [
+        { score: 999999 },
+        { score: 999999, challengeToken: run.challengeToken, answers },
+        { score: 1, challengeToken: run.challengeToken + 'tampered', answers },
+        { score: 1, challengeToken: expired, answers },
+        { score: 1, challengeToken: createBonusRun('another-account', 0, SECRET).challengeToken, answers },
+        { score: 1, challengeToken: run.challengeToken, answers: ['not-an-answer'] }
+    ]) {
+        assert.equal((await context.request('put', '/api/save/bonus-record', payload)).code, 400);
+    }
+    const proof = { score: 1, challengeToken: run.challengeToken, answers };
+    assert.equal((await context.request('get', '/api/save', {}, run.challengeToken)).code, 401);
+    assert.equal((await context.request('put', '/api/save/bonus-record', proof)).body.bonusHighScore, 1);
+    assert.equal((await context.request('put', '/api/save/bonus-record', proof)).body.bonusHighScore, 1);
+    assert.equal((await context.request('post', '/api/game/bonus-run', { challengeToken: run.challengeToken, answers })).code, 400);
+    assert.equal((await context.request('post', '/api/game/reset', { confirm: true })).code, 200);
+    context.saves.get(USER_ID).saveProgress = 5;
+    assert.equal((await context.request('put', '/api/save/bonus-record', proof)).code, 400);
+    assert.equal(context.saves.get(USER_ID).bonusHighScore, 0);
+});
+
+test('a reset racing a verified record write cannot restore the previous game score', async () => {
+    const context = setup({ progress: 5 });
+    const run = (await context.request('post', '/api/game/bonus-run', {})).body;
+    context.beforeSaveWrite(() => {
+        // A reset and later phase unlock completed after proof validation but
+        // before the atomic record update reached the database.
+        const save = context.saves.get(USER_ID);
+        save.bonusScoreGeneration = 1;
+        save.bonusHighScore = 0;
+        save.saveProgress = 5;
+    });
+    const response = await context.request('put', '/api/save/bonus-record', {
+        score: 1, challengeToken: run.challengeToken, answers: [run.questions[0].correct]
+    });
+    assert.equal(response.code, 403);
+    assert.equal(context.saves.get(USER_ID).bonusHighScore, 0);
+});
+
+test('bonus proof skips keep lives, wrong answers cost lives, and continuation preserves verified progress', async () => {
+    const context = setup({ progress: 5 });
+    const run = (await context.request('post', '/api/game/bonus-run', {})).body;
+    const answers = run.questions.map(question => question.correct);
+    answers[0] = null;
+    answers[1] = run.questions[1].answers.find(answer => answer !== run.questions[1].correct);
+    const response = await context.request('put', '/api/save/bonus-record', { score: 18, challengeToken: run.challengeToken, answers });
+    assert.equal(response.body.score, 18);
+    assert.equal(response.body.lives, 2);
+    const next = await context.request('post', '/api/game/bonus-run', { challengeToken: run.challengeToken, answers });
+    assert.equal(next.body.startScore, 18);
+    assert.equal(next.body.startLives, 2);
+    const exhausted = run.questions.slice(0, 4).map(question => question.answers.find(answer => answer !== question.correct));
+    assert.equal((await context.request('put', '/api/save/bonus-record', { score: 0, challengeToken: run.challengeToken, answers: exhausted })).code, 400);
+    assert.equal((await context.request('put', '/api/save/bonus-record', { score: 0, challengeToken: run.challengeToken, answers: exhausted.slice(0, 3) })).body.lives, 0);
 });
 
 test('save schema bounds progress and score without connecting to MongoDB', async () => {
@@ -234,4 +325,42 @@ test('save schema bounds progress and score without connecting to MongoDB', asyn
         await assert.rejects(new Save({ userId: USER_ID, ...invalid }).validate());
     }
     await new Save({ userId: USER_ID, saveProgress: 5, bonusHighScore: 100 }).validate();
+});
+
+test('new game requires confirmation and resets only the authenticated account progress', async () => {
+    const context = setup({ progress: 5 });
+    const other = '000000000000000000000002';
+    context.saves.set(other, { _id: other, userId: other, saveProgress: 4, bonusHighScore: 25 });
+    context.saves.get(USER_ID).phase4Completed = true;
+    context.saves.get(USER_ID).bonusHighScore = 100;
+    context.saves.set('duplicate-legacy-save', {
+        _id: 'duplicate-legacy-save', userId: USER_ID,
+        saveProgress: 5, phase4Completed: true, bonusHighScore: 150
+    });
+    for (const body of [{}, { confirm: 'true' }]) {
+        assert.equal((await context.request('post', '/api/game/reset', body)).code, 400);
+        assert.equal(context.saves.get(USER_ID).saveProgress, 5);
+    }
+    assert.equal((await context.request('post', '/api/game/reset', { confirm: true }, 'invalid')).code, 401);
+    const response = await context.request('post', '/api/game/reset', { confirm: true, userId: other });
+    assert.equal(response.code, 200);
+    assert.equal(response.body.userId, USER_ID);
+    assert.equal(context.saves.get(USER_ID).saveProgress, 1);
+    assert.equal(context.saves.get(USER_ID).bonusHighScore, 0);
+    assert.equal(context.saves.get(USER_ID).phase4Completed, false);
+    assert.equal(context.saves.get('duplicate-legacy-save').bonusHighScore, 0);
+    assert.equal(context.saves.get('duplicate-legacy-save').saveProgress, 1);
+    assert.equal(context.saves.get('duplicate-legacy-save').bonusScoreGeneration, 1);
+    assert.equal(context.users.get(USER_ID).nickname, 'existing');
+    assert.equal(context.users.get(USER_ID).avatar, 'Personagem.png');
+    assert.equal(context.saves.get(other).saveProgress, 4);
+    assert.equal(context.saves.get(other).bonusHighScore, 25);
+});
+
+test('new game handles database failure and repairs missing saves', async () => {
+    const offline = setup({ databaseOffline: true });
+    assert.equal((await offline.request('post', '/api/game/reset', { confirm: true })).code, 503);
+    const missing = setup({ missingSave: true });
+    assert.equal((await missing.request('post', '/api/game/reset', { confirm: true })).code, 200);
+    assert.equal(missing.saves.get(USER_ID).saveProgress, 1);
 });

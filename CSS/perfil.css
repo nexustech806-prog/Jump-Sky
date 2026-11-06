@@ -74,3 +74,12 @@ legend { padding: 0; margin-bottom: 28px; font-size: 1.2rem; font-weight: 700; l
 @media (prefers-reduced-motion: reduce) { *, *::before, *::after { transition: none !important; transform: none !important; } }
 body.alto-contraste .avatar-stage::before { background: transparent; border-color: #ffff00; box-shadow: none; }
 body.alto-contraste button[aria-pressed="true"] { outline: 3px solid #fff; outline-offset: 2px; }
+
+.personal-ranking { margin-top: 22px; padding-top: 18px; border-top: 1px solid #f7d18335; min-width: 0; }
+.personal-ranking h3 { margin: 0 0 8px; font-size: .95rem; }
+#rankingPessoalStatus { margin-bottom: 6px; font-size: 1.15rem; font-weight: 750; color: var(--sky); overflow-wrap: anywhere; }
+#rankingPessoalDetalhe { margin-bottom: 10px; color: var(--muted); font-size: .85rem; }
+.personal-ranking a { display: inline-flex; align-items: center; gap: .5rem; min-height: 44px; color: var(--sky); font-size: .85rem; }
+.personal-ranking a:hover { text-decoration: underline; }
+#recarregarRankingPessoal { display: block; min-height: 44px; padding: .5rem .75rem; border: 1px solid var(--sky); border-radius: 8px; background: #67eeee0a; color: var(--sky); font-size: .85rem; margin-block: 12px; }
+body.alto-contraste .personal-ranking { border-color: #ffff00; }

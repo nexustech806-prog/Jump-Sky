@@ -24,6 +24,7 @@ function aplicarEstadoFases(saveProgress) {
     card.classList.remove('bloqueado', 'concluido', 'atual');
     card.removeAttribute('aria-disabled');
     card.removeAttribute('tabindex');
+    card.removeAttribute('title');
     card.querySelector('.icone-status')?.remove();
 
     if (faseNum < progresso) {
@@ -35,6 +36,7 @@ function aplicarEstadoFases(saveProgress) {
       card.classList.add('bloqueado');
       card.setAttribute('aria-disabled', 'true');
       card.setAttribute('tabindex', '-1');
+      card.setAttribute('title', `Conclua a Fase ${progresso} para liberar esta fase.`);
       adicionarIcone(card, '🔒');
     }
   });
@@ -53,7 +55,8 @@ document.querySelector('.game-floor')?.addEventListener('click', (e) => {
   const card = e.target.closest('.card-floor');
   if (card?.getAttribute('aria-disabled') === 'true') {
     e.preventDefault();
-    alert('Você ainda não desbloqueou essa fase!');
+    const status = document.getElementById('faseStatus');
+    if (status) status.textContent = card.getAttribute('title');
   }
 });
 
@@ -91,5 +94,46 @@ document.getElementById('sairBtn')?.addEventListener('click', async (event) => {
   } catch (error) {
     status.textContent = 'Não foi possível sair. Tente novamente.';
     button.disabled = false;
+  }
+});
+
+const novoJogoDialog = document.getElementById('novoJogoDialog');
+const confirmarNovoJogo = document.getElementById('confirmarNovoJogo');
+const cancelarNovoJogo = document.getElementById('cancelarNovoJogo');
+let reiniciando = false;
+document.getElementById('novoJogoBtn')?.addEventListener('click', () => {
+  document.getElementById('novoJogoStatus').textContent = '';
+  novoJogoDialog.showModal();
+  cancelarNovoJogo.focus();
+});
+cancelarNovoJogo?.addEventListener('click', () => novoJogoDialog.close());
+novoJogoDialog?.addEventListener('cancel', event => {
+  if (reiniciando) event.preventDefault();
+});
+confirmarNovoJogo?.addEventListener('click', async () => {
+  if (reiniciando) return;
+  reiniciando = true;
+  confirmarNovoJogo.disabled = cancelarNovoJogo.disabled = true;
+  const status = document.getElementById('novoJogoStatus');
+  status.textContent = 'Preparando sua nova aventura...';
+  try {
+    const { response, data } = await JumpSkyRequest(`${API_URL}/api/game/reset`, {
+      method: 'POST', credentials: 'include', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ confirm: true })
+    });
+    if (response.status === 401) {
+      window.location.assign('/login');
+      return;
+    }
+    if (!response.ok) throw new Error('Reset failed');
+    try { localStorage.removeItem('bonusHighScore:' + data.userId); } catch { /* Storage may be disabled. */ }
+    aplicarEstadoFases(1);
+    novoJogoDialog.close();
+    document.getElementById('faseStatus').textContent = 'Sua nova aventura está pronta! Escolha a Fase 1 para começar.';
+  } catch (error) {
+    status.textContent = 'Não foi possível confirmar o reinício. Tente novamente ou recarregue o menu para conferir seu progresso.';
+  } finally {
+    reiniciando = false;
+    confirmarNovoJogo.disabled = cancelarNovoJogo.disabled = false;
   }
 });

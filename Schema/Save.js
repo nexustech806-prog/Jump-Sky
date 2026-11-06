@@ -14,7 +14,9 @@ const saveSchema = new mongoose.Schema({
         validate: Number.isInteger
     },
     phase4Completed: { type: Boolean, default: false },
-    bonusHighScore: { type: Number, default: 0, min: 0, max: 1000000, validate: Number.isInteger }
+    bonusHighScore: { type: Number, default: 0, min: 0, max: 1000000, validate: Number.isInteger },
+    // Starting a new game invalidates signed score proofs from earlier games.
+    bonusScoreGeneration: { type: Number, default: 0, min: 0, validate: Number.isSafeInteger }
 });
 
 const SaveData = mongoose.model('SaveData', saveSchema);

@@ -16,6 +16,8 @@ const sobrenomesComuns = require('./sobrenomesComuns.json');
 const bcrypt = require('bcryptjs');
 const nicknames = require('./JS/nicknames');
 const { createPhaseChallenge, createBonusChallenge, verifyChallenge } = require('./lib/game-challenges');
+const { getRanking, getPlayerRanking } = require('./lib/leaderboard');
+const { createBonusRun, verifyBonusRun, scoreGeneration } = require('./lib/bonus-run');
 
 const VALID_AVATARS = ['Personagem.png', 'personagem2.png', 'personagem3.png', 'personagem4.png'];
 function normalizeSavedAvatar(value) {
@@ -154,6 +156,9 @@ function contemNomeReal(apelido) {
 app.get('/', (req, res) => {
     res.sendFile(path.join(__dirname, 'HTML/Pages/index.html'));
 });
+app.get('/favicon.ico', (req, res) => {
+    res.sendFile(path.join(__dirname, 'images/favicon.ico'));
+});
 app.get('/login', (req, res) => {
     res.sendFile(path.join(__dirname, 'HTML/Pages/login.html'));
 });
@@ -171,6 +176,29 @@ app.get('/selecionar-avatar', verificarTokenPagina, (req, res) => {
 
 app.get('/perfil', verificarTokenPagina, (req, res) => {
     res.sendFile(path.join(__dirname, 'HTML/Pages/perfil.html'));
+});
+
+function rankingNoCache(req, res, next) {
+    res.set('Cache-Control', 'no-store');
+    next();
+}
+
+app.get('/api/ranking', rankingNoCache, requireDatabase, async (req, res) => {
+    try {
+        return res.json(await getRanking(SaveData, User));
+    } catch (error) {
+        return res.status(503).json({ mensagem: 'Não foi possível carregar o ranking. Tente novamente.' });
+    }
+});
+
+app.get('/api/ranking/me', rankingNoCache, verificarToken, requireDatabase, async (req, res) => {
+    try {
+        const user = await User.findById(req.userId);
+        if (!user) return res.status(404).json({ mensagem: 'Conta não encontrada.' });
+        return res.json(await getPlayerRanking(SaveData, User, user._id));
+    } catch (error) {
+        return res.status(503).json({ mensagem: 'Não foi possível carregar sua posição. Tente novamente.' });
+    }
 });
 
 app.get('/api/profile', verificarToken, requireDatabase, async (req, res) => {
@@ -419,6 +447,7 @@ app.get('/api/save', verificarToken, requireDatabase, async (req, res) => {
             saveProgress: normalizedProgress(save),
             phase4Completed: Boolean(save.phase4Completed || normalizedProgress(save) >= 5),
             bonusHighScore: save.bonusHighScore || 0,
+            bonusScoreGeneration: scoreGeneration(save),
             avatar: normalizeSavedAvatar(user && user.avatar)
         });
     } catch (error) {
@@ -439,6 +468,27 @@ app.put('/api/avatar', verificarToken, requireDatabase, async (req, res) => {
         return res.status(200).json({ avatar: user.avatar });
     } catch (error) {
         return res.status(500).json({ mensagem: 'Não foi possível salvar o personagem. Tente novamente.' });
+    }
+});
+
+app.post('/api/game/reset', verificarToken, requireDatabase, async (req, res) => {
+    if (req.body?.confirm !== true) {
+        return res.status(400).json({ mensagem: 'Confirme que deseja começar de novo.' });
+    }
+    try {
+        const user = await User.findById(req.userId);
+        if (!user) return res.status(404).json({ mensagem: 'Conta não encontrada.' });
+        await ensureSaveForUser(req.userId);
+        // Clear every historical save so a duplicate cannot restore an old
+        // record to the leaderboard after the player starts a new game.
+        await SaveData.updateMany(
+            { userId: req.userId },
+            { $set: { saveProgress: 1, phase4Completed: false, bonusHighScore: 0 }, $inc: { bonusScoreGeneration: 1 } },
+            { runValidators: true }
+        );
+        return res.json({ userId: String(req.userId), saveProgress: 1 });
+    } catch (error) {
+        return res.status(503).json({ mensagem: 'Não foi possível começar de novo. Tente novamente.' });
     }
 });
 
@@ -519,19 +569,55 @@ app.put('/api/save/bonus-unlock', verificarToken, requireDatabase, async (req, r
     }
 });
 
+app.post('/api/game/bonus-run', verificarToken, requireDatabase, async (req, res) => {
+    res.set('Cache-Control', 'no-store');
+    try {
+        const save = await ensureSaveForUser(req.userId);
+        if (normalizedProgress(save) < 5) {
+            return res.status(403).json({ mensagem: 'O desafio bônus ainda está bloqueado.' });
+        }
+        const generation = scoreGeneration(save);
+        let startScore = 0, startLives = 3;
+        if (req.body?.challengeToken !== undefined || req.body?.answers !== undefined) {
+            try {
+                const previous = verifyBonusRun(req.body.challengeToken, req.userId, generation, req.body.answers, process.env.JWT_SECRET);
+                if (!previous.complete || previous.lives <= 0) throw new Error('Rodada incompleta.');
+                startScore = previous.score;
+                startLives = previous.lives;
+            } catch (error) {
+                return res.status(400).json({ mensagem: 'A rodada expirou ou é inválida. Comece uma nova partida.' });
+            }
+        }
+        return res.json(createBonusRun(req.userId, generation, process.env.JWT_SECRET, startScore, startLives));
+    } catch (error) {
+        return res.status(503).json({ mensagem: 'Não foi possível carregar a partida. Tente novamente.' });
+    }
+});
+
 app.put('/api/save/bonus-record', verificarToken, requireDatabase, async (req, res) => {
-    const score = req.body && req.body.score;
+    const { score, challengeToken, answers } = req.body || {};
     if (!Number.isInteger(score) || score < 0 || score > 1000000) {
         return res.status(400).json({ mensagem: 'Pontuação inválida.' });
     }
     try {
         const selectedSave = await ensureSaveForUser(req.userId);
+        const generation = scoreGeneration(selectedSave);
+        let verified;
+        try {
+            verified = verifyBonusRun(challengeToken, req.userId, generation, answers, process.env.JWT_SECRET);
+            if (verified.score !== score) throw new Error('Pontuação não comprovada.');
+        } catch (error) {
+            return res.status(400).json({ mensagem: 'Não foi possível confirmar os pontos desta partida. Comece uma nova partida.' });
+        }
         const save = await SaveData.findOneAndUpdate(
-            { _id: selectedSave._id, userId: req.userId, saveProgress: { $gte: 5 } },
+            {
+                _id: selectedSave._id, userId: req.userId, saveProgress: { $gte: 5 },
+                bonusScoreGeneration: generation === 0 ? { $in: [0, null] } : generation
+            },
             { $max: { bonusHighScore: score } }, { new: true, runValidators: true }
         );
         if (!save) return res.status(403).json({ mensagem: 'O desafio bônus ainda está bloqueado.' });
-        return res.json({ bonusHighScore: save.bonusHighScore });
+        return res.json({ bonusHighScore: save.bonusHighScore, score: verified.score, lives: verified.lives });
     } catch (error) {
         return res.status(503).json({ mensagem: 'Não foi possível salvar o recorde. Tente novamente.' });
     }

@@ -4,6 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Meu perfil - Jump Sky</title>
+    <link rel="icon" href="/images/favicon.ico" sizes="any">
+    <link rel="icon" href="/images/favicon.svg" type="image/svg+xml">
     <link rel="stylesheet" href="/CSS/perfil.css">
     <link rel="stylesheet" href="/CSS/acessibilidade.css">
 </head>
@@ -34,6 +36,13 @@
                 </div>
                 <p class="recorde-bonus__valor"><strong id="pontosRecordeBonus">0</strong> <span>pontos</span></p>
                 <p id="mensagemRecordeBonus"></p>
+                <div class="personal-ranking" aria-labelledby="tituloRankingPessoal">
+                    <h3 id="tituloRankingPessoal">Meu lugar no ranking</h3>
+                    <p id="rankingPessoalStatus" role="status" aria-live="polite">Buscando sua posição...</p>
+                    <p id="rankingPessoalDetalhe" hidden></p>
+                    <button type="button" id="recarregarRankingPessoal" hidden>Tentar novamente</button>
+                    <a href="/#ranking">Ver os aventureiros <span aria-hidden="true">→</span></a>
+                </div>
             </section>
         </aside>
         <div class="customization-card">

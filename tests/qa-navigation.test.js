@@ -67,3 +67,35 @@ test('logout waits for the server and keeps failures retryable', async () => {
     }
 });
 
+
+test('locked phases explain which phase to complete and clear old hints after unlocking', async () => {
+    const cards = [1, 2, 3].map(number => ({
+        dataset: { fase: String(number) }, attrs: {},
+        classList: { add() {}, remove() {} },
+        setAttribute(key, value) { this.attrs[key] = value; },
+        getAttribute(key) { return this.attrs[key]; },
+        removeAttribute(key) { delete this.attrs[key]; },
+        querySelector() { return null; }
+    }));
+    const status = {};
+    let click;
+    const context = vm.createContext({
+        document: {
+            getElementById: id => id === 'faseStatus' ? status : null,
+            querySelectorAll: () => cards,
+            querySelector: () => ({ addEventListener(type, listener) { click = listener; } }),
+            createElement: () => ({ classList: { add() {} }, setAttribute() {} })
+        },
+        JumpSkyRequest: async () => ({ response: { ok: true }, data: { saveProgress: 1 } }), API_URL: '', console
+    });
+    vm.runInContext(fs.readFileSync(path.resolve(__dirname, '../JS/menu.js'), 'utf8'), context);
+    await Promise.resolve();
+    vm.runInContext('aplicarEstadoFases(2)', context);
+    let prevented = false;
+    click({ target: { closest: () => cards[2] }, preventDefault() { prevented = true; } });
+    assert.equal(prevented, true);
+    assert.match(status.textContent, /Fase 2/);
+    vm.runInContext('aplicarEstadoFases(3)', context);
+    assert.equal(cards[2].attrs.title, undefined);
+    assert.equal(cards[2].attrs['aria-disabled'], undefined);
+});

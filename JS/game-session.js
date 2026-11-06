@@ -20,7 +20,7 @@
                         throw new Error('Não foi possível ler a resposta do jogo. Tente novamente.');
                     }
                     if (!response.ok) {
-                        throw new Error(data.mensagem || 'Não foi possível comunicar com o jogo. Tente novamente.');
+                        throw Object.assign(new Error(data.mensagem || 'Não foi possível comunicar com o jogo. Tente novamente.'), { status: response.status });
                     }
                     if (!data || typeof data !== 'object') throw new Error('Resposta inválida do jogo. Tente novamente.');
                     return data;

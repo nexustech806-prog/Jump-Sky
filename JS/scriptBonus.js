@@ -95,9 +95,15 @@ let numeroQuestao = 1;
 let recorde = 0;
 let recordeConfirmado = 0;
 let bonusUserId = null;
+let bonusScoreGeneration = 0;
+let bonusRunVersion = 0;
 let recordSavePending = false;
 let bonusReady = false;
 let bonusLoadPending = false;
+let bonusChallengeToken = null;
+let bonusQuestions = [];
+let bonusAnswers = [];
+let pendingRecordProof = null;
 const recordSaveStatus = document.getElementById("recordSaveStatus");
 const retryRecordSave = document.getElementById("retryRecordSave");
 const retryQuestionLabel = retryQuestionBtn.textContent;
@@ -114,184 +120,6 @@ let bloqueado = false;
 
 let posicaoPersonagem = 0;
 let indiceCenario = 0;
-
-
-// ========================================
-// FUNÇÕES AUXILIARES
-// ========================================
-
-function numeroAleatorio(min, max) {
-    return Math.floor(
-        Math.random() * (max - min + 1)
-    ) + min;
-}
-
-function embaralhar(array) {
-    for (let i = array.length - 1; i > 0; i--) {
-        const j = Math.floor(
-            Math.random() * (i + 1)
-        );
-
-        [array[i], array[j]] =
-            [array[j], array[i]];
-    }
-
-    return array;
-}
-
-function obterDificuldade() {
-    return Math.min(3, Math.floor(pontos / 5) + 1);
-}
-
-
-// ========================================
-// GERA QUESTÃO
-// ========================================
-
-function gerarQuestao() {
-    const dificuldade =
-        obterDificuldade();
-
-    const operacoes = [
-        "+",
-        "-",
-        "×",
-        "÷"
-    ];
-
-    const operacao =
-        operacoes[
-            numeroAleatorio(
-                0,
-                operacoes.length - 1
-            )
-        ];
-
-    let numero1;
-    let numero2;
-    let resposta;
-
-    if (operacao === "+") {
-        const maximo =
-            10 + (dificuldade * 5);
-
-        numero1 =
-            numeroAleatorio(2, maximo);
-
-        numero2 =
-            numeroAleatorio(2, maximo);
-
-        resposta =
-            numero1 + numero2;
-    }
-
-    else if (operacao === "-") {
-        const maximo =
-            10 + (dificuldade * 5);
-
-        numero1 =
-            numeroAleatorio(2, maximo);
-
-        numero2 =
-            numeroAleatorio(2, numero1);
-
-        resposta =
-            numero1 - numero2;
-    }
-
-    else if (operacao === "×") {
-        const maximo =
-            5 + (dificuldade * 2);
-
-        numero1 =
-            numeroAleatorio(2, maximo);
-
-        numero2 =
-            numeroAleatorio(2, maximo);
-
-        resposta =
-            numero1 * numero2;
-    }
-
-    else {
-        const maximoDivisor =
-            4 + dificuldade;
-
-        const maximoResposta =
-            5 + (dificuldade * 2);
-
-        numero2 =
-            numeroAleatorio(
-                2,
-                maximoDivisor
-            );
-
-        resposta =
-            numeroAleatorio(
-                2,
-                maximoResposta
-            );
-
-        numero1 =
-            numero2 * resposta;
-    }
-
-    const respostas =
-        gerarRespostas(resposta);
-
-    return {
-        numero1,
-        numero2,
-        operacao,
-        correta: resposta,
-        respostas,
-        texto:
-            createEverydayProblem(operacao, numero1, numero2)
-    };
-}
-
-
-// ========================================
-// GERA EXATAMENTE 3 RESPOSTAS
-// ========================================
-
-function gerarRespostas(correta) {
-    const respostas =
-        new Set();
-
-    respostas.add(correta);
-
-    const variacao =
-        Math.max(
-            3,
-            Math.ceil(
-                Math.abs(correta) * 0.15
-            )
-        );
-
-    while (respostas.size < 3) {
-        const errada =
-            correta +
-            numeroAleatorio(
-                -variacao,
-                variacao
-            );
-
-        if (errada === correta) {
-            continue;
-        }
-
-        if (errada < 0) {
-            continue;
-        }
-
-        respostas.add(errada);
-    }
-
-    return embaralhar(
-        [...respostas]
-    );
-}
 
 
 // ========================================
@@ -340,8 +168,20 @@ function carregarQuestao() {
         return;
     }
 
-    questaoAtual =
-        gerarQuestao();
+    if (!bonusReady || bonusAnswers.length >= bonusQuestions.length) {
+        void initializeBonus();
+        return;
+    }
+
+    const question = bonusQuestions[bonusAnswers.length];
+    questaoAtual = {
+        numero1: question.number1,
+        numero2: question.number2,
+        operacao: question.operation,
+        correta: question.correct,
+        respostas: question.answers,
+        texto: createEverydayProblem(question.operation, question.number1, question.number2)
+    };
 
     exibirQuestaoAtual();
 }
@@ -474,7 +314,7 @@ function tentarQuestaoNovamente() {
         não altera o número da questão
         e não movimenta o personagem.
 
-        O timer volta a 15 segundos.
+        O timer volta aos 45 segundos.
     */
 
     exibirQuestaoAtual();
@@ -487,6 +327,8 @@ function tentarQuestaoNovamente() {
 
 function seguirParaProximaQuestao() {
     if (
+        !bonusReady ||
+        !timeoutActions.classList.contains("show") ||
         jogoFinalizado ||
         vidas <= 0
     ) {
@@ -494,7 +336,7 @@ function seguirParaProximaQuestao() {
     }
 
     timeoutActions.classList.remove("show");
-
+    bonusAnswers.push(null); // Pular após o tempo acabar não tira uma vida.
     proximaQuestao();
 }
 
@@ -505,6 +347,7 @@ function seguirParaProximaQuestao() {
 
 function verificarResposta(button) {
     if (
+        !bonusReady ||
         bloqueado ||
         jogoFinalizado
     ) {
@@ -525,6 +368,7 @@ function verificarResposta(button) {
             btn.disabled = true;
         }
     );
+    bonusAnswers.push(respostaJogador);
 
     if (
     respostaJogador ===
@@ -551,7 +395,7 @@ function verificarResposta(button) {
 
         avancarPersonagem();
 
-        setTimeout(
+        agendarTransicao(
             proximaQuestao,
             1000
         );
@@ -594,7 +438,7 @@ function verificarResposta(button) {
         atualizarInterface();
 
         if (vidas <= 0) {
-            setTimeout(
+            agendarTransicao(
                 finalizarJogo,
                 1200
             );
@@ -602,7 +446,7 @@ function verificarResposta(button) {
             return;
         }
 
-        setTimeout(
+        agendarTransicao(
             proximaQuestao,
             1500
         );
@@ -613,6 +457,13 @@ function verificarResposta(button) {
 // ========================================
 // PRÓXIMA QUESTÃO
 // ========================================
+
+function agendarTransicao(callback, delay) {
+    const version = bonusRunVersion;
+    setTimeout(() => {
+        if (version === bonusRunVersion) callback();
+    }, delay);
+}
 
 function proximaQuestao() {
     if (jogoFinalizado) {
@@ -739,30 +590,65 @@ function atualizarPersonagem(fazerPulo = false) {
 // SISTEMA DE RECORDE
 // ========================================
 
+function validRecordProof(proof) {
+    return proof && typeof proof.challengeToken === "string" && proof.challengeToken.length > 0 &&
+        Array.isArray(proof.answers) && proof.answers.length > 0 && proof.answers.length <= 20 &&
+        proof.answers.every(answer => answer === null || Number.isInteger(answer)) &&
+        Number.isInteger(proof.score) && proof.score > 0 && proof.score <= 1000000;
+}
+
 async function initializeBonus() {
     if (bonusLoadPending) return;
     bonusLoadPending = true;
+    bonusReady = false;
+    pararTimer();
     answerButtons.forEach(button => { button.disabled = true; });
-    questionElement.textContent = "Carregando seu recorde...";
+    questionElement.textContent = "Preparando seu próximo desafio...";
     timeoutActions.classList.remove("show");
     try {
-        const data = await window.JumpSkyGameSession.request("/api/save");
-        if (!data.userId || !Number.isInteger(data.bonusHighScore) || data.bonusHighScore < 0) {
-            throw new Error("Não foi possível carregar seu recorde. Tente novamente.");
+        if (!bonusUserId) {
+            const data = await window.JumpSkyGameSession.request("/api/save");
+            if (!data.userId || !Number.isInteger(data.bonusHighScore) || data.bonusHighScore < 0) {
+                throw new Error("Não foi possível carregar seu recorde. Tente novamente.");
+            }
+            bonusUserId = data.userId;
+            bonusScoreGeneration = data.bonusScoreGeneration ?? 0;
+            recordeConfirmado = data.bonusHighScore;
+            recorde = recordeConfirmado;
+            try {
+                const cached = JSON.parse(localStorage.getItem("bonusHighScore:" + bonusUserId));
+                // Um número salvo nas versões antigas não comprova uma partida.
+                if (cached && (cached.generation ?? 0) === bonusScoreGeneration &&
+                    validRecordProof(cached.proof) && cached.proof.score > recordeConfirmado) {
+                    pendingRecordProof = cached.proof;
+                    recorde = pendingRecordProof.score;
+                }
+            } catch (error) {
+                // O recorde da conta funciona mesmo com o armazenamento desativado.
+            }
+            cacheRecord();
+            void salvarRecorde();
         }
-        bonusUserId = data.userId;
-        let cachedRecord = 0;
-        try {
-            const cached = Number(localStorage.getItem("bonusHighScore:" + bonusUserId));
-            if (Number.isInteger(cached) && cached >= 0 && cached <= 1000000) cachedRecord = cached;
-        } catch (error) {
-            // The server record remains available when browser storage is disabled.
+        const continuation = bonusChallengeToken ? {
+            challengeToken: bonusChallengeToken, answers: bonusAnswers.slice()
+        } : {};
+        const data = await window.JumpSkyGameSession.request("/api/game/bonus-run", {
+            method: "POST", body: JSON.stringify(continuation)
+        });
+        if (!data.challengeToken || !Array.isArray(data.questions) || data.questions.length !== 20 ||
+            data.startScore !== pontos || data.startLives !== vidas ||
+            !data.questions.every(question => Number.isInteger(question.number1) &&
+                Number.isInteger(question.number2) && Number.isInteger(question.correct) &&
+                ["+", "-", "×", "÷"].includes(question.operation) &&
+                Array.isArray(question.answers) && question.answers.length === 3 &&
+                question.answers.every(Number.isInteger) && new Set(question.answers).size === 3 &&
+                question.answers.includes(question.correct))) {
+            throw new Error("Não foi possível preparar as perguntas. Tente novamente.");
         }
-        recordeConfirmado = Math.max(recordeConfirmado, data.bonusHighScore);
-        recorde = Math.max(recorde, recordeConfirmado, cachedRecord);
-        cacheRecord();
+        bonusChallengeToken = data.challengeToken;
+        bonusQuestions = data.questions;
+        bonusAnswers = [];
         bonusReady = true;
-        void salvarRecorde();
         nextQuestionBtn.hidden = false;
         retryQuestionBtn.textContent = retryQuestionLabel;
         carregarQuestao();
@@ -782,37 +668,85 @@ async function initializeBonus() {
 function cacheRecord() {
     if (!bonusUserId) return;
     try {
-        localStorage.setItem("bonusHighScore:" + bonusUserId, String(recorde));
+        localStorage.setItem("bonusHighScore:" + bonusUserId, JSON.stringify({
+            score: recorde, proof: pendingRecordProof, generation: bonusScoreGeneration
+        }));
     } catch (error) {
         // Saving to the authenticated account still works without local storage.
     }
 }
 
 async function salvarRecorde() {
-    if (recordSavePending || recorde <= recordeConfirmado || !bonusReady) return;
+    if (recordSavePending || !pendingRecordProof || !bonusUserId) return;
     recordSavePending = true;
     retryRecordSave.hidden = true;
     recordSaveStatus.textContent = "Salvando seu recorde...";
+    let submittedProof;
+    let rejected = false;
     try {
-        while (recorde > recordeConfirmado) {
-            const score = recorde;
+        while (pendingRecordProof && pendingRecordProof.score > recordeConfirmado) {
+            const proof = pendingRecordProof;
+            submittedProof = proof;
             const data = await window.JumpSkyGameSession.request("/api/save/bonus-record", {
-                method: "PUT", keepalive: true, body: JSON.stringify({ score })
+                method: "PUT", keepalive: true, body: JSON.stringify(proof)
             });
-            if (!Number.isInteger(data.bonusHighScore) || data.bonusHighScore < score) {
+            if (!Number.isInteger(data.bonusHighScore) || data.bonusHighScore < proof.score) {
                 throw new Error("O recorde ainda não foi confirmado.");
             }
             recordeConfirmado = Math.max(recordeConfirmado, data.bonusHighScore);
             recorde = Math.max(recorde, recordeConfirmado);
+            if (pendingRecordProof.score <= recordeConfirmado) pendingRecordProof = null;
             cacheRecord();
             highScoreElement.textContent = recorde;
         }
         recordSaveStatus.textContent = "Recorde salvo na sua conta.";
     } catch (error) {
+        if (error.status === 400 || error.status === 403) {
+            rejected = true;
+            await descartarRecordeInvalido(submittedProof);
+            return;
+        }
         recordSaveStatus.textContent = "Não foi possível salvar seu recorde. Tente novamente antes de sair.";
         retryRecordSave.hidden = false;
     } finally {
         recordSavePending = false;
+        if (rejected && pendingRecordProof) void salvarRecorde();
+    }
+}
+
+async function descartarRecordeInvalido(proof) {
+    // A rejected or expired proof cannot succeed on retry. Keep a newer proof
+    // from the current game, but never let an old cached score hide new records.
+    if (pendingRecordProof === proof) pendingRecordProof = null;
+    recorde = Math.max(recordeConfirmado, pendingRecordProof?.score || 0);
+    cacheRecord();
+    highScoreElement.textContent = recorde;
+    retryRecordSave.hidden = true;
+    recordSaveStatus.textContent = "Esta partida não vale mais para o ranking. Seus próximos pontos podem formar um novo recorde.";
+    try {
+        const data = await window.JumpSkyGameSession.request("/api/save");
+        if (data.userId !== bonusUserId || !Number.isInteger(data.bonusHighScore) || data.bonusHighScore < 0) {
+            throw new Error("Recorde inválido.");
+        }
+        const generation = data.bonusScoreGeneration ?? 0;
+        const reset = generation !== bonusScoreGeneration;
+        const restart = reset || proof?.challengeToken === bonusChallengeToken;
+        bonusScoreGeneration = generation;
+        recordeConfirmado = data.bonusHighScore;
+        if (restart) pendingRecordProof = null;
+        recorde = Math.max(recordeConfirmado, pendingRecordProof?.score || 0);
+        cacheRecord();
+        highScoreElement.textContent = recorde;
+        if (restart) {
+            reiniciarJogo();
+            recordSaveStatus.textContent = reset
+                ? "O ranking recomeçou! Sua nova partida começa com zero pontos."
+                : "Vamos começar uma nova partida para salvar seus próximos pontos.";
+        }
+    } catch (error) {
+        // The invalid proof has already been removed. A later fresh attempt
+        // can reconnect without restoring it from this browser's cache.
+        recordSaveStatus.textContent = "Esta partida não vale mais para o ranking. Reabra a fase para carregar seu recorde atual.";
     }
 }
 
@@ -824,6 +758,9 @@ function verificarRecorde() {
     }
 
     recorde = pontos;
+    pendingRecordProof = {
+        challengeToken: bonusChallengeToken, answers: bonusAnswers.slice(), score: pontos
+    };
 
     cacheRecord();
     void salvarRecorde();
@@ -920,6 +857,7 @@ function finalizarJogo() {
 // ========================================
 
 function reiniciarJogo() {
+    bonusRunVersion++;
     startBackgroundMusic();
     pararTimer();
 
@@ -948,7 +886,11 @@ function reiniciarJogo() {
     atualizarCenario();
     atualizarPersonagem(false);
 
-    carregarQuestao();
+    bonusReady = false;
+    bonusChallengeToken = null;
+    bonusQuestions = [];
+    bonusAnswers = [];
+    void initializeBonus();
 }
 
 

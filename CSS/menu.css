@@ -1,0 +1,79 @@
+﻿/* The menu fills the available width; the controls stay outside the scrolling scene. */
+.journey-page .menu-container.page-width { width: min(1800px, calc(100% - clamp(24px, 4vw, 80px))); padding-block: 16px; }
+.journey-page .game-floor { max-width: none; aspect-ratio: auto; min-height: 0; padding: 0; overflow: visible; background: #1b3048; border: 1px solid #67eeee50; border-radius: 18px; container-type: normal; }
+.journey-page .menu-controls { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px; padding: 12px; border-bottom: 1px solid #67eeee30; border-radius: 18px 18px 0 0; background: linear-gradient(135deg, #294a65, #21334f); }
+.journey-page .menu-actions, .journey-page .menu-bottom-actions { display: contents; position: static; margin: 0; pointer-events: auto; }
+.journey-page .menu-controls .menu-action { justify-content: center; min-width: 0; min-height: 44px; padding: .5rem .75rem; gap: .5rem; font-size: .95rem; line-height: 1.4; border: 1px solid #b0ecf080; border-radius: 12px; background: #172b45dc; color: #fff; box-shadow: 0 2px 0 #102039; overflow-wrap: anywhere; }
+.journey-page .menu-controls .menu-action:hover { background: #37587a; border-color: #fff; }
+.journey-page .menu-controls .menu-action__symbol { width: 20px; height: 20px; flex-shrink: 0; }
+.journey-page .menu-label-short { display: none; }
+.journey-page .menu-controls #novoJogoBtn { order: 1; }
+.journey-page .menu-controls .menu-avatar-action { order: 2; }
+.journey-page .menu-controls #abrirConfig { order: 3; }
+.journey-page .menu-avatar-action, .journey-page .menu-avatar-action:hover, .journey-page .menu-avatar-action:active { position: static; transform: none; }
+.journey-page .map-viewport { width: 100%; margin-inline: auto; overflow: auto; overscroll-behavior: contain; border-radius: 0 0 18px 18px; background: #1a304a; scrollbar-color: #67eeee #1c2638; isolation: isolate; container: mapa / inline-size; }
+.journey-page .map-viewport:focus-visible { outline: 3px solid var(--sky); outline-offset: 4px; }
+.journey-page .map-world { position: relative; width: 100%; aspect-ratio: 1672 / 941; background: url('/images/Aventuras nas Ilhas do Céu.png') center / 100% 100% no-repeat; }
+/* Preserve the logo above the phase choices and the character at the left. */
+.journey-page .card-floor { position: absolute; inset: auto; top: 34%; width: clamp(8.5rem, 12cqw, 10rem); --phase-art: clamp(4rem, 8cqw, 7rem); aspect-ratio: auto; transform: translateX(-50%); display: flex; flex-direction: column; padding: calc(var(--phase-art) + 1rem) .125rem .125rem; border: 2px solid transparent; border-radius: 14px; background-size: var(--phase-art) var(--phase-art); background-position: center .5rem; background-color: transparent; image-rendering: auto; transition: background-color .2s, border-color .2s; }
+.journey-page .fase-1 { left: 22%; }
+.journey-page .fase-2 { left: 37%; top: 55%; }
+.journey-page .fase-3 { left: 52%; }
+.journey-page .fase-4 { left: 68%; top: 55%; }
+.journey-page .fase-5 { left: 84%; }
+.journey-page .card-floor.atual { border-color: var(--sky); filter: drop-shadow(0 0 8px #67eeee88); background-color: #102b3c55; }
+.journey-page .card-floor:not(.bloqueado):hover, .journey-page .card-floor:focus-visible { transform: translateX(-50%); border-color: #fff; background-color: #102b3c88; outline: 3px solid var(--sky); outline-offset: 3px; }
+.journey-page .fase-info { position: static; transform: none; width: 100%; max-width: none; margin: 0; padding: .625rem .375rem; background: #161627ed; border: 1px solid #ffffff30; border-radius: 12px; flex: 1; overflow-wrap: anywhere; }
+.journey-page .fase-info h3 { font-size: 1rem; line-height: 1.4; }
+.journey-page .fase-info p { font-size: .875rem; line-height: 1.5; margin-top: 6px; overflow-wrap: normal; word-break: normal; hyphens: none; }
+/* Visible feedback stays on screen even when the map has been scrolled. */
+#faseStatus { position: fixed; bottom: 16px; left: 50%; transform: translateX(-50%); width: min(32rem, calc(100% - 24px)); margin: 0; padding: 12px 16px; z-index: 20; border: 1px solid #67eeee; border-radius: 12px; background: #172b45; color: #fff; font-size: 1rem; line-height: 1.5; box-shadow: 0 6px 24px #0006; pointer-events: none; }
+#faseStatus:empty { padding: 0; border: 0; box-shadow: none; }
+.journey-page .config-dialog .option-item { font-size: 1rem; min-height: 48px; }
+.journey-page .option-item label { display: flex; align-items: center; min-height: 48px; flex: 1; cursor: pointer; }
+.journey-page .config-dialog input[type="checkbox"] { width: 28px; height: 28px; flex-shrink: 0; cursor: pointer; }
+.journey-page .config-dialog button, .journey-page .config-fechar { min-height: 48px; min-width: 48px; }
+.journey-page .audio-channel label { font-size: 1rem; }
+.journey-page .account-settings .menu-action { font-size: 1rem; }
+.reset-actions { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 20px; }
+#novoJogoDescricao, #novoJogoStatus { margin-top: 16px; }
+@media (max-width: 900px) {
+    .journey-page .menu-controls { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; padding: 10px; }
+    .journey-page .menu-controls .menu-action { font-size: .875rem; padding: .375rem; gap: .25rem; overflow-wrap: normal; }
+    .journey-page .menu-controls #abrirConfig { order: 0; }
+    .journey-page .menu-controls #novoJogoBtn { order: 1; }
+    .journey-page .menu-controls .menu-avatar-action { order: 2; }
+    .journey-page .font-controls { gap: 6px; flex-wrap: wrap; }
+    .journey-page .map-viewport { max-block-size: 70svh; }
+}
+@media (max-width: 480px) {
+    .journey-page .menu-controls .menu-label-full { display: none; }
+    .journey-page .menu-controls .menu-label-short { display: inline; }
+}
+/* Keep readable phase names in one row on a narrow map, with room for enlarged text. */
+@container mapa (max-width: 64rem) {
+    .journey-page .map-world {
+        --map-width: max(100cqw, 52rem);
+        width: var(--map-width);
+        height: auto;
+        min-height: 26rem;
+        aspect-ratio: auto;
+        display: grid;
+        grid-template-columns: repeat(5, minmax(0, 1fr));
+        align-items: start;
+        gap: .5rem;
+        padding: 10rem 1rem 2rem calc(var(--map-width) * .18);
+    }
+    .journey-page .card-floor,
+    .journey-page .card-floor:not(.bloqueado):hover,
+    .journey-page .card-floor:focus-visible {
+        position: relative; --phase-art: clamp(3.5rem, 8cqw, 6rem);
+        inset: auto;
+        width: 100%;
+        margin: 0;
+        transform: none;
+    }
+}
+.journey-page.alto-contraste .map-world { background: #000; }
+.journey-page.alto-contraste .menu-controls { background: #000; border-color: #ffff00; }
+.journey-page.alto-contraste #faseStatus { background: #000; color: #ffff00; border-color: #ffff00; }

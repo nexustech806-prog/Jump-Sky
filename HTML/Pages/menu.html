@@ -3,11 +3,15 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Menu</title>
+    <title>Fases | Jump Sky</title>
+    <link rel="icon" href="/images/favicon.ico" sizes="any">
+    <link rel="icon" href="/images/favicon.svg" type="image/svg+xml">
     <link rel="stylesheet" href="/CSS/Style.css">
     <link rel="stylesheet" href="/CSS/public-pages.css">
     <link rel="stylesheet" href="/CSS/acessibilidade.css">
     <link rel="stylesheet" href="/CSS/audio-settings.css">
+
+    <link rel="stylesheet" href="/CSS/menu.css">
 
     <!-- Preload para a troca bloqueada/colorida ser instantânea -->
     <link rel="preload" as="image" href="/images/fase-1-colorida.png">
@@ -27,16 +31,17 @@
         <a class="brand" href="/menu" aria-label="Jump Sky - menu">Jump<span>Sky</span></a>
         <div class="nav-links">
             <a href="/menu" aria-current="page">Fases</a>
-            <a href="/perfil">Meu perfil</a>
+            <a href="/perfil"><span aria-hidden="true">&#128100;</span> Meu perfil</a>
             <a href="/aprendendo-a-jogar">Como jogar</a>
         </div>
     </nav>
 
     <main class="menu-container page-width" id="conteudo">
-        <div class="journey-heading"><div><p class="eyebrow">SUA AVENTURA</p><h1>Escolha sua pr&#243;xima fase</h1><p>Avance pelos desafios para desbloquear novos mundos.</p></div></div>
+        <h1 class="sr-only">Fases do jogo</h1>
         <div class="menu-card">
 
             <section class="game-floor" aria-label="Fases do jogo">
+                <nav class="menu-controls" aria-label="Opções do jogo">
                 <div class="menu-actions">
                     <a class="menu-action" href="/aprendendo-a-jogar">
                         <svg class="menu-action__symbol" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">
@@ -45,17 +50,27 @@
                         </svg>
                         <span class="menu-action__texto">Tutorial</span>
                     </a>
-                    <button type="button" class="menu-action" id="abrirConfig" aria-haspopup="dialog">
+                    <button type="button" class="menu-action" id="abrirConfig" aria-haspopup="dialog" aria-label="Configurações">
                         <svg class="menu-action__symbol" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">
                             <path d="m9.5 3-.6 2.2-1.4.8-2.2-.6-2.5 4.3L4.4 11v2L2.8 14.3l2.5 4.3 2.2-.6 1.4.8.6 2.2h5l.6-2.2 1.4-.8 2.2.6 2.5-4.3-1.6-1.3v-2l1.6-1.3-2.5-4.3-2.2.6-1.4-.8-.6-2.2Z"/>
                             <circle cx="12" cy="12" r="3"/>
                         </svg>
-                        <span class="menu-action__texto">Configurações</span>
+                        <span class="menu-action__texto"><span class="menu-label-full">Configurações</span><span class="menu-label-short" aria-hidden="true">Ajustes</span></span>
                     </button>
                 </div>
+                <div class="menu-bottom-actions">
+                <button type="button" class="menu-action" id="novoJogoBtn" aria-haspopup="dialog"><span aria-hidden="true">&#8635;</span> Novo jogo</button>
+                <a class="menu-action menu-avatar-action" href="/selecionar-avatar" aria-label="Trocar avatar"><span aria-hidden="true">&#127917;</span><span class="menu-label-full">Trocar avatar</span><span class="menu-label-short" aria-hidden="true">Avatar</span></a>
+                </div>
+                </nav>
+
 
 
                 <!-- Botões de ação -->
+
+
+                <div class="map-viewport" id="mapaFases" tabindex="0" role="region" aria-label="Mapa das ilhas e fases">
+                <div class="map-world">
 
 
                 <!-- Fases -->
@@ -74,7 +89,11 @@
                 <a class="card-floor fase-5" href="/pulando-no-espaco" data-fase="5" data-slug="Bonus">
                     <span class="fase-info"><h3>Fase bônus</h3><p>?</p></span>
                 </a>
-                <a class="menu-action menu-avatar-action" href="/selecionar-avatar">Trocar avatar</a>
+
+                </div>
+                </div>
+                <p id="faseStatus" role="status" aria-live="polite"></p>
+
             </section>
 
             <!-- Painel de configurações -->
@@ -94,7 +113,7 @@
                     <h3>Acessibilidade</h3>
 
                     <div class="option-item">
-                        <span>Tamanho da fonte</span>
+                        <span>Tamanho das letras</span>
                         <div class="font-controls">
                             <button type="button" id="diminuirFonte" aria-label="Diminuir fonte">A-</button>
                             <span id="fontePercentual">100%</span>
@@ -103,24 +122,33 @@
                     </div>
 
                     <div class="option-item">
-                        <label for="altoContraste">Alto contraste</label>
+                        <label for="altoContraste">Deixar as cores mais fortes</label>
                         <input type="checkbox" id="altoContraste">
                     </div>
 
                     <div class="option-item">
-                        <label for="feedbackVisualReforcado">Feedback visual refor&#231;ado</label>
+                        <label for="feedbackVisualReforcado">Destacar quando eu acerto ou erro</label>
                         <input type="checkbox" id="feedbackVisualReforcado">
                     </div>
                 </section>
                 <section class="account-settings" aria-label="Conta">
-                    <a class="menu-action" href="/perfil">Meu perfil</a>
+                    <a class="menu-action" href="/perfil"><span aria-hidden="true">&#128100;</span> Meu perfil</a>
                     <h3>Minha conta</h3>
-                    <a class="menu-action" href="/selecionar-avatar">Trocar avatar</a>
-                    <button type="button" id="sairBtn">Sair da conta</button>
+                    <a class="menu-action" href="/selecionar-avatar"><span aria-hidden="true">&#127917;</span> Trocar avatar</a>
+                    <button type="button" id="sairBtn"><span aria-hidden="true">&#128682;</span> Sair da conta</button>
                     <p id="contaStatus" role="status" aria-live="polite"></p>
                 </section>
             </dialog>
 
+            <dialog id="novoJogoDialog" class="config-dialog" aria-labelledby="novoJogoTitulo" aria-describedby="novoJogoDescricao">
+                <h2 id="novoJogoTitulo">Começar uma nova aventura?</h2>
+                <p id="novoJogoDescricao">Você volta à Fase 1. As fases liberadas e o recorde da fase bônus serão apagados da sua conta. Seu avatar e apelido continuam iguais.</p>
+                <div class="reset-actions">
+                    <button type="button" id="cancelarNovoJogo">Continuar minha aventura</button>
+                    <button type="button" id="confirmarNovoJogo">Sim, começar de novo</button>
+                </div>
+                <p id="novoJogoStatus" role="status" aria-live="polite"></p>
+            </dialog>
         </div>
     </main>
 

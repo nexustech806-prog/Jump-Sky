@@ -54,7 +54,9 @@ test('HTTP public pages, assets and logout work offline; protected routes still 
     assert.equal((await request('/')).status, 200);
     assert.equal((await request('/menu')).status, 200);
     assert.equal((await request('/JS/game-session.js')).status, 200);
-    assert.equal((await request('/favicon.ico')).status, 404);
+    const favicon = await request('/favicon.ico');
+    assert.equal(favicon.status, 200);
+    assert.match(favicon.headers.get('content-type'), /image\/(x-icon|vnd\.microsoft\.icon)/);
     const logout = await request('/logout', 'POST');
     assert.equal(logout.status, 200);
     assert.match(logout.headers.get('set-cookie'), /token=;/);
@@ -85,7 +87,10 @@ test('HTTP phase progression requires answers and bonus unlock, then persists th
     const unlocked = await request('/api/save/bonus-unlock', 'PUT', { challengeToken: bonus.challengeToken, answer: bonus.question.correct });
     assert.equal((await unlocked.json()).saveProgress, 5);
     assert.equal((await request('/pulando-no-espaco')).status, 200);
-    await request('/api/save/bonus-record', 'PUT', { score: 17 });
-    await request('/api/save/bonus-record', 'PUT', { score: 3 });
+    assert.equal((await request('/api/save/bonus-record', 'PUT', { score: 999999 })).status, 400);
+    const run = await (await request('/api/game/bonus-run', 'POST', {})).json();
+    const answers = run.questions.map(question => question.correct);
+    await request('/api/save/bonus-record', 'PUT', { score: 17, challengeToken: run.challengeToken, answers: answers.slice(0, 17) });
+    await request('/api/save/bonus-record', 'PUT', { score: 3, challengeToken: run.challengeToken, answers: answers.slice(0, 3) });
     assert.equal((await (await request('/api/save')).json()).bonusHighScore, 17);
 });
