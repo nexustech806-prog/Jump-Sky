@@ -11,7 +11,7 @@
 .journey-page .menu-controls .menu-avatar-action { order: 2; }
 .journey-page .menu-controls #abrirConfig { order: 3; }
 .journey-page .menu-avatar-action, .journey-page .menu-avatar-action:hover, .journey-page .menu-avatar-action:active { position: static; transform: none; }
-.journey-page .map-viewport { width: 100%; margin-inline: auto; overflow: auto; overscroll-behavior: contain; border-radius: 0 0 18px 18px; background: #1a304a; scrollbar-color: #67eeee #1c2638; isolation: isolate; container: mapa / inline-size; }
+.journey-page .map-viewport { width: 100%; margin-inline: auto; overflow: auto; overscroll-behavior: auto; border-radius: 0 0 18px 18px; background: #1a304a; scrollbar-color: #67eeee #1c2638; isolation: isolate; container: mapa / inline-size; }
 .journey-page .map-viewport:focus-visible { outline: 3px solid var(--sky); outline-offset: 4px; }
 .journey-page .map-world { position: relative; width: 100%; aspect-ratio: 1672 / 941; background: url('/images/Aventuras nas Ilhas do Céu.png') center / 100% 100% no-repeat; }
 /* Preserve the logo above the phase choices and the character at the left. */

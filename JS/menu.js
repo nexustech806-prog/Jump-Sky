@@ -80,6 +80,22 @@ configDialog?.addEventListener('click', (e) => {
   if (e.target === configDialog) configDialog.close();
 });
 
+// Only contain scrolling on axes where the map actually has room to scroll.
+// A map that fits its frame must let the mouse wheel continue down the page.
+const mapaFases = document.getElementById('mapaFases');
+if (mapaFases && typeof ResizeObserver !== 'undefined') {
+  const atualizarRolagemMapa = () => {
+    mapaFases.style.overscrollBehaviorX = mapaFases.scrollWidth > mapaFases.clientWidth + 1 ? 'contain' : 'auto';
+    mapaFases.style.overscrollBehaviorY = mapaFases.scrollHeight > mapaFases.clientHeight + 1 ? 'contain' : 'auto';
+  };
+  const observarRolagemMapa = new ResizeObserver(atualizarRolagemMapa);
+  observarRolagemMapa.observe(mapaFases);
+  const mundo = mapaFases.querySelector('.map-world');
+  if (mundo) observarRolagemMapa.observe(mundo);
+  mapaFases.querySelectorAll('.card-floor').forEach(card => observarRolagemMapa.observe(card));
+  atualizarRolagemMapa();
+}
+
 carregarProgresso();
 // Only leave the menu after the server has cleared the session cookie.
 document.getElementById('sairBtn')?.addEventListener('click', async (event) => {
